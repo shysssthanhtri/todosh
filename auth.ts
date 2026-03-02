@@ -5,6 +5,8 @@ import Credentials from "next-auth/providers/credentials";
 
 import { prisma } from "@/lib/prisma";
 
+import { authRoutes, publicRoutes, ROUTES } from "./constants/routes";
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   session: {
@@ -66,6 +68,31 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.id = token.id as string;
       }
       return session;
+    },
+    authorized({ auth: session, request: { nextUrl } }) {
+      const isLoggedIn = !!session?.user;
+      const pathname = nextUrl.pathname;
+
+      // Skip static assets and API routes
+      if (
+        pathname.startsWith("/api/auth") ||
+        pathname.startsWith("/_next") ||
+        /\.(?:css|js|json|ico|png|jpg|jpeg|gif|svg|webp|woff2?)$/.test(pathname)
+      ) {
+        return true;
+      }
+
+      // Authenticated user visiting auth pages → redirect to home
+      if (isLoggedIn && authRoutes.includes(pathname)) {
+        return Response.redirect(new URL(ROUTES.HOME, nextUrl));
+      }
+
+      // Unauthenticated user visiting protected pages → redirect to login
+      if (!isLoggedIn && !publicRoutes.includes(pathname)) {
+        return Response.redirect(new URL(ROUTES.LOGIN, nextUrl));
+      }
+
+      return true;
     },
   },
 });
