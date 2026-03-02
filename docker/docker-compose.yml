@@ -1,0 +1,26 @@
+services:
+  mongodb:
+    image: mongo:7
+    container_name: todosh-mongodb
+    restart: unless-stopped
+    ports:
+      - "27018:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: todosh
+    volumes:
+      - mongodb_data:/data/db
+      - ./mongo-keyfile:/data/mongo-keyfile
+    command: ["--replSet", "rs0", "--bind_ip_all", "--keyFile", "/data/mongo-keyfile"]
+    healthcheck:
+      test: >
+        mongosh -u admin -p password --authenticationDatabase admin --quiet --eval "
+        try { rs.status().ok } catch(e) { rs.initiate({ _id: 'rs0', members: [{ _id: 0, host: 'localhost:27017' }] }).ok }"
+      interval: 5s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  mongodb_data:
