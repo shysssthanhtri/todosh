@@ -1,10 +1,11 @@
 "use client";
 
+import { Loader2 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useRef, useTransition } from "react";
+import { toast } from "sonner";
 
-import { signIn } from "@/auth";
+import { login } from "@/actions/auth";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -24,18 +25,14 @@ import {
 
 export const LoginCard = () => {
   const ref = useRef<CredentialsFormRef>(null);
-  const router = useRouter();
   const [isPending, start] = useTransition();
 
   const onSubmit = (value: CredentialsForm.FormValue) => {
     start(async () => {
-      const result = await signIn("credentials", {
-        ...value,
-        redirect: false,
-      });
-
-      console.log({ result });
-      router.push(ROUTES.HOME);
+      const result = await login(value.email, value.password);
+      if (!result.success) {
+        toast.error(result.error);
+      }
     });
   };
 
@@ -52,7 +49,14 @@ export const LoginCard = () => {
       </CardContent>
       <CardFooter>
         <Field>
-          <Button className="w-full">Login</Button>
+          <Button
+            className="w-full"
+            onClick={() => ref.current?.submit?.()}
+            disabled={isPending}
+          >
+            {isPending && <Loader2 className="animate-spin" />}
+            Login
+          </Button>
           <FieldDescription className="text-center">
             Don&apos;t have an account?{" "}
             <Link href={ROUTES.SIGNUP} className="underline underline-offset-4">

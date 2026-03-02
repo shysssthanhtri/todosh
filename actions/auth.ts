@@ -8,6 +8,33 @@ import { ROUTES } from "@/constants/routes";
 import { prisma } from "@/lib/prisma";
 import { ActionResult } from "@/types/actions";
 
+export async function login(
+  email: string,
+  password: string,
+): Promise<ActionResult> {
+  try {
+    await signIn("credentials", {
+      email,
+      password,
+      redirectTo: ROUTES.HOME,
+    });
+
+    return { success: true, data: undefined };
+  } catch (error) {
+    if (error instanceof AuthError) {
+      if (error.type === "CredentialsSignin") {
+        return { success: false, error: "Invalid email or password." };
+      }
+      return {
+        success: false,
+        error: "Something went wrong. Please try again.",
+      };
+    }
+    // Next.js redirects throw an error, so we need to re-throw it
+    throw error;
+  }
+}
+
 export async function signup(
   email: string,
   password: string,

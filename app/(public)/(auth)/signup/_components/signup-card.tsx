@@ -1,7 +1,9 @@
 "use client";
 
 import { Loader2 } from "lucide-react";
+import Link from "next/link";
 import { useRef, useTransition } from "react";
+import { toast } from "sonner";
 
 import { signup } from "@/actions/auth";
 import { Button } from "@/components/ui/button";
@@ -13,7 +15,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Field } from "@/components/ui/field";
+import { Field, FieldDescription } from "@/components/ui/field";
+import { ROUTES } from "@/constants/routes";
 
 import {
   CredentialsForm,
@@ -26,7 +29,10 @@ export const SignupCard = () => {
 
   const onSubmit = (value: CredentialsForm.FormValue) => {
     start(async () => {
-      await signup(value.email, value.password);
+      const result = await signup(value.email, value.password);
+      if (!result.success) {
+        toast.error(result.error);
+      }
     });
   };
 
@@ -56,6 +62,12 @@ export const SignupCard = () => {
             {isPending && <Loader2 className="animate-spin" />}
             Create Account
           </Button>
+          <FieldDescription className="text-center">
+            Already have an account?{" "}
+            <Link href={ROUTES.LOGIN} className="underline underline-offset-4">
+              Login
+            </Link>
+          </FieldDescription>
         </Field>
       </CardFooter>
     </Card>
