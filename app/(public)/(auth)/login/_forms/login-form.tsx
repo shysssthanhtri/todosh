@@ -115,3 +115,8 @@ export const LoginForm = forwardRef<Ref, Props>((props, ref) => {
 });
 
 LoginForm.displayName = "LoginForm";
+
+// eslint-disable-next-line @typescript-eslint/no-namespace
+export namespace LoginForm {
+  export type FormValue = FormType;
+}

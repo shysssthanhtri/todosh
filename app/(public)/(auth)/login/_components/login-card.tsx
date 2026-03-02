@@ -1,6 +1,10 @@
-import Link from "next/link";
-import React from "react";
+"use client";
 
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useRef, useTransition } from "react";
+
+import { signIn } from "@/auth";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -13,9 +17,25 @@ import {
 import { Field, FieldDescription } from "@/components/ui/field";
 import { ROUTES } from "@/constants/routes";
 
-import { LoginForm } from "../_forms/login-form";
+import { LoginForm, LoginFormRef } from "../_forms/login-form";
 
 export const LoginCard = () => {
+  const ref = useRef<LoginFormRef>(null);
+  const router = useRouter();
+  const [isPending, start] = useTransition();
+
+  const onSubmit = (value: LoginForm.FormValue) => {
+    start(async () => {
+      const result = await signIn("credentials", {
+        ...value,
+        redirect: false,
+      });
+
+      console.log({ result });
+      router.push(ROUTES.HOME);
+    });
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -25,7 +45,7 @@ export const LoginCard = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <LoginForm />
+        <LoginForm ref={ref} isPending={isPending} onSubmit={onSubmit} />
       </CardContent>
       <CardFooter>
         <Field>
