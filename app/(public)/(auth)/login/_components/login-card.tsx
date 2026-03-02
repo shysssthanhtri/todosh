@@ -17,14 +17,17 @@ import {
 import { Field, FieldDescription } from "@/components/ui/field";
 import { ROUTES } from "@/constants/routes";
 
-import { LoginForm, LoginFormRef } from "../_forms/login-form";
+import {
+  CredentialsForm,
+  CredentialsFormRef,
+} from "../../_forms/credentials-form";
 
 export const LoginCard = () => {
-  const ref = useRef<LoginFormRef>(null);
+  const ref = useRef<CredentialsFormRef>(null);
   const router = useRouter();
   const [isPending, start] = useTransition();
 
-  const onSubmit = (value: LoginForm.FormValue) => {
+  const onSubmit = (value: CredentialsForm.FormValue) => {
     start(async () => {
       const result = await signIn("credentials", {
         ...value,
@@ -45,7 +48,7 @@ export const LoginCard = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <LoginForm ref={ref} isPending={isPending} onSubmit={onSubmit} />
+        <CredentialsForm ref={ref} isPending={isPending} onSubmit={onSubmit} />
       </CardContent>
       <CardFooter>
         <Field>

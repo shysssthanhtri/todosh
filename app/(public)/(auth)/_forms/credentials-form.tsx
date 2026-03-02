@@ -14,23 +14,24 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { ROUTES } from "@/constants/routes";
-import { loginCredentialSchema } from "@/schemas/auth";
+import { credentialSchema } from "@/schemas/auth";
 
-const FormSchema = loginCredentialSchema;
+const FormSchema = credentialSchema;
 type FormType = z.infer<typeof FormSchema>;
 
 interface Props {
   onSubmit?: (value: FormType) => void;
   isPending?: boolean;
+  isSignup?: boolean;
 }
 interface Ref {
   submit?: () => void;
   reset?: (value?: Partial<FormType>) => void;
 }
-export type LoginFormRef = Ref;
+export type CredentialsFormRef = Ref;
 
-export const LoginForm = forwardRef<Ref, Props>((props, ref) => {
-  const { onSubmit, isPending } = props;
+export const CredentialsForm = forwardRef<Ref, Props>((props, ref) => {
+  const { onSubmit, isPending, isSignup } = props;
 
   const form = useForm<FormType>({
     resolver: zodResolver(FormSchema),
@@ -90,12 +91,14 @@ export const LoginForm = forwardRef<Ref, Props>((props, ref) => {
             <Field data-invalid={fieldState.invalid}>
               <div className="flex items-center">
                 <FieldLabel htmlFor="password">Password</FieldLabel>
-                <Link
-                  href={ROUTES.FORGET_PASSWORD}
-                  className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                >
-                  Forgot your password?
-                </Link>
+                {!isSignup && (
+                  <Link
+                    href={ROUTES.FORGET_PASSWORD}
+                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
+                  >
+                    Forgot your password?
+                  </Link>
+                )}
               </div>
               <Input
                 {...field}
@@ -114,9 +117,9 @@ export const LoginForm = forwardRef<Ref, Props>((props, ref) => {
   );
 });
 
-LoginForm.displayName = "LoginForm";
+CredentialsForm.displayName = "CredentialsForm";
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
-export namespace LoginForm {
+export namespace CredentialsForm {
   export type FormValue = FormType;
 }
