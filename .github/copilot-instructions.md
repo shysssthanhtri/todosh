@@ -1,0 +1,238 @@
+# Todosh — AI Agent Instructions
+
+## 1. Project Overview
+
+**Todosh** is a Todo application built with Next.js (App Router) and React. It uses shadcn/ui components (Radix Nova style), Tailwind CSS v4, and MongoDB as the database.
+
+---
+
+## 2. Tech Stack
+
+| Layer         | Technology                                              |
+| ------------- | ------------------------------------------------------- |
+| Framework     | Next.js 16 (App Router, RSC enabled)                    |
+| Language      | TypeScript 5 (strict mode)                              |
+| UI Library    | React 19, shadcn/ui (Radix Nova style), Base UI, Radix  |
+| Styling       | Tailwind CSS v4, tw-animate-css, class-variance-authority|
+| Icons         | lucide-react                                            |
+| Database      | MongoDB 7 (replica set via Docker Compose)              |
+| Package Mgr   | pnpm (workspace enabled)                                |
+| Linting       | ESLint 9 (flat config)                                  |
+| Formatting    | Prettier                                                |
+| Git Hooks     | Husky + lint-staged + commitlint                        |
+
+---
+
+## 3. Project Structure
+
+```
+todosh/
+├── app/                    # Next.js App Router (pages, layouts, global styles)
+│   ├── globals.css         # Tailwind imports & CSS variables (theme)
+│   ├── layout.tsx          # Root layout (fonts, metadata)
+│   └── page.tsx            # Home page
+├── components/             # Application components
+│   ├── ui/                 # shadcn/ui primitives (DO NOT edit manually)
+│   │   ├── alert-dialog.tsx
+│   │   ├── badge.tsx
+│   │   ├── button.tsx
+│   │   ├── card.tsx
+│   │   ├── combobox.tsx
+│   │   ├── dropdown-menu.tsx
+│   │   ├── field.tsx
+│   │   ├── input-group.tsx
+│   │   ├── input.tsx
+│   │   ├── label.tsx
+│   │   ├── select.tsx
+│   │   ├── separator.tsx
+│   │   └── textarea.tsx
+│   └── *.tsx               # Feature / composite components
+├── lib/                    # Shared utilities
+│   └── utils.ts            # `cn()` helper (clsx + tailwind-merge)
+├── docker/                 # Docker Compose for MongoDB replica set
+│   └── docker-compose.yml
+├── public/                 # Static assets
+├── .husky/                 # Git hooks (pre-commit, commit-msg)
+├── eslint.config.mjs       # ESLint flat config
+├── commitlint.config.ts    # Conventional Commits config
+├── lint-staged.config.js   # lint-staged config
+├── components.json         # shadcn/ui config
+├── tsconfig.json           # TypeScript config
+├── next.config.ts          # Next.js config
+├── postcss.config.mjs      # PostCSS config (Tailwind)
+└── package.json
+```
+
+---
+
+## 4. Path Aliases
+
+Defined in `tsconfig.json`:
+
+```
+@/* → ./*
+```
+
+Always use `@/` aliases for imports (e.g., `@/components/ui/button`, `@/lib/utils`).
+
+---
+
+## 5. Coding Conventions
+
+### 5.1 General
+
+- Use **TypeScript** for all files (`.ts` / `.tsx`). Never use `.js` / `.jsx`.
+- Enable `"use client"` directive only when the component needs client-side interactivity (hooks, event handlers, browser APIs). Default to **Server Components**.
+- Use **named exports** for components. Only use default exports for Next.js pages/layouts (`export default function Page()`).
+- Prefer **function declarations** (`function MyComponent()`) over arrow functions for component definitions.
+- Prefix unused variables/parameters with `_` (e.g., `_unused`).
+
+### 5.2 Component Patterns
+
+- Use `React.ComponentProps<"element">` for extending native HTML element props.
+- Use `data-slot="component-name"` attribute on root elements of components for debugging/styling hooks.
+- Use `cn()` from `@/lib/utils` to merge class names. Never concatenate Tailwind classes with template literals.
+- Use `cva` (class-variance-authority) for component variants (see `button.tsx` for reference).
+- Compose props with intersection types:
+  ```tsx
+  function MyComponent({
+    className,
+    variant,
+    ...props
+  }: React.ComponentProps<"div"> & VariantProps<typeof myVariants>) {
+  ```
+
+### 5.3 Imports
+
+Imports are **auto-sorted** by `eslint-plugin-simple-import-sort`. Follow this order:
+1. Side-effect imports (e.g., `import "./globals.css"`)
+2. External packages (e.g., `next`, `react`, `lucide-react`)
+3. Internal aliases (`@/components/*`, `@/lib/*`)
+
+Unused imports are **auto-removed** by `eslint-plugin-unused-imports`.
+
+### 5.4 Styling
+
+- Use **Tailwind CSS utility classes** exclusively. No CSS modules or inline styles.
+- Theme colors are defined as CSS variables in `app/globals.css` using oklch color space.
+- Reference theme tokens via Tailwind classes: `bg-primary`, `text-muted-foreground`, `border-border`, etc.
+- Use `tailwind-merge` (via `cn()`) to handle class conflicts when merging user-provided classNames.
+
+### 5.5 shadcn/ui Components
+
+- Located in `components/ui/`. These are **generated by shadcn CLI** — do not edit manually.
+- To add a new shadcn component: `pnpm dlx shadcn@latest add <component-name>`
+- Style: **radix-nova** | Base color: **neutral** | CSS variables: enabled
+- Icon library: **lucide**
+
+---
+
+## 6. Git & Commit Conventions
+
+### 6.1 Commit Messages
+
+Commit messages must follow [Conventional Commits](https://www.conventionalcommits.org/) format, enforced by **commitlint**:
+
+```
+<type>(<optional scope>): <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+**Allowed types:** `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`
+
+**Examples:**
+```
+feat(todo): add create todo form
+fix(ui): resolve button alignment on mobile
+chore: update dependencies
+refactor(api): extract validation logic
+```
+
+### 6.2 Pre-commit Hooks
+
+On every commit, Husky runs:
+1. **pre-commit**: `pnpm lint-staged` → runs `pnpm lint:fix` on staged `{app,lib,components,constants,hooks}/**/*.{js,jsx,ts,tsx}` and `*.ts` files.
+2. **commit-msg**: `pnpm commitlint` → validates the commit message.
+
+---
+
+## 7. Available Scripts
+
+| Script       | Command             | Purpose                        |
+| ------------ | ------------------- | ------------------------------ |
+| `dev`        | `pnpm dev`          | Start development server       |
+| `build`      | `pnpm build`        | Production build               |
+| `start`      | `pnpm start`        | Start production server        |
+| `lint`       | `pnpm lint`         | Run ESLint                     |
+| `lint:fix`   | `pnpm lint:fix`     | Run ESLint with auto-fix       |
+| `prepare`    | `pnpm prepare`      | Install Husky hooks            |
+
+---
+
+## 8. Infrastructure
+
+### MongoDB
+
+The project uses MongoDB 7 as a replica set, configured via Docker Compose:
+
+```bash
+cd docker && docker compose up -d
+```
+
+Connection: `mongodb://admin:password@localhost:27018/todosh?authSource=admin&replicaSet=rs0`
+
+---
+
+## 9. Steps to Implement a New Requirement
+
+Follow these steps when implementing any new feature or change:
+
+### Step 1: Understand the Requirement
+- Clarify the scope: is it a new page, a new component, an API endpoint, or a modification?
+- Identify which existing components/utilities can be reused.
+
+### Step 2: Plan the File Structure
+- **New page** → Create route in `app/<route>/page.tsx`
+- **New layout** → Create `app/<route>/layout.tsx`
+- **New API route** → Create `app/api/<route>/route.ts`
+- **New feature component** → Create in `components/<feature-name>.tsx`
+- **New UI primitive** → Add via shadcn CLI: `pnpm dlx shadcn@latest add <name>`
+- **New utility** → Add to `lib/` directory
+- **New hook** → Add to `hooks/` directory
+- **New constant/type** → Add to `constants/` or `types/` directory
+
+### Step 3: Implement
+1. Start with the **data layer** (types, API routes, database queries) if applicable.
+2. Build **UI components** using existing shadcn/ui primitives from `components/ui/`.
+3. Use `cn()` for all className merging.
+4. Use `@/` path aliases for all imports.
+5. Add `"use client"` only if the component requires client-side features.
+6. Follow the component pattern: `React.ComponentProps` + `data-slot` + named exports.
+
+### Step 4: Verify
+1. Run `pnpm lint` to check for lint errors.
+2. Run `pnpm build` to ensure no type errors or build failures.
+3. Test the feature manually in the browser with `pnpm dev`.
+
+### Step 5: Commit
+1. Stage changes: `git add .`
+2. Commit with a conventional message: `git commit -m "feat(scope): description"`
+3. Pre-commit hooks will auto-fix lint issues and validate the commit message.
+
+---
+
+## 10. ESLint Rules Summary
+
+The project enforces these key rules (see `eslint.config.mjs`):
+
+- **next/core-web-vitals** — Next.js best practices
+- **next/typescript** — TypeScript-specific Next.js rules
+- **react-hooks** — Rules of hooks enforcement
+- **prettier** — Code formatting as ESLint rule
+- **simple-import-sort/imports** — Auto-sort imports (error)
+- **simple-import-sort/exports** — Auto-sort exports (error)
+- **unused-imports/no-unused-imports** — Remove unused imports (error)
+- **unused-imports/no-unused-vars** — Warn on unused variables (ignores `_` prefix)
