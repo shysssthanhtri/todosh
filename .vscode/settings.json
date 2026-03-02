@@ -1,0 +1,6 @@
+{
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "always",
+        "source.sort.json": "always"
+    }
+}
