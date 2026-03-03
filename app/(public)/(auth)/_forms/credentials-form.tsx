@@ -113,6 +113,7 @@ export const CredentialsForm = forwardRef<Ref, Props>((props, ref) => {
           )}
         />
       </FieldGroup>
+      <button type="submit" hidden />
     </form>
   );
 });
