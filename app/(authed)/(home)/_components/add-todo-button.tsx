@@ -28,6 +28,7 @@ export const AddTodoButton = () => {
           completed: false,
         });
         formRef.current?.reset?.();
+        window.dispatchEvent(new CustomEvent("todo-added"));
         toast.success("Todo added", { position: "top-center" });
       } catch {
         toast.error("Failed to add todo", { position: "top-center" });
