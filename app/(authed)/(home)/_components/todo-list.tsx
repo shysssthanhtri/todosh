@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { Separator } from "@/components/ui/separator";
@@ -14,26 +14,26 @@ import { TodoItem } from "./todo-item";
 
 export const TodoList = () => {
   const [todos, setTodos] = useState<TodoItemType[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, startTransition] = useTransition();
 
-  const loadTodos = useCallback(async () => {
-    try {
-      const items = await getAllTodos();
-      setTodos(items);
-    } catch {
-      toast.error("Failed to load todos", { position: "top-center" });
-    } finally {
-      setIsLoading(false);
-    }
+  const loadTodos = useCallback(() => {
+    startTransition(async () => {
+      try {
+        const items = await getAllTodos();
+        setTodos(items);
+      } catch {
+        toast.error("Failed to load todos", { position: "top-center" });
+      }
+    });
   }, []);
 
   useEffect(() => {
-    void loadTodos();
+    loadTodos();
   }, [loadTodos]);
 
   useEffect(() => {
     const handleTodoAdded = () => {
-      void loadTodos();
+      loadTodos();
     };
 
     window.addEventListener("todo-added", handleTodoAdded);
