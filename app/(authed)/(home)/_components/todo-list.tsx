@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 import { Separator } from "@/components/ui/separator";
 import {
+  deleteTodo,
   getAllTodos,
   TodoItem as TodoItemType,
   updateTodo,
@@ -51,6 +52,15 @@ export const TodoList = () => {
     }
   };
 
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteTodo(id);
+      setTodos((prev) => prev.filter((todo) => todo.id !== id));
+    } catch {
+      toast.error("Failed to delete todo", { position: "top-center" });
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center py-8">
@@ -71,7 +81,11 @@ export const TodoList = () => {
     <div className="flex flex-col">
       {todos.map((todo, index) => (
         <div key={todo.id}>
-          <TodoItem todo={todo} onToggle={handleToggle} />
+          <TodoItem
+            todo={todo}
+            onToggle={handleToggle}
+            onDelete={handleDelete}
+          />
           {index < todos.length - 1 && <Separator />}
         </div>
       ))}
