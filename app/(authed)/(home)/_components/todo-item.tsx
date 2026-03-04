@@ -19,6 +19,7 @@ export const TodoItem = ({ todo, onToggle, onDelete }: Props) => {
         {
           icon: <Trash2 className="size-4" />,
           onClick: () => onDelete(todo.id),
+          ariaLabel: "Delete todo item",
         },
       ]}
     >

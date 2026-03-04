@@ -2,62 +2,108 @@
 
 import { useGesture } from "@use-gesture/react";
 import { animate, motion, useMotionValue } from "framer-motion";
-import { ReactNode, useEffect, useRef, useState } from "react";
+import {
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import { Button } from "@/components/ui/button";
 
 interface SwipeButton {
   icon: ReactNode;
   onClick: () => void;
+  variant?:
+    | "default"
+    | "destructive"
+    | "outline"
+    | "secondary"
+    | "ghost"
+    | "link";
+  className?: string;
+  ariaLabel?: string;
 }
 
 interface SwipeableItemProps {
   children: ReactNode;
   leftButtons?: SwipeButton[];
   rightButtons?: SwipeButton[];
+  snapThreshold?: number;
+  triggerThreshold?: number;
+  baseButtonSize?: number;
+  disabled?: boolean;
+  onSwipeStart?: () => void;
+  onSwipeEnd?: () => void;
+  springConfig?: {
+    stiffness?: number;
+    damping?: number;
+  };
 }
+
+const DEFAULT_SPRING_CONFIG = {
+  type: "spring" as const,
+  stiffness: 400,
+  damping: 40,
+};
+
+const OPACITY_TRANSITION = {
+  opacity: {
+    duration: 0.2,
+    ease: "easeOut" as const,
+  },
+};
 
 export const SwipeableItem = ({
   children,
   leftButtons,
   rightButtons,
+  snapThreshold = 0.4,
+  triggerThreshold = 1.5,
+  baseButtonSize = 32,
+  disabled = false,
+  onSwipeStart,
+  onSwipeEnd,
+  springConfig,
 }: SwipeableItemProps) => {
   const x = useMotionValue(0);
-  const leftButtonWidth = useMotionValue(32);
-  const rightButtonWidth = useMotionValue(32);
+  const leftButtonWidth = useMotionValue(baseButtonSize);
+  const rightButtonWidth = useMotionValue(baseButtonSize);
+
   const leftRef = useRef<HTMLDivElement>(null);
   const rightRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const widthCache = useRef({ left: 0, right: 0 });
+
   const [isOpen, setIsOpen] = useState(false);
-  const [isLeftExpanding, setIsLeftExpanding] = useState(false);
-  const [isRightExpanding, setIsRightExpanding] = useState(false);
-  const originalLeftWidth = useRef<number>(0);
-  const originalRightWidth = useRef<number>(0);
+  const [expandState, setExpandState] = useState<{
+    left: boolean;
+    right: boolean;
+  }>({ left: false, right: false });
 
-  const SNAP_THRESHOLD = 0.4;
-  const TRIGGER_THRESHOLD = 1.5;
-  const BASE_BUTTON_SIZE = 32;
+  const animationConfig = useMemo(
+    () => ({
+      ...DEFAULT_SPRING_CONFIG,
+      ...springConfig,
+    }),
+    [springConfig],
+  );
 
-  const resetPosition = () => {
-    animate(x, 0, {
-      type: "spring",
-      stiffness: 400,
-      damping: 40,
-    });
-    animate(leftButtonWidth, BASE_BUTTON_SIZE, {
-      type: "spring",
-      stiffness: 400,
-      damping: 40,
-    });
-    animate(rightButtonWidth, BASE_BUTTON_SIZE, {
-      type: "spring",
-      stiffness: 400,
-      damping: 40,
-    });
+  const triggerHapticFeedback = useCallback(() => {
+    if (typeof window !== "undefined" && "vibrate" in navigator) {
+      navigator.vibrate(10);
+    }
+  }, []);
+
+  const resetPosition = useCallback(() => {
+    animate(x, 0, animationConfig);
+    animate(leftButtonWidth, baseButtonSize, animationConfig);
+    animate(rightButtonWidth, baseButtonSize, animationConfig);
     setIsOpen(false);
-    setIsLeftExpanding(false);
-    setIsRightExpanding(false);
-  };
+    setExpandState({ left: false, right: false });
+  }, [x, leftButtonWidth, rightButtonWidth, baseButtonSize, animationConfig]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent | TouchEvent) => {
@@ -90,24 +136,35 @@ export const SwipeableItem = ({
         handleClickOutside as EventListener,
       );
     };
-  }, [x]);
+  }, [x, resetPosition]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && x.get() !== 0) {
+        resetPosition();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [x, resetPosition]);
 
   const bind = useGesture(
     {
       onDrag: ({ movement: [mx], memo = x.get(), first }) => {
+        if (disabled) return memo;
+
         if (first) {
-          if (!originalLeftWidth.current && leftRef.current) {
-            originalLeftWidth.current = leftRef.current.offsetWidth;
-          }
-          if (!originalRightWidth.current && rightRef.current) {
-            originalRightWidth.current = rightRef.current.offsetWidth;
-          }
+          widthCache.current = {
+            left: leftRef.current?.offsetWidth ?? 0,
+            right: rightRef.current?.offsetWidth ?? 0,
+          };
+          onSwipeStart?.();
         }
 
-        const maxLeft =
-          originalLeftWidth.current || (leftRef.current?.offsetWidth ?? 0);
-        const maxRight =
-          originalRightWidth.current || (rightRef.current?.offsetWidth ?? 0);
+        const { left: maxLeft, right: maxRight } = widthCache.current;
         const origin = first ? x.get() : memo;
         const target = origin + mx;
 
@@ -115,34 +172,41 @@ export const SwipeableItem = ({
         let clampedMin = -maxRight;
 
         if (isOpen && leftButtons?.length === 1 && target > maxLeft) {
-          clampedMax = maxLeft * TRIGGER_THRESHOLD;
+          clampedMax = maxLeft * triggerThreshold;
           const progress = Math.min(
-            (target - maxLeft) / (maxLeft * (TRIGGER_THRESHOLD - 1)),
+            (target - maxLeft) / (maxLeft * (triggerThreshold - 1)),
             1,
           );
           const expandedWidth =
-            BASE_BUTTON_SIZE + progress * (maxLeft - BASE_BUTTON_SIZE);
+            baseButtonSize + progress * (maxLeft - baseButtonSize);
           leftButtonWidth.set(expandedWidth);
-          setIsLeftExpanding(true);
+
+          if (!expandState.left && progress > 0.9) {
+            triggerHapticFeedback();
+          }
+          setExpandState((prev) => ({ ...prev, left: true }));
         } else {
-          leftButtonWidth.set(BASE_BUTTON_SIZE);
-          setIsLeftExpanding(false);
+          leftButtonWidth.set(baseButtonSize);
+          setExpandState((prev) => ({ ...prev, left: false }));
         }
 
         if (isOpen && rightButtons?.length === 1 && target < -maxRight) {
-          clampedMin = -maxRight * TRIGGER_THRESHOLD;
+          clampedMin = -maxRight * triggerThreshold;
           const progress = Math.min(
-            (Math.abs(target) - maxRight) /
-              (maxRight * (TRIGGER_THRESHOLD - 1)),
+            (Math.abs(target) - maxRight) / (maxRight * (triggerThreshold - 1)),
             1,
           );
           const expandedWidth =
-            BASE_BUTTON_SIZE + progress * (maxRight - BASE_BUTTON_SIZE);
+            baseButtonSize + progress * (maxRight - baseButtonSize);
           rightButtonWidth.set(expandedWidth);
-          setIsRightExpanding(true);
+
+          if (!expandState.right && progress > 0.9) {
+            triggerHapticFeedback();
+          }
+          setExpandState((prev) => ({ ...prev, right: true }));
         } else {
-          rightButtonWidth.set(BASE_BUTTON_SIZE);
-          setIsRightExpanding(false);
+          rightButtonWidth.set(baseButtonSize);
+          setExpandState((prev) => ({ ...prev, right: false }));
         }
 
         const clamped = Math.max(clampedMin, Math.min(clampedMax, target));
@@ -150,52 +214,51 @@ export const SwipeableItem = ({
         return origin;
       },
       onDragEnd: () => {
-        const maxLeft =
-          originalLeftWidth.current || (leftRef.current?.offsetWidth ?? 0);
-        const maxRight =
-          originalRightWidth.current || (rightRef.current?.offsetWidth ?? 0);
+        if (disabled) return;
+
+        const { left: maxLeft, right: maxRight } = widthCache.current;
         const current = x.get();
 
         if (current > 0) {
-          const snapOpen = current >= maxLeft * SNAP_THRESHOLD;
+          const snapOpen = current >= maxLeft * snapThreshold;
 
           if (
             isOpen &&
             leftButtons?.length === 1 &&
-            current >= maxLeft * TRIGGER_THRESHOLD
+            current >= maxLeft * triggerThreshold
           ) {
+            triggerHapticFeedback();
             leftButtons[0].onClick();
             resetPosition();
+            onSwipeEnd?.();
             return;
           }
 
-          animate(x, snapOpen ? maxLeft : 0, {
-            type: "spring",
-            stiffness: 400,
-            damping: 40,
-          });
+          animate(x, snapOpen ? maxLeft : 0, animationConfig);
           setIsOpen(snapOpen);
-          setIsLeftExpanding(false);
+          setExpandState((prev) => ({ ...prev, left: false }));
+          onSwipeEnd?.();
         } else if (current < 0) {
-          const snapOpen = Math.abs(current) >= maxRight * SNAP_THRESHOLD;
+          const snapOpen = Math.abs(current) >= maxRight * snapThreshold;
 
           if (
             isOpen &&
             rightButtons?.length === 1 &&
-            Math.abs(current) >= maxRight * TRIGGER_THRESHOLD
+            Math.abs(current) >= maxRight * triggerThreshold
           ) {
+            triggerHapticFeedback();
             rightButtons[0].onClick();
             resetPosition();
+            onSwipeEnd?.();
             return;
           }
 
-          animate(x, snapOpen ? -maxRight : 0, {
-            type: "spring",
-            stiffness: 400,
-            damping: 40,
-          });
+          animate(x, snapOpen ? -maxRight : 0, animationConfig);
           setIsOpen(snapOpen);
-          setIsRightExpanding(false);
+          setExpandState((prev) => ({ ...prev, right: false }));
+          onSwipeEnd?.();
+        } else {
+          onSwipeEnd?.();
         }
       },
     },
@@ -208,88 +271,72 @@ export const SwipeableItem = ({
     },
   );
 
+  const renderButtons = (
+    buttons: SwipeButton[],
+    side: "left" | "right",
+    ref: React.RefObject<HTMLDivElement | null>,
+    buttonWidth: typeof leftButtonWidth,
+    isExpanding: boolean,
+  ) => (
+    <div
+      ref={ref}
+      className={`absolute inset-y-0 ${side === "left" ? "left-0" : "right-0"} flex items-center gap-2 px-2`}
+      role="group"
+      aria-label={`${side} swipe actions`}
+    >
+      {buttons.map((button, index) => (
+        <motion.div
+          key={index}
+          style={buttons.length === 1 ? { width: buttonWidth } : undefined}
+          className="flex items-center justify-center"
+          animate={
+            buttons.length === 1 && isExpanding
+              ? { opacity: 0.7 }
+              : { opacity: 1 }
+          }
+          transition={OPACITY_TRANSITION}
+        >
+          <Button
+            onClick={button.onClick}
+            variant={button.variant ?? "destructive"}
+            className={button.className ?? "rounded-full size-8 w-full"}
+            aria-label={button.ariaLabel}
+          >
+            {button.icon}
+          </Button>
+        </motion.div>
+      ))}
+    </div>
+  );
+
   return (
-    <div ref={containerRef} className="relative overflow-hidden">
-      {/* Left action panel (revealed on swipe-right) */}
-      {leftButtons && leftButtons.length > 0 && (
-        <div
-          ref={leftRef}
-          className="absolute inset-y-0 left-0 flex items-center gap-2 px-2"
-        >
-          {leftButtons.map((button, index) => (
-            <motion.div
-              key={index}
-              style={
-                leftButtons.length === 1
-                  ? { width: leftButtonWidth }
-                  : undefined
-              }
-              className="flex items-center justify-center"
-              animate={
-                leftButtons.length === 1 && isLeftExpanding
-                  ? { opacity: 0.7 }
-                  : { opacity: 1 }
-              }
-              transition={{
-                opacity: {
-                  duration: 0.2,
-                  ease: "easeOut",
-                },
-              }}
-            >
-              <Button
-                onClick={button.onClick}
-                variant="destructive"
-                className="rounded-full size-8 w-full"
-              >
-                {button.icon}
-              </Button>
-            </motion.div>
-          ))}
-        </div>
-      )}
+    <div
+      ref={containerRef}
+      className="relative overflow-hidden"
+      role="region"
+      aria-label="Swipeable item"
+    >
+      {leftButtons &&
+        leftButtons.length > 0 &&
+        renderButtons(
+          leftButtons,
+          "left",
+          leftRef,
+          leftButtonWidth,
+          expandState.left,
+        )}
 
-      {/* Right action panel (revealed on swipe-left) */}
-      {rightButtons && rightButtons.length > 0 && (
-        <div
-          ref={rightRef}
-          className="absolute inset-y-0 right-0 flex items-center gap-2 px-2"
-        >
-          {rightButtons.map((button, index) => (
-            <motion.div
-              key={index}
-              style={
-                rightButtons.length === 1
-                  ? { width: rightButtonWidth }
-                  : undefined
-              }
-              className="flex items-center justify-center"
-              animate={
-                rightButtons.length === 1 && isRightExpanding
-                  ? { opacity: 0.7 }
-                  : { opacity: 1 }
-              }
-              transition={{
-                opacity: {
-                  duration: 0.2,
-                  ease: "easeOut",
-                },
-              }}
-            >
-              <Button
-                onClick={button.onClick}
-                variant="destructive"
-                className="rounded-full size-8 w-full"
-              >
-                {button.icon}
-              </Button>
-            </motion.div>
-          ))}
-        </div>
-      )}
+      {rightButtons &&
+        rightButtons.length > 0 &&
+        renderButtons(
+          rightButtons,
+          "right",
+          rightRef,
+          rightButtonWidth,
+          expandState.right,
+        )}
 
-      {/* Main content — slides over the action panels */}
-      <div {...bind()} style={{ touchAction: "pan-y" }}>
+      <div {...bind()} style={{ touchAction: disabled ? "auto" : "pan-y" }}>
         <motion.div style={{ x }} className="relative bg-background">
           {children}
         </motion.div>
