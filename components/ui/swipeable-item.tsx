@@ -4,16 +4,23 @@ import { useGesture } from "@use-gesture/react";
 import { animate, motion, useMotionValue } from "framer-motion";
 import { ReactNode, useEffect, useRef } from "react";
 
+import { Button } from "@/components/ui/button";
+
+interface SwipeButton {
+  icon: ReactNode;
+  onClick: () => void;
+}
+
 interface SwipeableItemProps {
   children: ReactNode;
-  leftContent?: ReactNode;
-  rightContent?: ReactNode;
+  leftButtons?: SwipeButton[];
+  rightButtons?: SwipeButton[];
 }
 
 export const SwipeableItem = ({
   children,
-  leftContent,
-  rightContent,
+  leftButtons,
+  rightButtons,
 }: SwipeableItemProps) => {
   const x = useMotionValue(0);
   const leftRef = useRef<HTMLDivElement>(null);
@@ -108,22 +115,40 @@ export const SwipeableItem = ({
   return (
     <div ref={containerRef} className="relative overflow-hidden">
       {/* Left action panel (revealed on swipe-right) */}
-      {leftContent && (
+      {leftButtons && leftButtons.length > 0 && (
         <div
           ref={leftRef}
-          className="absolute inset-y-0 left-0 flex items-center justify-center"
+          className="absolute inset-y-0 left-0 flex items-center gap-2 px-2"
         >
-          {leftContent}
+          {leftButtons.map((button, index) => (
+            <Button
+              key={index}
+              onClick={button.onClick}
+              variant="destructive"
+              className="rounded-full size-8"
+            >
+              {button.icon}
+            </Button>
+          ))}
         </div>
       )}
 
       {/* Right action panel (revealed on swipe-left) */}
-      {rightContent && (
+      {rightButtons && rightButtons.length > 0 && (
         <div
           ref={rightRef}
-          className="absolute inset-y-0 right-0 flex items-center justify-center"
+          className="absolute inset-y-0 right-0 flex items-center gap-2 px-2"
         >
-          {rightContent}
+          {rightButtons.map((button, index) => (
+            <Button
+              key={index}
+              onClick={button.onClick}
+              variant="destructive"
+              className="rounded-full size-8"
+            >
+              {button.icon}
+            </Button>
+          ))}
         </div>
       )}
 

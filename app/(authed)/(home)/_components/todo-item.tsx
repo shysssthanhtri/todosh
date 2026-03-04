@@ -2,7 +2,6 @@
 
 import { Trash2 } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { SwipeableItem } from "@/components/ui/swipeable-item";
 import { TodoItem as TodoItemType } from "@/lib/indexeddb";
@@ -16,17 +15,12 @@ interface Props {
 export const TodoItem = ({ todo, onToggle, onDelete }: Props) => {
   return (
     <SwipeableItem
-      leftContent={
-        <div className="px-2">
-          <Button
-            onClick={() => onDelete(todo.id)}
-            variant="destructive"
-            className="rounded-full size-8"
-          >
-            <Trash2 className="size-4" />
-          </Button>
-        </div>
-      }
+      leftButtons={[
+        {
+          icon: <Trash2 className="size-4" />,
+          onClick: () => onDelete(todo.id),
+        },
+      ]}
     >
       <div className="flex items-start gap-3 py-3">
         <Checkbox
