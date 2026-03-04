@@ -2,7 +2,7 @@
 
 import { useGesture } from "@use-gesture/react";
 import { animate, motion, useMotionValue } from "framer-motion";
-import { ReactNode, useRef } from "react";
+import { ReactNode, useEffect, useRef } from "react";
 
 interface SwipeableItemProps {
   children: ReactNode;
@@ -18,8 +18,50 @@ export const SwipeableItem = ({
   const x = useMotionValue(0);
   const leftRef = useRef<HTMLDivElement>(null);
   const rightRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const SNAP_THRESHOLD = 0.4;
+
+  const resetPosition = () => {
+    animate(x, 0, {
+      type: "spring",
+      stiffness: 400,
+      damping: 40,
+    });
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      const target =
+        event instanceof MouseEvent ? event.target : event.touches[0]?.target;
+
+      if (
+        containerRef.current &&
+        target &&
+        !containerRef.current.contains(target as Node) &&
+        x.get() !== 0
+      ) {
+        resetPosition();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside as EventListener);
+    document.addEventListener(
+      "touchstart",
+      handleClickOutside as EventListener,
+    );
+
+    return () => {
+      document.removeEventListener(
+        "mousedown",
+        handleClickOutside as EventListener,
+      );
+      document.removeEventListener(
+        "touchstart",
+        handleClickOutside as EventListener,
+      );
+    };
+  }, [x]);
 
   const bind = useGesture(
     {
@@ -64,7 +106,7 @@ export const SwipeableItem = ({
   );
 
   return (
-    <div className="relative overflow-hidden">
+    <div ref={containerRef} className="relative overflow-hidden">
       {/* Left action panel (revealed on swipe-right) */}
       {leftContent && (
         <div
