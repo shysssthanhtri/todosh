@@ -303,7 +303,7 @@ function SwipeableItem({
         ref={contentRef}
         className={cn(
           "relative bg-background",
-          !isSwiping && "transition-transform duration-200 ease-out",
+          !isSwiping && "transition-transform duration-600 ease-out",
         )}
         style={{ transform: `translateX(${offset}px)`, touchAction: "pan-y" }}
         onPointerDown={handlePointerDown}
