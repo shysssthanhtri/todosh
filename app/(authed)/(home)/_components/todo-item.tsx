@@ -24,11 +24,6 @@ export const TodoItem = ({ todo, onToggle, onDelete }: Props) => {
           ariaLabel: "Delete todo item",
           variant: "destructive",
         },
-        {
-          icon: <Trash2 className="size-4" />,
-          onClick: () => onDelete(todo.id),
-          ariaLabel: "Delete todo item",
-        },
       ]}
     >
       <div className="flex items-start gap-3 py-3">
