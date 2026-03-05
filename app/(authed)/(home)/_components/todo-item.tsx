@@ -16,7 +16,7 @@ export const TodoItem = ({ todo, onToggle, onDelete }: Props) => {
   return (
     <SwipeableItem
       fullSwipe
-      fullSwipeThreshold={0.4}
+      fullSwipeThreshold={0.2}
       leftButtons={[
         {
           icon: <Trash2 className="size-4" />,
