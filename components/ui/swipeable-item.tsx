@@ -106,18 +106,24 @@ function SwipeableItem({
     [setTransform],
   );
 
-  /** Update the opacity of the first button based on swipe progress */
-  const updateButtonOpacity = React.useCallback(
-    (side: "left" | "right" | null, progress: number) => {
+  /** Update the visual state of the trigger button based on swipe progress */
+  const updateFullSwipeVisual = React.useCallback(
+    (side: "left" | "right" | null, progress: number, absOffset: number) => {
       // Reset previous side if switching
       if (fullSwipeActiveRef.current && fullSwipeActiveRef.current !== side) {
+        const prevSide = fullSwipeActiveRef.current;
         const prevContainer =
-          fullSwipeActiveRef.current === "left"
+          prevSide === "left"
             ? leftActionsRef.current
             : rightActionsRef.current;
-        const prevBtn = prevContainer?.querySelector("button");
-        if (prevBtn) {
-          (prevBtn as HTMLElement).style.transform = "";
+        const prevMaxOffset =
+          prevSide === "left" ? leftMaxOffset : rightMaxOffset;
+        if (prevContainer) {
+          prevContainer.style.width = `${prevMaxOffset}px`;
+          const allBtns = prevContainer.querySelectorAll("button");
+          allBtns.forEach((btn) => {
+            (btn as HTMLElement).style.cssText = "";
+          });
         }
       }
 
@@ -126,31 +132,79 @@ function SwipeableItem({
 
       const actionsContainer =
         side === "left" ? leftActionsRef.current : rightActionsRef.current;
-      const firstButtonEl = actionsContainer?.querySelector(
+      const maxOffset = side === "left" ? leftMaxOffset : rightMaxOffset;
+      if (!actionsContainer) return;
+
+      const firstButtonEl = actionsContainer.querySelector(
         "button",
       ) as HTMLElement | null;
       if (!firstButtonEl) return;
 
-      const t = Math.min(progress / fullSwipeThreshold, 1);
-      const scale = 1 + t * 0.2;
-      firstButtonEl.style.transform = `scale(${scale})`;
+      const thresholdMet = progress >= fullSwipeThreshold;
+      const containerWidth =
+        containerRef.current?.offsetWidth ?? window.innerWidth;
+
+      if (thresholdMet) {
+        // Snap container to full row width
+        actionsContainer.style.width = `${containerWidth}px`;
+      } else if (absOffset > maxOffset) {
+        // Follow swipe offset past the button area
+        actionsContainer.style.width = `${absOffset}px`;
+      } else {
+        actionsContainer.style.width = `${maxOffset}px`;
+      }
+
+      if (thresholdMet) {
+        // Expand trigger button to fill the full row width
+        firstButtonEl.style.transition =
+          "width 150ms ease, height 150ms ease, border-radius 150ms ease";
+        firstButtonEl.style.width = "100%";
+        firstButtonEl.style.height = "100%";
+        firstButtonEl.style.borderRadius = "0";
+        firstButtonEl.style.transform = "";
+
+        // Hide other buttons
+        const allBtns = actionsContainer.querySelectorAll("button");
+        allBtns.forEach((btn, i) => {
+          if (i > 0) (btn as HTMLElement).style.display = "none";
+        });
+      } else {
+        // Normal: scale up with progress
+        firstButtonEl.style.transition =
+          "width 150ms ease, height 150ms ease, border-radius 150ms ease";
+        firstButtonEl.style.width = "";
+        firstButtonEl.style.height = "";
+        firstButtonEl.style.borderRadius = "";
+        const t = Math.min(progress / fullSwipeThreshold, 1);
+        const scale = 1 + t * 0.2;
+        firstButtonEl.style.transform = `scale(${scale})`;
+
+        // Show other buttons
+        const allBtns = actionsContainer.querySelectorAll("button");
+        allBtns.forEach((btn, i) => {
+          if (i > 0) (btn as HTMLElement).style.display = "";
+        });
+      }
     },
-    [fullSwipeThreshold],
+    [fullSwipeThreshold, leftMaxOffset, rightMaxOffset],
   );
 
-  /** Reset button opacity back to default */
-  const resetButtonOpacity = React.useCallback(() => {
+  /** Reset trigger button visual state back to default */
+  const resetFullSwipeVisual = React.useCallback(() => {
     if (!fullSwipeActiveRef.current) return;
+    const side = fullSwipeActiveRef.current;
     const container =
-      fullSwipeActiveRef.current === "left"
-        ? leftActionsRef.current
-        : rightActionsRef.current;
-    const btn = container?.querySelector("button") as HTMLElement | null;
-    if (btn) {
-      btn.style.transform = "";
+      side === "left" ? leftActionsRef.current : rightActionsRef.current;
+    const maxOffset = side === "left" ? leftMaxOffset : rightMaxOffset;
+    if (container) {
+      container.style.width = `${maxOffset}px`;
+      const allBtns = container.querySelectorAll("button");
+      allBtns.forEach((btn) => {
+        (btn as HTMLElement).style.cssText = "";
+      });
     }
     fullSwipeActiveRef.current = null;
-  }, []);
+  }, [leftMaxOffset, rightMaxOffset]);
 
   /** Slide content fully off-screen then trigger the action */
   const triggerFullSwipe = React.useCallback(
@@ -161,8 +215,16 @@ function SwipeableItem({
 
       setTransform(target, true, FULL_SWIPE_ANIMATION_DURATION);
 
-      // Stop the opacity effect — action is now confirmed
-      resetButtonOpacity();
+      // Keep the trigger button expanded and grow container to full width
+      const actionsContainer =
+        direction === "right"
+          ? leftActionsRef.current
+          : rightActionsRef.current;
+      if (actionsContainer) {
+        actionsContainer.style.transition = `width ${FULL_SWIPE_ANIMATION_DURATION}ms cubic-bezier(0.25, 1, 0.5, 1)`;
+        actionsContainer.style.width = `${containerWidth}px`;
+      }
+      fullSwipeActiveRef.current = null;
 
       const buttons = direction === "right" ? leftButtons : rightButtons;
       const firstAction = buttons[0]?.onClick;
@@ -180,7 +242,6 @@ function SwipeableItem({
     },
     [
       setTransform,
-      resetButtonOpacity,
       leftButtons,
       rightButtons,
       onFullSwipeLeft,
@@ -274,18 +335,35 @@ function SwipeableItem({
         newOffset = -rightMaxOffset - over * 0.3;
       }
 
-      setTransform(newOffset, false);
-
-      // Full-swipe: smoothly increase button opacity with swipe progress
+      // Full-swipe: snap content to full width when threshold is met
       if (fullSwipe) {
         const containerWidth =
           containerRef.current?.offsetWidth ?? window.innerWidth;
         const progress = Math.abs(newOffset) / containerWidth;
-        if (Math.abs(newOffset) > 0) {
-          updateButtonOpacity(newOffset > 0 ? "left" : "right", progress);
+
+        if (progress >= fullSwipeThreshold) {
+          // Snap content off to reveal the full-width trigger button
+          const snapOffset = newOffset > 0 ? containerWidth : -containerWidth;
+          setTransform(snapOffset, true, 200);
+          updateFullSwipeVisual(
+            newOffset > 0 ? "left" : "right",
+            progress,
+            containerWidth,
+          );
         } else {
-          resetButtonOpacity();
+          setTransform(newOffset, false);
+          if (Math.abs(newOffset) > 0) {
+            updateFullSwipeVisual(
+              newOffset > 0 ? "left" : "right",
+              progress,
+              Math.abs(newOffset),
+            );
+          } else {
+            resetFullSwipeVisual();
+          }
         }
+      } else {
+        setTransform(newOffset, false);
       }
     },
     [
@@ -295,8 +373,9 @@ function SwipeableItem({
       rightButtons.length,
       setTransform,
       fullSwipe,
-      updateButtonOpacity,
-      resetButtonOpacity,
+      fullSwipeThreshold,
+      updateFullSwipeVisual,
+      resetFullSwipeVisual,
     ],
   );
 
@@ -397,8 +476,8 @@ function SwipeableItem({
       isSwipingRef.current = false;
       startXRef.current = 0;
 
-      // Clean up button opacity
-      resetButtonOpacity();
+      // Clean up trigger button visual
+      resetFullSwipeVisual();
     },
     [
       leftButtons.length,
@@ -409,7 +488,7 @@ function SwipeableItem({
       fullSwipe,
       fullSwipeThreshold,
       triggerFullSwipe,
-      resetButtonOpacity,
+      resetFullSwipeVisual,
     ],
   );
 
