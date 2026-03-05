@@ -4,10 +4,12 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
+import { Button } from "./button";
+
 const SWIPE_THRESHOLD = 20;
 const BUTTON_WIDTH = 64;
 const VELOCITY_THRESHOLD = 0.3;
-const DRAG_THRESHOLD = 8;
+const DRAG_THRESHOLD = 12;
 
 interface SwipeButton {
   icon: React.ReactNode;
@@ -251,42 +253,47 @@ function SwipeableItem({
     >
       {/* Left action buttons (revealed on swipe right) */}
       {leftButtons.length > 0 && (
-        <div className="absolute inset-y-0 left-0 flex">
+        <div
+          className="absolute inset-y-0 left-0 flex items-center justify-evenly"
+          style={{ width: leftMaxOffset }}
+        >
           {leftButtons.map((button, index) => (
-            <button
+            <Button
               key={index}
               type="button"
+              variant="destructive"
+              size="icon"
               aria-label={button.ariaLabel}
               onClick={() => handleButtonClick(button.onClick)}
-              className={cn(
-                "flex items-center justify-center bg-destructive text-destructive-foreground",
-                button.className,
-              )}
-              style={{ width: BUTTON_WIDTH }}
+              className={cn("rounded-full", button.className)}
             >
               {button.icon}
-            </button>
+            </Button>
           ))}
         </div>
       )}
 
       {/* Right action buttons (revealed on swipe left) */}
       {rightButtons.length > 0 && (
-        <div className="absolute inset-y-0 right-0 flex">
+        <div
+          className="absolute inset-y-0 right-0 flex items-center justify-evenly"
+          style={{ width: rightMaxOffset }}
+        >
           {rightButtons.map((button, index) => (
-            <button
+            <Button
               key={index}
               type="button"
+              variant="destructive"
+              size="icon"
               aria-label={button.ariaLabel}
               onClick={() => handleButtonClick(button.onClick)}
               className={cn(
-                "flex items-center justify-center bg-destructive text-destructive-foreground",
+                "rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/80",
                 button.className,
               )}
-              style={{ width: BUTTON_WIDTH }}
             >
               {button.icon}
-            </button>
+            </Button>
           ))}
         </div>
       )}
