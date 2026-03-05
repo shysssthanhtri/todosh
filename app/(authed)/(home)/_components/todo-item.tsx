@@ -13,6 +13,10 @@ interface Props {
   onDelete: (id: string) => void;
 }
 
+const SWIPE_THRESHOLD = 0.2;
+const LINE_THROUGH_DELAY_MS = 200;
+const FADE_DURATION_MS = 300;
+
 export const TodoItem = ({ todo, onToggle, onDelete }: Props) => {
   const [isHiding, setIsHiding] = useState(false);
   const [isCompleted, setIsCompleted] = useState(todo.completed);
@@ -27,8 +31,8 @@ export const TodoItem = ({ todo, onToggle, onDelete }: Props) => {
         // Finally delete after fade completes
         setTimeout(() => {
           onDelete(todo.id);
-        }, 300);
-      }, 200);
+        }, FADE_DURATION_MS);
+      }, LINE_THROUGH_DELAY_MS);
     } else {
       setIsCompleted(false);
       onToggle(todo.id, false);
@@ -38,7 +42,7 @@ export const TodoItem = ({ todo, onToggle, onDelete }: Props) => {
   return (
     <SwipeableItem
       fullSwipe
-      fullSwipeThreshold={0.2}
+      fullSwipeThreshold={SWIPE_THRESHOLD}
       leftButtons={[
         {
           icon: <Trash2 className="size-4" />,
