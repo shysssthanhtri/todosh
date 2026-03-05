@@ -15,16 +15,22 @@ interface Props {
 
 export const TodoItem = ({ todo, onToggle, onDelete }: Props) => {
   const [isHiding, setIsHiding] = useState(false);
+  const [isCompleted, setIsCompleted] = useState(todo.completed);
 
   const handleToggle = (checked: boolean) => {
     if (checked) {
-      // Start hiding animation
-      setIsHiding(true);
-      // Wait for animation to complete before deleting
+      // First show line-through
+      setIsCompleted(true);
+      // Then start fade animation after a brief delay
       setTimeout(() => {
-        onDelete(todo.id);
-      }, 300);
+        setIsHiding(true);
+        // Finally delete after fade completes
+        setTimeout(() => {
+          onDelete(todo.id);
+        }, 300);
+      }, 200);
     } else {
+      setIsCompleted(false);
       onToggle(todo.id, false);
     }
   };
@@ -49,7 +55,7 @@ export const TodoItem = ({ todo, onToggle, onDelete }: Props) => {
       >
         <Checkbox
           id={`todo-${todo.id}`}
-          checked={todo.completed}
+          checked={isCompleted}
           onCheckedChange={(checked) => handleToggle(checked === true)}
           className="mt-0.5 size-5 rounded-full"
         />
@@ -58,9 +64,7 @@ export const TodoItem = ({ todo, onToggle, onDelete }: Props) => {
           className="flex flex-1 cursor-pointer flex-col gap-1"
         >
           <span
-            className={
-              todo.completed ? "text-muted-foreground line-through" : ""
-            }
+            className={isCompleted ? "text-muted-foreground line-through" : ""}
           >
             {todo.title}
           </span>
