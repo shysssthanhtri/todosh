@@ -1,346 +1,314 @@
 "use client";
 
-import { useGesture } from "@use-gesture/react";
-import { animate, motion, useMotionValue } from "framer-motion";
-import {
-  ReactNode,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import * as React from "react";
 
-import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
+const SWIPE_THRESHOLD = 20;
+const BUTTON_WIDTH = 64;
+const VELOCITY_THRESHOLD = 0.3;
+const DRAG_THRESHOLD = 8;
 
 interface SwipeButton {
-  icon: ReactNode;
+  icon: React.ReactNode;
   onClick: () => void;
-  variant?:
-    | "default"
-    | "destructive"
-    | "outline"
-    | "secondary"
-    | "ghost"
-    | "link";
-  className?: string;
   ariaLabel?: string;
+  className?: string;
 }
 
-interface SwipeableItemProps {
-  children: ReactNode;
+interface SwipeableItemProps extends React.ComponentProps<"div"> {
   leftButtons?: SwipeButton[];
   rightButtons?: SwipeButton[];
-  snapThreshold?: number;
-  triggerThreshold?: number;
-  baseButtonSize?: number;
-  disabled?: boolean;
-  onSwipeStart?: () => void;
-  onSwipeEnd?: () => void;
-  springConfig?: {
-    stiffness?: number;
-    damping?: number;
-  };
 }
 
-const DEFAULT_SPRING_CONFIG = {
-  type: "spring" as const,
-  stiffness: 400,
-  damping: 40,
-};
-
-const OPACITY_TRANSITION = {
-  opacity: {
-    duration: 0.2,
-    ease: "easeOut" as const,
-  },
-};
-
-export const SwipeableItem = ({
+function SwipeableItem({
+  leftButtons = [],
+  rightButtons = [],
   children,
-  leftButtons,
-  rightButtons,
-  snapThreshold = 0.4,
-  triggerThreshold = 1.5,
-  baseButtonSize = 32,
-  disabled = false,
-  onSwipeStart,
-  onSwipeEnd,
-  springConfig,
-}: SwipeableItemProps) => {
-  const x = useMotionValue(0);
-  const leftButtonWidth = useMotionValue(baseButtonSize);
-  const rightButtonWidth = useMotionValue(baseButtonSize);
+  className,
+  ...props
+}: SwipeableItemProps) {
+  const contentRef = React.useRef<HTMLDivElement>(null);
+  const startXRef = React.useRef(0);
+  const startYRef = React.useRef(0);
+  const currentXRef = React.useRef(0);
+  const startTimeRef = React.useRef(0);
+  const isSwipingRef = React.useRef(false);
+  const pointerIdRef = React.useRef<number | null>(null);
+  const pointerTargetRef = React.useRef<HTMLElement | null>(null);
+  const directionLockedRef = React.useRef<"horizontal" | "vertical" | null>(
+    null,
+  );
+  const [offset, setOffset] = React.useState(0);
+  const [isOpen, setIsOpen] = React.useState<"left" | "right" | null>(null);
+  const [isSwiping, setIsSwiping] = React.useState(false);
 
-  const leftRef = useRef<HTMLDivElement>(null);
-  const rightRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const widthCache = useRef({ left: 0, right: 0 });
+  const leftMaxOffset = leftButtons.length * BUTTON_WIDTH;
+  const rightMaxOffset = rightButtons.length * BUTTON_WIDTH;
 
-  const [isOpen, setIsOpen] = useState(false);
-  const [expandState, setExpandState] = useState<{
-    left: boolean;
-    right: boolean;
-  }>({ left: false, right: false });
-
-  const animationConfig = useMemo(
-    () => ({
-      ...DEFAULT_SPRING_CONFIG,
-      ...springConfig,
-    }),
-    [springConfig],
+  const animateTo = React.useCallback(
+    (target: number) => {
+      setIsSwiping(false);
+      setOffset(target);
+      if (target === 0) {
+        setIsOpen(null);
+      } else if (target > 0) {
+        setIsOpen("left");
+      } else {
+        setIsOpen("right");
+      }
+    },
+    [setOffset, setIsOpen, setIsSwiping],
   );
 
-  const triggerHapticFeedback = useCallback(() => {
-    if (typeof window !== "undefined" && "vibrate" in navigator) {
-      navigator.vibrate(10);
+  // Close on outside click
+  React.useEffect(() => {
+    if (!isOpen) return;
+    function handleClick(e: PointerEvent) {
+      if (
+        contentRef.current &&
+        !contentRef.current.parentElement?.contains(e.target as Node)
+      ) {
+        animateTo(0);
+      }
     }
+    document.addEventListener("pointerdown", handleClick);
+    return () => document.removeEventListener("pointerdown", handleClick);
+  }, [isOpen, animateTo]);
+
+  const handlePointerDown = React.useCallback((e: React.PointerEvent) => {
+    // Only handle primary button / single touch
+    if (e.button !== 0) return;
+    startXRef.current = e.clientX;
+    startYRef.current = e.clientY;
+    currentXRef.current = e.clientX;
+    startTimeRef.current = Date.now();
+    isSwipingRef.current = false;
+    directionLockedRef.current = null;
+    pointerIdRef.current = e.pointerId;
+    pointerTargetRef.current = e.currentTarget as HTMLElement;
+    // Don't capture yet — wait until we confirm a horizontal swipe
+    // so that clicks on children (checkbox, links) work normally
   }, []);
 
-  const resetPosition = useCallback(() => {
-    animate(x, 0, animationConfig);
-    animate(leftButtonWidth, baseButtonSize, animationConfig);
-    animate(rightButtonWidth, baseButtonSize, animationConfig);
-    setIsOpen(false);
-    setExpandState({ left: false, right: false });
-  }, [x, leftButtonWidth, rightButtonWidth, baseButtonSize, animationConfig]);
+  const handlePointerMove = React.useCallback(
+    (e: React.PointerEvent) => {
+      if (pointerIdRef.current !== e.pointerId) return;
+      if (startXRef.current === 0) return;
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
-      const target =
-        event instanceof MouseEvent ? event.target : event.touches[0]?.target;
+      const deltaX = e.clientX - startXRef.current;
+      const deltaY = e.clientY - startYRef.current;
 
-      if (
-        containerRef.current &&
-        target &&
-        !containerRef.current.contains(target as Node) &&
-        x.get() !== 0
-      ) {
-        resetPosition();
+      // Lock direction on first significant movement
+      if (!directionLockedRef.current) {
+        const absDx = Math.abs(deltaX);
+        const absDy = Math.abs(deltaY);
+        if (absDx < DRAG_THRESHOLD && absDy < DRAG_THRESHOLD) return;
+        directionLockedRef.current = absDx > absDy ? "horizontal" : "vertical";
       }
-    };
 
-    document.addEventListener("mousedown", handleClickOutside as EventListener);
-    document.addEventListener(
-      "touchstart",
-      handleClickOutside as EventListener,
-    );
-
-    return () => {
-      document.removeEventListener(
-        "mousedown",
-        handleClickOutside as EventListener,
-      );
-      document.removeEventListener(
-        "touchstart",
-        handleClickOutside as EventListener,
-      );
-    };
-  }, [x, resetPosition]);
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && x.get() !== 0) {
-        resetPosition();
+      // If vertical scroll, don't handle — let browser scroll
+      if (directionLockedRef.current === "vertical") {
+        startXRef.current = 0;
+        pointerIdRef.current = null;
+        return;
       }
-    };
 
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [x, resetPosition]);
-
-  const bind = useGesture(
-    {
-      onDrag: ({ movement: [mx], memo = x.get(), first }) => {
-        if (disabled) return memo;
-
-        if (first) {
-          widthCache.current = {
-            left: leftRef.current?.offsetWidth ?? 0,
-            right: rightRef.current?.offsetWidth ?? 0,
-          };
-          onSwipeStart?.();
+      // First time we confirm horizontal swipe: capture pointer & enter swiping mode
+      if (!isSwipingRef.current) {
+        if (pointerTargetRef.current && pointerIdRef.current !== null) {
+          pointerTargetRef.current.setPointerCapture(pointerIdRef.current);
         }
+        setIsSwiping(true);
+      }
 
-        const { left: maxLeft, right: maxRight } = widthCache.current;
-        const origin = first ? x.get() : memo;
-        const target = origin + mx;
+      currentXRef.current = e.clientX;
+      isSwipingRef.current = true;
 
-        let clampedMax = maxLeft;
-        let clampedMin = -maxRight;
+      const baseOffset =
+        isOpen === "left"
+          ? leftMaxOffset
+          : isOpen === "right"
+            ? -rightMaxOffset
+            : 0;
+      let newOffset = baseOffset + deltaX;
 
-        if (isOpen && leftButtons?.length === 1 && target > maxLeft) {
-          clampedMax = maxLeft * triggerThreshold;
-          const progress = Math.min(
-            (target - maxLeft) / (maxLeft * (triggerThreshold - 1)),
-            1,
-          );
-          const expandedWidth =
-            baseButtonSize + progress * (maxLeft - baseButtonSize);
-          leftButtonWidth.set(expandedWidth);
+      // Clamp: only allow left swipe if rightButtons exist, right swipe if leftButtons exist
+      if (leftButtons.length === 0 && newOffset > 0) newOffset = 0;
+      if (rightButtons.length === 0 && newOffset < 0) newOffset = 0;
 
-          if (!expandState.left && progress > 0.9) {
-            triggerHapticFeedback();
-          }
-          setExpandState((prev) => ({ ...prev, left: true }));
-        } else {
-          leftButtonWidth.set(baseButtonSize);
-          setExpandState((prev) => ({ ...prev, left: false }));
-        }
+      // Add rubber-band resistance past the max
+      if (newOffset > leftMaxOffset) {
+        const over = newOffset - leftMaxOffset;
+        newOffset = leftMaxOffset + over * 0.3;
+      }
+      if (newOffset < -rightMaxOffset) {
+        const over = -rightMaxOffset - newOffset;
+        newOffset = -rightMaxOffset - over * 0.3;
+      }
 
-        if (isOpen && rightButtons?.length === 1 && target < -maxRight) {
-          clampedMin = -maxRight * triggerThreshold;
-          const progress = Math.min(
-            (Math.abs(target) - maxRight) / (maxRight * (triggerThreshold - 1)),
-            1,
-          );
-          const expandedWidth =
-            baseButtonSize + progress * (maxRight - baseButtonSize);
-          rightButtonWidth.set(expandedWidth);
-
-          if (!expandState.right && progress > 0.9) {
-            triggerHapticFeedback();
-          }
-          setExpandState((prev) => ({ ...prev, right: true }));
-        } else {
-          rightButtonWidth.set(baseButtonSize);
-          setExpandState((prev) => ({ ...prev, right: false }));
-        }
-
-        const clamped = Math.max(clampedMin, Math.min(clampedMax, target));
-        x.set(clamped);
-        return origin;
-      },
-      onDragEnd: () => {
-        if (disabled) return;
-
-        const { left: maxLeft, right: maxRight } = widthCache.current;
-        const current = x.get();
-
-        if (current > 0) {
-          const snapOpen = current >= maxLeft * snapThreshold;
-
-          if (
-            isOpen &&
-            leftButtons?.length === 1 &&
-            current >= maxLeft * triggerThreshold
-          ) {
-            triggerHapticFeedback();
-            leftButtons[0].onClick();
-            resetPosition();
-            onSwipeEnd?.();
-            return;
-          }
-
-          animate(x, snapOpen ? maxLeft : 0, animationConfig);
-          setIsOpen(snapOpen);
-          setExpandState((prev) => ({ ...prev, left: false }));
-          onSwipeEnd?.();
-        } else if (current < 0) {
-          const snapOpen = Math.abs(current) >= maxRight * snapThreshold;
-
-          if (
-            isOpen &&
-            rightButtons?.length === 1 &&
-            Math.abs(current) >= maxRight * triggerThreshold
-          ) {
-            triggerHapticFeedback();
-            rightButtons[0].onClick();
-            resetPosition();
-            onSwipeEnd?.();
-            return;
-          }
-
-          animate(x, snapOpen ? -maxRight : 0, animationConfig);
-          setIsOpen(snapOpen);
-          setExpandState((prev) => ({ ...prev, right: false }));
-          onSwipeEnd?.();
-        } else {
-          onSwipeEnd?.();
-        }
-      },
+      setOffset(newOffset);
     },
-    {
-      drag: {
-        axis: "x",
-        filterTaps: true,
-        pointer: { touch: true },
-      },
-    },
+    [
+      isOpen,
+      leftMaxOffset,
+      rightMaxOffset,
+      leftButtons.length,
+      rightButtons.length,
+    ],
   );
 
-  const renderButtons = (
-    buttons: SwipeButton[],
-    side: "left" | "right",
-    ref: React.RefObject<HTMLDivElement | null>,
-    buttonWidth: typeof leftButtonWidth,
-    isExpanding: boolean,
-  ) => (
-    <div
-      ref={ref}
-      className={`absolute inset-y-0 ${side === "left" ? "left-0" : "right-0"} flex items-center gap-2 px-2`}
-      role="group"
-      aria-label={`${side} swipe actions`}
-    >
-      {buttons.map((button, index) => (
-        <motion.div
-          key={index}
-          style={buttons.length === 1 ? { width: buttonWidth } : undefined}
-          className="flex items-center justify-center"
-          animate={
-            buttons.length === 1 && isExpanding
-              ? { opacity: 0.7 }
-              : { opacity: 1 }
-          }
-          transition={OPACITY_TRANSITION}
-        >
-          <Button
-            onClick={button.onClick}
-            variant={button.variant ?? "destructive"}
-            className={button.className ?? "rounded-full size-8 w-full"}
-            aria-label={button.ariaLabel}
-          >
-            {button.icon}
-          </Button>
-        </motion.div>
-      ))}
-    </div>
+  const handlePointerUp = React.useCallback(
+    (e: React.PointerEvent) => {
+      if (pointerIdRef.current !== e.pointerId) return;
+
+      if (
+        pointerTargetRef.current &&
+        pointerTargetRef.current.hasPointerCapture(e.pointerId)
+      ) {
+        pointerTargetRef.current.releasePointerCapture(e.pointerId);
+      }
+      pointerIdRef.current = null;
+      pointerTargetRef.current = null;
+
+      if (!isSwipingRef.current) {
+        // It was a tap, not a swipe — close if open
+        if (isOpen) {
+          animateTo(0);
+        }
+        startXRef.current = 0;
+        return;
+      }
+
+      const deltaX = currentXRef.current - startXRef.current;
+      const elapsed = Date.now() - startTimeRef.current;
+      const velocity = Math.abs(deltaX) / elapsed; // px/ms
+
+      const isQuickSwipe = velocity > VELOCITY_THRESHOLD;
+
+      if (deltaX > 0 && leftButtons.length > 0) {
+        // Swiping right → reveal left buttons
+        if (
+          isOpen === "left"
+            ? deltaX > -SWIPE_THRESHOLD
+            : deltaX > SWIPE_THRESHOLD || isQuickSwipe
+        ) {
+          animateTo(leftMaxOffset);
+        } else {
+          animateTo(0);
+        }
+      } else if (deltaX < 0 && rightButtons.length > 0) {
+        // Swiping left → reveal right buttons
+        if (
+          isOpen === "right"
+            ? deltaX < SWIPE_THRESHOLD
+            : deltaX < -SWIPE_THRESHOLD || isQuickSwipe
+        ) {
+          animateTo(-rightMaxOffset);
+        } else {
+          animateTo(0);
+        }
+      } else {
+        // Closing
+        if (isOpen === "left" && deltaX < -SWIPE_THRESHOLD) {
+          animateTo(0);
+        } else if (isOpen === "right" && deltaX > SWIPE_THRESHOLD) {
+          animateTo(0);
+        } else if (isOpen) {
+          // Snap back open
+          animateTo(isOpen === "left" ? leftMaxOffset : -rightMaxOffset);
+        } else {
+          animateTo(0);
+        }
+      }
+
+      isSwipingRef.current = false;
+      startXRef.current = 0;
+    },
+    [
+      isOpen,
+      leftButtons.length,
+      rightButtons.length,
+      leftMaxOffset,
+      rightMaxOffset,
+      animateTo,
+    ],
+  );
+
+  const handleButtonClick = React.useCallback(
+    (onClick: () => void) => {
+      onClick();
+      animateTo(0);
+    },
+    [animateTo],
   );
 
   return (
     <div
-      ref={containerRef}
-      className="relative overflow-hidden"
-      role="region"
-      aria-label="Swipeable item"
+      data-slot="swipeable-item"
+      className={cn("relative overflow-hidden", className)}
+      {...props}
     >
-      {leftButtons &&
-        leftButtons.length > 0 &&
-        renderButtons(
-          leftButtons,
-          "left",
-          leftRef,
-          leftButtonWidth,
-          expandState.left,
-        )}
+      {/* Left action buttons (revealed on swipe right) */}
+      {leftButtons.length > 0 && (
+        <div className="absolute inset-y-0 left-0 flex">
+          {leftButtons.map((button, index) => (
+            <button
+              key={index}
+              type="button"
+              aria-label={button.ariaLabel}
+              onClick={() => handleButtonClick(button.onClick)}
+              className={cn(
+                "flex items-center justify-center bg-destructive text-destructive-foreground",
+                button.className,
+              )}
+              style={{ width: BUTTON_WIDTH }}
+            >
+              {button.icon}
+            </button>
+          ))}
+        </div>
+      )}
 
-      {rightButtons &&
-        rightButtons.length > 0 &&
-        renderButtons(
-          rightButtons,
-          "right",
-          rightRef,
-          rightButtonWidth,
-          expandState.right,
-        )}
+      {/* Right action buttons (revealed on swipe left) */}
+      {rightButtons.length > 0 && (
+        <div className="absolute inset-y-0 right-0 flex">
+          {rightButtons.map((button, index) => (
+            <button
+              key={index}
+              type="button"
+              aria-label={button.ariaLabel}
+              onClick={() => handleButtonClick(button.onClick)}
+              className={cn(
+                "flex items-center justify-center bg-destructive text-destructive-foreground",
+                button.className,
+              )}
+              style={{ width: BUTTON_WIDTH }}
+            >
+              {button.icon}
+            </button>
+          ))}
+        </div>
+      )}
 
-      <div {...bind()} style={{ touchAction: disabled ? "auto" : "pan-y" }}>
-        <motion.div style={{ x }} className="relative bg-background">
-          {children}
-        </motion.div>
+      {/* Swipeable content */}
+      <div
+        ref={contentRef}
+        className={cn(
+          "relative bg-background",
+          !isSwiping && "transition-transform duration-200 ease-out",
+        )}
+        style={{ transform: `translateX(${offset}px)`, touchAction: "pan-y" }}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
+      >
+        {children}
       </div>
     </div>
   );
-};
+}
+
+export { SwipeableItem };
+export type { SwipeableItemProps, SwipeButton };
