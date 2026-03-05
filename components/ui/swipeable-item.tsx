@@ -34,6 +34,7 @@ function SwipeableItem({
   const startXRef = React.useRef(0);
   const startYRef = React.useRef(0);
   const currentXRef = React.useRef(0);
+  const currentOffsetRef = React.useRef(0);
   const startTimeRef = React.useRef(0);
   const isSwipingRef = React.useRef(false);
   const pointerIdRef = React.useRef<number | null>(null);
@@ -41,26 +42,38 @@ function SwipeableItem({
   const directionLockedRef = React.useRef<"horizontal" | "vertical" | null>(
     null,
   );
-  const [offset, setOffset] = React.useState(0);
   const [isOpen, setIsOpen] = React.useState<"left" | "right" | null>(null);
-  const [isSwiping, setIsSwiping] = React.useState(false);
+  const isOpenRef = React.useRef<"left" | "right" | null>(null);
 
   const leftMaxOffset = leftButtons.length * BUTTON_WIDTH;
   const rightMaxOffset = rightButtons.length * BUTTON_WIDTH;
 
+  // Direct DOM update — no React re-render during drag
+  const setTransform = React.useCallback((x: number, animate: boolean) => {
+    const el = contentRef.current;
+    if (!el) return;
+    el.style.transition = animate
+      ? "transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)"
+      : "none";
+    el.style.transform = `translateX(${x}px)`;
+    currentOffsetRef.current = x;
+  }, []);
+
   const animateTo = React.useCallback(
     (target: number) => {
-      setIsSwiping(false);
-      setOffset(target);
+      setTransform(target, true);
       if (target === 0) {
+        isOpenRef.current = null;
         setIsOpen(null);
       } else if (target > 0) {
+        isOpenRef.current = "left";
         setIsOpen("left");
       } else {
+        isOpenRef.current = "right";
         setIsOpen("right");
       }
     },
-    [setOffset, setIsOpen, setIsSwiping],
+    [setTransform],
   );
 
   // Close on outside click
@@ -121,16 +134,15 @@ function SwipeableItem({
         if (pointerTargetRef.current && pointerIdRef.current !== null) {
           pointerTargetRef.current.setPointerCapture(pointerIdRef.current);
         }
-        setIsSwiping(true);
       }
 
       currentXRef.current = e.clientX;
       isSwipingRef.current = true;
 
       const baseOffset =
-        isOpen === "left"
+        isOpenRef.current === "left"
           ? leftMaxOffset
-          : isOpen === "right"
+          : isOpenRef.current === "right"
             ? -rightMaxOffset
             : 0;
       let newOffset = baseOffset + deltaX;
@@ -149,14 +161,14 @@ function SwipeableItem({
         newOffset = -rightMaxOffset - over * 0.3;
       }
 
-      setOffset(newOffset);
+      setTransform(newOffset, false);
     },
     [
-      isOpen,
       leftMaxOffset,
       rightMaxOffset,
       leftButtons.length,
       rightButtons.length,
+      setTransform,
     ],
   );
 
@@ -175,7 +187,7 @@ function SwipeableItem({
 
       if (!isSwipingRef.current) {
         // It was a tap, not a swipe — close if open
-        if (isOpen) {
+        if (isOpenRef.current) {
           animateTo(0);
         }
         startXRef.current = 0;
@@ -191,7 +203,7 @@ function SwipeableItem({
       if (deltaX > 0 && leftButtons.length > 0) {
         // Swiping right → reveal left buttons
         if (
-          isOpen === "left"
+          isOpenRef.current === "left"
             ? deltaX > -SWIPE_THRESHOLD
             : deltaX > SWIPE_THRESHOLD || isQuickSwipe
         ) {
@@ -202,7 +214,7 @@ function SwipeableItem({
       } else if (deltaX < 0 && rightButtons.length > 0) {
         // Swiping left → reveal right buttons
         if (
-          isOpen === "right"
+          isOpenRef.current === "right"
             ? deltaX < SWIPE_THRESHOLD
             : deltaX < -SWIPE_THRESHOLD || isQuickSwipe
         ) {
@@ -212,13 +224,15 @@ function SwipeableItem({
         }
       } else {
         // Closing
-        if (isOpen === "left" && deltaX < -SWIPE_THRESHOLD) {
+        if (isOpenRef.current === "left" && deltaX < -SWIPE_THRESHOLD) {
           animateTo(0);
-        } else if (isOpen === "right" && deltaX > SWIPE_THRESHOLD) {
+        } else if (isOpenRef.current === "right" && deltaX > SWIPE_THRESHOLD) {
           animateTo(0);
-        } else if (isOpen) {
+        } else if (isOpenRef.current) {
           // Snap back open
-          animateTo(isOpen === "left" ? leftMaxOffset : -rightMaxOffset);
+          animateTo(
+            isOpenRef.current === "left" ? leftMaxOffset : -rightMaxOffset,
+          );
         } else {
           animateTo(0);
         }
@@ -228,7 +242,6 @@ function SwipeableItem({
       startXRef.current = 0;
     },
     [
-      isOpen,
       leftButtons.length,
       rightButtons.length,
       leftMaxOffset,
@@ -301,11 +314,8 @@ function SwipeableItem({
       {/* Swipeable content */}
       <div
         ref={contentRef}
-        className={cn(
-          "relative bg-background",
-          !isSwiping && "transition-transform duration-600 ease-out",
-        )}
-        style={{ transform: `translateX(${offset}px)`, touchAction: "pan-y" }}
+        className="relative bg-background"
+        style={{ touchAction: "pan-y" }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
