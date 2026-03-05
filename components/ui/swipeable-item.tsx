@@ -11,6 +11,9 @@ const SWIPE_THRESHOLD = 20;
 const BUTTON_WIDTH = 32;
 const VELOCITY_THRESHOLD = 0.3;
 const DRAG_THRESHOLD = 12;
+const DEFAULT_FULL_SWIPE_THRESHOLD = 0.5;
+const FULL_SWIPE_ANIMATION_DURATION = 300;
+const DEFAULT_ACTION_DELAY = 300;
 
 interface SwipeButton {
   icon: React.ReactNode;
@@ -23,16 +26,34 @@ interface SwipeButton {
 interface SwipeableItemProps extends React.ComponentProps<"div"> {
   leftButtons?: SwipeButton[];
   rightButtons?: SwipeButton[];
+  /** When true, swiping past the threshold triggers the first action automatically */
+  fullSwipe?: boolean;
+  /** 0-1 fraction of item width required to trigger fullSwipe (default 0.5) */
+  fullSwipeThreshold?: number;
+  /** Delay in ms after the slide-out animation before calling the full-swipe action (default 300) */
+  actionDelay?: number;
+  /** Called when the item is removed after a destructive full-swipe */
+  onFullSwipeLeft?: () => void;
+  /** Called when the item is removed after a full-swipe to the right */
+  onFullSwipeRight?: () => void;
 }
 
 function SwipeableItem({
   leftButtons = [],
   rightButtons = [],
+  fullSwipe = false,
+  fullSwipeThreshold = DEFAULT_FULL_SWIPE_THRESHOLD,
+  actionDelay = DEFAULT_ACTION_DELAY,
+  onFullSwipeLeft,
+  onFullSwipeRight,
   children,
   className,
   ...props
 }: SwipeableItemProps) {
+  const containerRef = React.useRef<HTMLDivElement>(null);
   const contentRef = React.useRef<HTMLDivElement>(null);
+  const leftActionsRef = React.useRef<HTMLDivElement>(null);
+  const rightActionsRef = React.useRef<HTMLDivElement>(null);
   const startXRef = React.useRef(0);
   const startYRef = React.useRef(0);
   const currentXRef = React.useRef(0);
@@ -46,6 +67,7 @@ function SwipeableItem({
   );
   const [isOpen, setIsOpen] = React.useState<"left" | "right" | null>(null);
   const isOpenRef = React.useRef<"left" | "right" | null>(null);
+  const fullSwipeActiveRef = React.useRef<"left" | "right" | null>(null);
 
   const leftMaxOffset =
     leftButtons.length * BUTTON_WIDTH + leftButtons.length * 8;
@@ -53,15 +75,19 @@ function SwipeableItem({
     rightButtons.length * BUTTON_WIDTH + leftButtons.length * 8;
 
   // Direct DOM update — no React re-render during drag
-  const setTransform = React.useCallback((x: number, animate: boolean) => {
-    const el = contentRef.current;
-    if (!el) return;
-    el.style.transition = animate
-      ? "transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)"
-      : "none";
-    el.style.transform = `translateX(${x}px)`;
-    currentOffsetRef.current = x;
-  }, []);
+  const setTransform = React.useCallback(
+    (x: number, animate: boolean, duration?: number) => {
+      const el = contentRef.current;
+      if (!el) return;
+      const ms = duration ?? 300;
+      el.style.transition = animate
+        ? `transform ${ms}ms cubic-bezier(0.25, 1, 0.5, 1)`
+        : "none";
+      el.style.transform = `translateX(${x}px)`;
+      currentOffsetRef.current = x;
+    },
+    [],
+  );
 
   const animateTo = React.useCallback(
     (target: number) => {
@@ -78,6 +104,89 @@ function SwipeableItem({
       }
     },
     [setTransform],
+  );
+
+  /** Update the opacity of the first button based on swipe progress */
+  const updateButtonOpacity = React.useCallback(
+    (side: "left" | "right" | null, progress: number) => {
+      // Reset previous side if switching
+      if (fullSwipeActiveRef.current && fullSwipeActiveRef.current !== side) {
+        const prevContainer =
+          fullSwipeActiveRef.current === "left"
+            ? leftActionsRef.current
+            : rightActionsRef.current;
+        const prevBtn = prevContainer?.querySelector("button");
+        if (prevBtn) {
+          (prevBtn as HTMLElement).style.transform = "";
+        }
+      }
+
+      fullSwipeActiveRef.current = side;
+      if (!side) return;
+
+      const actionsContainer =
+        side === "left" ? leftActionsRef.current : rightActionsRef.current;
+      const firstButtonEl = actionsContainer?.querySelector(
+        "button",
+      ) as HTMLElement | null;
+      if (!firstButtonEl) return;
+
+      const t = Math.min(progress / fullSwipeThreshold, 1);
+      const scale = 1 + t * 0.2;
+      firstButtonEl.style.transform = `scale(${scale})`;
+    },
+    [fullSwipeThreshold],
+  );
+
+  /** Reset button opacity back to default */
+  const resetButtonOpacity = React.useCallback(() => {
+    if (!fullSwipeActiveRef.current) return;
+    const container =
+      fullSwipeActiveRef.current === "left"
+        ? leftActionsRef.current
+        : rightActionsRef.current;
+    const btn = container?.querySelector("button") as HTMLElement | null;
+    if (btn) {
+      btn.style.transform = "";
+    }
+    fullSwipeActiveRef.current = null;
+  }, []);
+
+  /** Slide content fully off-screen then trigger the action */
+  const triggerFullSwipe = React.useCallback(
+    (direction: "left" | "right") => {
+      const containerWidth =
+        containerRef.current?.offsetWidth ?? window.innerWidth;
+      const target = direction === "right" ? containerWidth : -containerWidth;
+
+      setTransform(target, true, FULL_SWIPE_ANIMATION_DURATION);
+
+      // Stop the opacity effect — action is now confirmed
+      resetButtonOpacity();
+
+      const buttons = direction === "right" ? leftButtons : rightButtons;
+      const firstAction = buttons[0]?.onClick;
+      const callback =
+        direction === "left" ? onFullSwipeLeft : onFullSwipeRight;
+
+      // Fire the first button action (or the dedicated callback) after animation
+      setTimeout(() => {
+        if (callback) {
+          callback();
+        } else if (firstAction) {
+          firstAction();
+        }
+      }, actionDelay);
+    },
+    [
+      setTransform,
+      resetButtonOpacity,
+      leftButtons,
+      rightButtons,
+      onFullSwipeLeft,
+      onFullSwipeRight,
+      actionDelay,
+    ],
   );
 
   // Close on outside click
@@ -166,6 +275,18 @@ function SwipeableItem({
       }
 
       setTransform(newOffset, false);
+
+      // Full-swipe: smoothly increase button opacity with swipe progress
+      if (fullSwipe) {
+        const containerWidth =
+          containerRef.current?.offsetWidth ?? window.innerWidth;
+        const progress = Math.abs(newOffset) / containerWidth;
+        if (Math.abs(newOffset) > 0) {
+          updateButtonOpacity(newOffset > 0 ? "left" : "right", progress);
+        } else {
+          resetButtonOpacity();
+        }
+      }
     },
     [
       leftMaxOffset,
@@ -173,6 +294,9 @@ function SwipeableItem({
       leftButtons.length,
       rightButtons.length,
       setTransform,
+      fullSwipe,
+      updateButtonOpacity,
+      resetButtonOpacity,
     ],
   );
 
@@ -203,6 +327,34 @@ function SwipeableItem({
       const velocity = Math.abs(deltaX) / elapsed; // px/ms
 
       const isQuickSwipe = velocity > VELOCITY_THRESHOLD;
+
+      // --- Full-swipe detection ---
+      if (fullSwipe) {
+        const containerWidth =
+          containerRef.current?.offsetWidth ?? window.innerWidth;
+        const progress = Math.abs(currentOffsetRef.current) / containerWidth;
+
+        if (
+          progress >= fullSwipeThreshold &&
+          deltaX > 0 &&
+          leftButtons.length > 0
+        ) {
+          triggerFullSwipe("right");
+          isSwipingRef.current = false;
+          startXRef.current = 0;
+          return;
+        }
+        if (
+          progress >= fullSwipeThreshold &&
+          deltaX < 0 &&
+          rightButtons.length > 0
+        ) {
+          triggerFullSwipe("left");
+          isSwipingRef.current = false;
+          startXRef.current = 0;
+          return;
+        }
+      }
 
       if (deltaX > 0 && leftButtons.length > 0) {
         // Swiping right → reveal left buttons
@@ -244,6 +396,9 @@ function SwipeableItem({
 
       isSwipingRef.current = false;
       startXRef.current = 0;
+
+      // Clean up button opacity
+      resetButtonOpacity();
     },
     [
       leftButtons.length,
@@ -251,6 +406,10 @@ function SwipeableItem({
       leftMaxOffset,
       rightMaxOffset,
       animateTo,
+      fullSwipe,
+      fullSwipeThreshold,
+      triggerFullSwipe,
+      resetButtonOpacity,
     ],
   );
 
@@ -264,6 +423,7 @@ function SwipeableItem({
 
   return (
     <div
+      ref={containerRef}
       data-slot="swipeable-item"
       className={cn("relative overflow-hidden", className)}
       {...props}
@@ -271,6 +431,7 @@ function SwipeableItem({
       {/* Left action buttons (revealed on swipe right) */}
       {leftButtons.length > 0 && (
         <div
+          ref={leftActionsRef}
           className="absolute inset-y-0 left-0 flex items-center justify-evenly"
           style={{ width: leftMaxOffset }}
         >
@@ -293,6 +454,7 @@ function SwipeableItem({
       {/* Right action buttons (revealed on swipe left) */}
       {rightButtons.length > 0 && (
         <div
+          ref={rightActionsRef}
           className="absolute inset-y-0 right-0 flex items-center justify-evenly"
           style={{ width: rightMaxOffset }}
         >
