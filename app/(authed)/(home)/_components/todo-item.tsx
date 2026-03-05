@@ -1,6 +1,7 @@
 "use client";
 
 import { Trash2 } from "lucide-react";
+import { useState } from "react";
 
 import { Checkbox } from "@/components/ui/checkbox";
 import { SwipeableItem } from "@/components/ui/swipeable-item";
@@ -13,6 +14,21 @@ interface Props {
 }
 
 export const TodoItem = ({ todo, onToggle, onDelete }: Props) => {
+  const [isHiding, setIsHiding] = useState(false);
+
+  const handleToggle = (checked: boolean) => {
+    if (checked) {
+      // Start hiding animation
+      setIsHiding(true);
+      // Wait for animation to complete before deleting
+      setTimeout(() => {
+        onDelete(todo.id);
+      }, 300);
+    } else {
+      onToggle(todo.id, false);
+    }
+  };
+
   return (
     <SwipeableItem
       fullSwipe
@@ -26,11 +42,15 @@ export const TodoItem = ({ todo, onToggle, onDelete }: Props) => {
         },
       ]}
     >
-      <div className="flex items-start gap-3 py-3">
+      <div
+        className={`flex items-start gap-3 py-3 transition-opacity duration-300 ${
+          isHiding ? "opacity-0" : "opacity-100"
+        }`}
+      >
         <Checkbox
           id={`todo-${todo.id}`}
           checked={todo.completed}
-          onCheckedChange={(checked) => onToggle(todo.id, checked === true)}
+          onCheckedChange={(checked) => handleToggle(checked === true)}
           className="mt-0.5 size-5 rounded-full"
         />
         <label
