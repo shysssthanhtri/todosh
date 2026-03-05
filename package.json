@@ -55,7 +55,7 @@
     "dev": "next dev",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
-    "postinstall": "prisma generate",
+    "postinstall": "prisma generate && pnpm lint:fix",
     "prepare": "husky",
     "start": "next start"
   },
