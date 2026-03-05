@@ -1,0 +1,34 @@
+{
+    "background_color": "#ffffff",
+    "categories": [
+        "productivity",
+        "utilities"
+    ],
+    "description": "A simple and fast Todo application",
+    "display": "standalone",
+    "icons": [
+        {
+            "purpose": "any",
+            "sizes": "192x192",
+            "src": "/icons/icon-192x192.png",
+            "type": "image/png"
+        },
+        {
+            "purpose": "any",
+            "sizes": "512x512",
+            "src": "/icons/icon-512x512.png",
+            "type": "image/png"
+        },
+        {
+            "purpose": "maskable",
+            "sizes": "512x512",
+            "src": "/icons/icon-512x512.png",
+            "type": "image/png"
+        }
+    ],
+    "name": "Todosh",
+    "orientation": "portrait",
+    "short_name": "Todosh",
+    "start_url": "/",
+    "theme_color": "#d2510a"
+}
