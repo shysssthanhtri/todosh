@@ -1,13 +1,14 @@
 "use client";
 
+import { type VariantProps } from "class-variance-authority";
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-import { Button } from "./button";
+import { Button, buttonVariants } from "./button";
 
 const SWIPE_THRESHOLD = 20;
-const BUTTON_WIDTH = 64;
+const BUTTON_WIDTH = 32;
 const VELOCITY_THRESHOLD = 0.3;
 const DRAG_THRESHOLD = 12;
 
@@ -16,6 +17,7 @@ interface SwipeButton {
   onClick: () => void;
   ariaLabel?: string;
   className?: string;
+  variant?: VariantProps<typeof buttonVariants>["variant"];
 }
 
 interface SwipeableItemProps extends React.ComponentProps<"div"> {
@@ -45,8 +47,10 @@ function SwipeableItem({
   const [isOpen, setIsOpen] = React.useState<"left" | "right" | null>(null);
   const isOpenRef = React.useRef<"left" | "right" | null>(null);
 
-  const leftMaxOffset = leftButtons.length * BUTTON_WIDTH;
-  const rightMaxOffset = rightButtons.length * BUTTON_WIDTH;
+  const leftMaxOffset =
+    leftButtons.length * BUTTON_WIDTH + leftButtons.length * 8;
+  const rightMaxOffset =
+    rightButtons.length * BUTTON_WIDTH + leftButtons.length * 8;
 
   // Direct DOM update — no React re-render during drag
   const setTransform = React.useCallback((x: number, animate: boolean) => {
@@ -274,7 +278,7 @@ function SwipeableItem({
             <Button
               key={index}
               type="button"
-              variant="destructive"
+              variant={button.variant}
               size="icon"
               aria-label={button.ariaLabel}
               onClick={() => handleButtonClick(button.onClick)}
@@ -296,14 +300,11 @@ function SwipeableItem({
             <Button
               key={index}
               type="button"
-              variant="destructive"
+              variant={button.variant}
               size="icon"
               aria-label={button.ariaLabel}
               onClick={() => handleButtonClick(button.onClick)}
-              className={cn(
-                "rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/80",
-                button.className,
-              )}
+              className={cn("rounded-full", button.className)}
             >
               {button.icon}
             </Button>
