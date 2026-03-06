@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowUp } from "lucide-react";
-import { forwardRef, useCallback, useImperativeHandle } from "react";
+import { forwardRef, useCallback, useImperativeHandle, useRef } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import z from "zod";
 
@@ -28,11 +28,13 @@ interface Props {
 interface Ref {
   submit?: () => void;
   reset?: (value?: Partial<FormType>) => void;
+  focus?: () => void;
 }
 export type TodoFormRef = Ref;
 
 export const TodoForm = forwardRef<Ref, Props>((props, ref) => {
   const { onSubmit, isPending } = props;
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<FormType>({
     resolver: zodResolver(FormSchema),
@@ -59,6 +61,9 @@ export const TodoForm = forwardRef<Ref, Props>((props, ref) => {
       reset: (value) => {
         form.reset(value);
       },
+      focus: () => {
+        inputRef.current?.focus();
+      },
     }),
     [form, handleSubmit],
   );
@@ -76,12 +81,17 @@ export const TodoForm = forwardRef<Ref, Props>((props, ref) => {
               </FieldLabel>
               <Input
                 {...field}
+                ref={(el) => {
+                  field.ref(el);
+                  inputRef.current = el;
+                }}
                 id={field.name}
                 aria-invalid={fieldState.invalid}
                 required
                 disabled={isPending}
                 placeholder="What needs to be done?"
                 className="border-0 p-0 text-base shadow-none focus-visible:ring-0"
+                autoFocus
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
