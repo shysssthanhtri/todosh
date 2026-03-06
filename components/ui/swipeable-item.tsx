@@ -14,6 +14,8 @@ const DRAG_THRESHOLD = 12;
 const DEFAULT_FULL_SWIPE_THRESHOLD = 0.5;
 const FULL_SWIPE_ANIMATION_DURATION = 300;
 const DEFAULT_ACTION_DELAY = 300;
+/** Delay in ms after swipe ends before the child becomes clickable again (avoids accidental taps) */
+const DEFAULT_CHILD_CLICK_DELAY_AFTER_SWIPE = 300;
 
 interface SwipeButton {
   icon: React.ReactNode;
@@ -36,6 +38,8 @@ interface SwipeableItemProps extends React.ComponentProps<"div"> {
   onFullSwipeLeft?: () => void;
   /** Called when the item is removed after a full-swipe to the right */
   onFullSwipeRight?: () => void;
+  /** Delay in ms after a swipe ends before the child content is clickable again (default 300) */
+  childClickDelayAfterSwipe?: number;
 }
 
 function SwipeableItem({
@@ -46,6 +50,7 @@ function SwipeableItem({
   actionDelay = DEFAULT_ACTION_DELAY,
   onFullSwipeLeft,
   onFullSwipeRight,
+  childClickDelayAfterSwipe = DEFAULT_CHILD_CLICK_DELAY_AFTER_SWIPE,
   children,
   className,
   ...props
@@ -68,6 +73,10 @@ function SwipeableItem({
   const [isOpen, setIsOpen] = React.useState<"left" | "right" | null>(null);
   const isOpenRef = React.useRef<"left" | "right" | null>(null);
   const fullSwipeActiveRef = React.useRef<"left" | "right" | null>(null);
+  const [childClickBlocked, setChildClickBlocked] = React.useState(false);
+  const childClickDelayTimeoutRef = React.useRef<ReturnType<
+    typeof setTimeout
+  > | null>(null);
 
   const leftMaxOffset =
     leftButtons.length * BUTTON_WIDTH + leftButtons.length * 8;
@@ -265,6 +274,16 @@ function SwipeableItem({
     return () => document.removeEventListener("pointerdown", handleClick);
   }, [isOpen, animateTo]);
 
+  // Clear child-click delay timeout on unmount
+  React.useEffect(() => {
+    return () => {
+      if (childClickDelayTimeoutRef.current) {
+        clearTimeout(childClickDelayTimeoutRef.current);
+        childClickDelayTimeoutRef.current = null;
+      }
+    };
+  }, []);
+
   const handlePointerDown = React.useCallback((e: React.PointerEvent) => {
     // Only handle primary button / single touch
     if (e.button !== 0) return;
@@ -383,6 +402,8 @@ function SwipeableItem({
     (e: React.PointerEvent) => {
       if (pointerIdRef.current !== e.pointerId) return;
 
+      const wasSwiping = isSwipingRef.current;
+
       if (
         pointerTargetRef.current &&
         pointerTargetRef.current.hasPointerCapture(e.pointerId)
@@ -421,6 +442,13 @@ function SwipeableItem({
           triggerFullSwipe("right");
           isSwipingRef.current = false;
           startXRef.current = 0;
+          if (childClickDelayTimeoutRef.current)
+            clearTimeout(childClickDelayTimeoutRef.current);
+          setChildClickBlocked(true);
+          childClickDelayTimeoutRef.current = setTimeout(() => {
+            childClickDelayTimeoutRef.current = null;
+            setChildClickBlocked(false);
+          }, childClickDelayAfterSwipe);
           return;
         }
         if (
@@ -431,6 +459,13 @@ function SwipeableItem({
           triggerFullSwipe("left");
           isSwipingRef.current = false;
           startXRef.current = 0;
+          if (childClickDelayTimeoutRef.current)
+            clearTimeout(childClickDelayTimeoutRef.current);
+          setChildClickBlocked(true);
+          childClickDelayTimeoutRef.current = setTimeout(() => {
+            childClickDelayTimeoutRef.current = null;
+            setChildClickBlocked(false);
+          }, childClickDelayAfterSwipe);
           return;
         }
       }
@@ -478,6 +513,18 @@ function SwipeableItem({
 
       // Clean up trigger button visual
       resetFullSwipeVisual();
+
+      // After a swipe, block child clicks briefly so release doesn’t trigger a tap
+      if (wasSwiping) {
+        if (childClickDelayTimeoutRef.current) {
+          clearTimeout(childClickDelayTimeoutRef.current);
+        }
+        setChildClickBlocked(true);
+        childClickDelayTimeoutRef.current = setTimeout(() => {
+          childClickDelayTimeoutRef.current = null;
+          setChildClickBlocked(false);
+        }, childClickDelayAfterSwipe);
+      }
     },
     [
       leftButtons.length,
@@ -489,6 +536,7 @@ function SwipeableItem({
       fullSwipeThreshold,
       triggerFullSwipe,
       resetFullSwipeVisual,
+      childClickDelayAfterSwipe,
     ],
   );
 
@@ -557,7 +605,10 @@ function SwipeableItem({
       <div
         ref={contentRef}
         className="relative bg-background"
-        style={{ touchAction: "pan-y" }}
+        style={{
+          touchAction: "pan-y",
+          pointerEvents: childClickBlocked ? "none" : "auto",
+        }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
