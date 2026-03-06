@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   deleteTodo,
   getAllTodos,
@@ -15,6 +16,7 @@ import { TodoItem } from "./todo-item";
 
 export const TodoList = () => {
   const [todos, setTodos] = useState<TodoItemType[]>([]);
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
   const [isLoading, startTransition] = useTransition();
 
   const loadTodos = useCallback(() => {
@@ -24,6 +26,8 @@ export const TodoList = () => {
         setTodos(items);
       } catch {
         toast.error("Failed to load todos", { position: "top-center" });
+      } finally {
+        setHasLoadedOnce(true);
       }
     });
   }, []);
@@ -61,15 +65,24 @@ export const TodoList = () => {
     }
   };
 
-  if (isLoading) {
+  if (!hasLoadedOnce || isLoading) {
+    const skeletonCount = 5;
     return (
-      <div className="flex justify-center py-8">
-        <span className="text-muted-foreground">Loading...</span>
+      <div className="flex flex-col">
+        {Array.from({ length: skeletonCount }, (_, index) => (
+          <div key={index}>
+            <div className="flex items-start gap-3 py-3">
+              <Skeleton className="size-5 shrink-0 rounded-full" />
+              <Skeleton className="h-5 flex-1 max-w-[80%]" />
+            </div>
+            {index < skeletonCount - 1 && <Separator />}
+          </div>
+        ))}
       </div>
     );
   }
 
-  if (todos.length === 0) {
+  if (hasLoadedOnce && todos.length === 0) {
     return (
       <div className="flex justify-center py-8">
         <span className="text-muted-foreground">No todos yet</span>

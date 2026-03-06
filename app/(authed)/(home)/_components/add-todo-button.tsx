@@ -31,7 +31,7 @@ export const AddTodoButton = () => {
         window.dispatchEvent(new CustomEvent("todo-added"));
         toast.success("Todo added", { position: "top-center" });
         // Defer focus so it runs after React commits the reset and toast renders (20ms avoids focus being stolen)
-        setTimeout(() => formRef.current?.focus?.(), 50);
+        setTimeout(() => formRef.current?.focus?.(), 100);
       } catch {
         toast.error("Failed to add todo", { position: "top-center" });
       }
