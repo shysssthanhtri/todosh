@@ -18,22 +18,13 @@ export const metadata: Metadata = {
     description: "A simple and fast Todo application",
     url: siteUrl,
     siteName: "Todosh",
-    images: [
-      {
-        url: "/icons/icon-512x512.png",
-        width: 512,
-        height: 512,
-        alt: "Todosh - Todo app",
-      },
-    ],
     locale: "en_US",
     type: "website",
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Todosh",
     description: "A simple and fast Todo application",
-    images: ["/icons/icon-512x512.png"],
   },
   appleWebApp: {
     capable: true,
