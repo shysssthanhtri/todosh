@@ -14,12 +14,18 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { toDueDateUTC } from "@/lib/date-utils";
 import { TodoSchema } from "@/schemas/todo";
+
+import { DueDatePicker } from "./due-date-picker";
 
 const FormSchema = TodoSchema.pick({
   title: true,
+  dueDate: true,
 });
 type FormType = z.infer<typeof FormSchema>;
+
+const defaultDueDate = () => toDueDateUTC(new Date());
 
 interface Props {
   onSubmit?: (value: FormType) => void;
@@ -41,6 +47,7 @@ export const TodoForm = forwardRef<Ref, Props>((props, ref) => {
     resolver: zodResolver(FormSchema),
     defaultValues: {
       title: "",
+      dueDate: defaultDueDate(),
     },
   });
 
@@ -60,7 +67,12 @@ export const TodoForm = forwardRef<Ref, Props>((props, ref) => {
         void form.handleSubmit(handleSubmit)();
       },
       reset: (value) => {
-        form.reset(value);
+        const currentDueDate = form.getValues("dueDate") ?? defaultDueDate();
+        form.reset({
+          title: "",
+          dueDate: currentDueDate,
+          ...value,
+        });
       },
       focus: () => {
         inputRef.current?.focus();
@@ -101,6 +113,17 @@ export const TodoForm = forwardRef<Ref, Props>((props, ref) => {
             </Field>
           )}
         />
+        <Field>
+          <div className="flex flex-wrap items-center gap-2">
+            <Controller
+              name="dueDate"
+              control={form.control}
+              render={({ field }) => (
+                <DueDatePicker value={field.value} onChange={field.onChange} />
+              )}
+            />
+          </div>
+        </Field>
         <Field>
           <div className="flex items-center justify-end">
             <Button

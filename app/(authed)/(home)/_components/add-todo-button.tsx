@@ -26,6 +26,7 @@ export const AddTodoButton = () => {
         await addTodo({
           title: value.title,
           completed: false,
+          dueDate: value.dueDate,
         });
         formRef.current?.reset?.();
         window.dispatchEvent(new CustomEvent("todo-added"));

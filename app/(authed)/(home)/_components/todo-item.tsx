@@ -1,10 +1,12 @@
 "use client";
 
-import { Trash2 } from "lucide-react";
+import { format } from "date-fns";
+import { Calendar, Trash2 } from "lucide-react";
 import { useState } from "react";
 
 import { Checkbox } from "@/components/ui/checkbox";
 import { SwipeableItem } from "@/components/ui/swipeable-item";
+import { isOverdue } from "@/lib/date-utils";
 import { TodoItem as TodoItemType } from "@/lib/indexeddb";
 
 interface Props {
@@ -20,6 +22,10 @@ const FADE_DURATION_MS = 300;
 export const TodoItem = ({ todo, onToggle, onDelete }: Props) => {
   const [isHiding, setIsHiding] = useState(false);
   const [isCompleted, setIsCompleted] = useState(todo.completed);
+  const dueDate = todo.dueDate ? new Date(todo.dueDate) : undefined;
+  const showDueDate = Boolean(dueDate);
+  const dueDateLabel = dueDate ? format(dueDate, "d MMM") : "";
+  const dueDateIsOverdue = dueDate ? isOverdue(dueDate) : false;
 
   const handleToggle = (checked: boolean) => {
     if (checked) {
@@ -72,6 +78,17 @@ export const TodoItem = ({ todo, onToggle, onDelete }: Props) => {
           >
             {todo.title}
           </span>
+          {showDueDate && (
+            <span
+              className={[
+                "flex items-center gap-1 text-xs",
+                dueDateIsOverdue ? "text-destructive" : "text-muted-foreground",
+              ].join(" ")}
+            >
+              <Calendar className="size-3.5" />
+              {dueDateLabel}
+            </span>
+          )}
         </label>
       </div>
     </SwipeableItem>

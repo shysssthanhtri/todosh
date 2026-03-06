@@ -6,6 +6,7 @@ export const TodoModel = z.object({
   id: z.string(),
   title: z.string(),
   completed: z.boolean(),
+  dueDate: z.date().nullish(),
   userId: z.string(),
   createdAt: z.date(),
   updatedAt: z.date(),
