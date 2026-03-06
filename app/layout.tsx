@@ -18,6 +18,14 @@ export const metadata: Metadata = {
     description: "A simple and fast Todo application",
     url: siteUrl,
     siteName: "Todosh",
+    images: [
+      {
+        url: "/opengraph-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Todosh - Todo app",
+      },
+    ],
     locale: "en_US",
     type: "website",
   },

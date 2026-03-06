@@ -7,7 +7,4 @@ export const ROUTES = {
 
 export const authRoutes = [ROUTES.LOGIN, ROUTES.SIGNUP] as string[];
 
-export const publicRoutes = [
-  ...authRoutes,
-  "/opengraph-image", // Required for Facebook/social crawlers to fetch OG image
-] as string[];
+export const publicRoutes = [...authRoutes] as string[];
