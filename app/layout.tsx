@@ -5,10 +5,36 @@ import type { Metadata, Viewport } from "next";
 import { geistMono, geistSans } from "@/app/fonts";
 import { Toaster } from "@/components/ui/sonner";
 
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://todosh-weld.vercel.app";
+
 export const metadata: Metadata = {
   title: "Todosh",
   description: "A simple and fast Todo application",
+  metadataBase: new URL(siteUrl),
   manifest: "/manifest.json",
+  openGraph: {
+    title: "Todosh",
+    description: "A simple and fast Todo application",
+    url: siteUrl,
+    siteName: "Todosh",
+    images: [
+      {
+        url: "/icons/icon-512x512.png",
+        width: 512,
+        height: 512,
+        alt: "Todosh - Todo app",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "Todosh",
+    description: "A simple and fast Todo application",
+    images: ["/icons/icon-512x512.png"],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
