@@ -3,6 +3,7 @@ import { join } from "node:path";
 
 import { ImageResponse } from "next/og";
 
+export const runtime = "nodejs";
 export const alt = "Todosh - A simple and fast Todo application";
 export const size = {
   width: 1200,
@@ -11,13 +12,10 @@ export const size = {
 export const contentType = "image/png";
 
 export default async function Image() {
-  const geistSemiBold = await readFile(
-    join(process.cwd(), "app/fonts/Geist/static/Geist-SemiBold.ttf"),
-  );
-  const iconData = await readFile(
-    join(process.cwd(), "public/icons/icon-512x512.png"),
-    "base64",
-  );
+  const [geistSemiBold, iconData] = await Promise.all([
+    readFile(join(process.cwd(), "app/fonts/Geist/static/Geist-SemiBold.ttf")),
+    readFile(join(process.cwd(), "public/icons/icon-512x512.png"), "base64"),
+  ]);
   const iconSrc = `data:image/png;base64,${iconData}`;
 
   return new ImageResponse(
@@ -63,6 +61,9 @@ export default async function Image() {
     </div>,
     {
       ...size,
+      headers: {
+        "Content-Type": "image/png",
+      },
       fonts: [
         {
           name: "Geist",
