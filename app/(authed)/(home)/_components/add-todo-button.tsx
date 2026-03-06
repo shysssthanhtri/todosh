@@ -30,8 +30,13 @@ export const AddTodoButton = () => {
         formRef.current?.reset?.();
         window.dispatchEvent(new CustomEvent("todo-added"));
         toast.success("Todo added", { position: "top-center" });
-        // Defer focus so it runs after React commits the reset and toast renders (20ms avoids focus being stolen)
-        setTimeout(() => formRef.current?.focus?.(), 100);
+        // Defer focus so it runs after React commits the reset and toast renders.
+        // Double rAF ensures layout/paint before focusing; fallback for Enter-key submit or edge cases.
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            formRef.current?.focus?.();
+          });
+        });
       } catch {
         toast.error("Failed to add todo", { position: "top-center" });
       }

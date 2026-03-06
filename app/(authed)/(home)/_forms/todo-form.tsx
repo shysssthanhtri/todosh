@@ -88,7 +88,7 @@ export const TodoForm = forwardRef<Ref, Props>((props, ref) => {
                 id={field.name}
                 aria-invalid={fieldState.invalid}
                 required
-                disabled={isPending}
+                readOnly={isPending}
                 placeholder="What needs to be done?"
                 className="border-0 p-0 text-base shadow-none focus-visible:ring-0"
                 autoFocus
@@ -103,6 +103,7 @@ export const TodoForm = forwardRef<Ref, Props>((props, ref) => {
               size="icon"
               className="size-10 rounded-full"
               disabled={!title.trim() || isPending}
+              onPointerDown={(e) => e.preventDefault()}
             >
               <ArrowUp className="size-5" />
               <span className="sr-only">Submit</span>
