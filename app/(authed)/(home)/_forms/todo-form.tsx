@@ -29,6 +29,7 @@ interface Ref {
   submit?: () => void;
   reset?: (value?: Partial<FormType>) => void;
   focus?: () => void;
+  blur?: () => void;
 }
 export type TodoFormRef = Ref;
 
@@ -63,6 +64,9 @@ export const TodoForm = forwardRef<Ref, Props>((props, ref) => {
       },
       focus: () => {
         inputRef.current?.focus();
+      },
+      blur: () => {
+        inputRef.current?.blur();
       },
     }),
     [form, handleSubmit],

@@ -44,7 +44,12 @@ export const AddTodoButton = () => {
   };
 
   return (
-    <Drawer direction="bottom">
+    <Drawer
+      direction="bottom"
+      onOpenChange={(open) => {
+        if (!open) formRef.current?.blur?.();
+      }}
+    >
       <DrawerTrigger asChild>
         <Button
           size="icon"
