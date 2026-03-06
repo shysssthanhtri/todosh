@@ -46,6 +46,7 @@ export const AddTodoButton = () => {
   return (
     <Drawer
       direction="bottom"
+      repositionInputs={false}
       onOpenChange={(open) => {
         if (!open) formRef.current?.blur?.();
       }}
