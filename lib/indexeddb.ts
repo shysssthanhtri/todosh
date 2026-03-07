@@ -108,6 +108,18 @@ export async function deleteTodo(id: string): Promise<void> {
   });
 }
 
+/** Clears all todos from the store. Used on sign-out so the next user does not see them. */
+export async function clearTodos(): Promise<void> {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(STORE_NAME, "readwrite");
+    const store = transaction.objectStore(STORE_NAME);
+    const request = store.clear();
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => resolve();
+  });
+}
+
 /** Puts a todo by id (insert or overwrite). Used by sync merge. */
 export async function putTodo(todo: TodoItem): Promise<void> {
   const db = await openDB();
