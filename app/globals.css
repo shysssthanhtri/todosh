@@ -80,6 +80,22 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  /* Sonner toast type colors */
+  --toast-success-bg: oklch(0.97 0.02 145);
+  --toast-success-border: oklch(0.88 0.06 145);
+  --toast-success-text: oklch(0.35 0.12 145);
+  --toast-info-bg: oklch(0.97 0.02 230);
+  --toast-info-border: oklch(0.88 0.06 230);
+  --toast-info-text: oklch(0.45 0.15 250);
+  --toast-warning-bg: oklch(0.98 0.04 85);
+  --toast-warning-border: oklch(0.9 0.1 85);
+  --toast-warning-text: oklch(0.5 0.15 70);
+  --toast-error-bg: oklch(0.98 0.03 25);
+  --toast-error-border: oklch(0.9 0.1 25);
+  --toast-error-text: oklch(0.55 0.2 25);
+  --toast-loading-bg: oklch(0.97 0.01 286);
+  --toast-loading-border: oklch(0.9 0.02 286);
+  --toast-loading-text: oklch(0.45 0.08 286);
 }
 
 .dark {
@@ -114,6 +130,34 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+  /* Sonner toast type colors (dark) */
+  --toast-success-bg: oklch(0.18 0.04 145);
+  --toast-success-border: oklch(0.28 0.06 145);
+  --toast-success-text: oklch(0.75 0.12 145);
+  --toast-info-bg: oklch(0.18 0.04 230);
+  --toast-info-border: oklch(0.28 0.06 230);
+  --toast-info-text: oklch(0.75 0.12 250);
+  --toast-warning-bg: oklch(0.2 0.05 85);
+  --toast-warning-border: oklch(0.3 0.08 85);
+  --toast-warning-text: oklch(0.8 0.12 70);
+  --toast-error-bg: oklch(0.22 0.06 25);
+  --toast-error-border: oklch(0.32 0.08 25);
+  --toast-error-text: oklch(0.8 0.15 25);
+  --toast-loading-bg: oklch(0.22 0.02 286);
+  --toast-loading-border: oklch(0.32 0.04 286);
+  --toast-loading-text: oklch(0.75 0.06 286);
+}
+
+/* Sonner: apply loading toast colors (richColors doesn't include loading by default) */
+[data-rich-colors="true"][data-sonner-toast][data-type="loading"][data-styled="true"] {
+  background: var(--toast-loading-bg);
+  border-color: var(--toast-loading-border);
+  color: var(--toast-loading-text);
+}
+[data-rich-colors="true"][data-sonner-toast][data-type="loading"] [data-close-button] {
+  background: var(--toast-loading-bg);
+  border-color: var(--toast-loading-border);
+  color: var(--toast-loading-text);
 }
 
 @layer base {
