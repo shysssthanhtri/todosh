@@ -3,7 +3,7 @@
 import bcrypt from "bcryptjs";
 import { AuthError } from "next-auth";
 
-import { signIn } from "@/auth";
+import { signIn, signOut } from "@/auth";
 import { ROUTES } from "@/constants/routes";
 import { prisma } from "@/lib/prisma";
 import { ActionResult } from "@/types/actions";
@@ -95,4 +95,8 @@ export async function signup(
     // Next.js redirects throw an error, so we need to re-throw it
     throw error;
   }
+}
+
+export async function signOutAction() {
+  await signOut({ redirectTo: ROUTES.LOGIN });
 }
