@@ -1,6 +1,6 @@
 "use client";
 
-import { format } from "date-fns";
+import { format, isToday, isTomorrow, isYesterday } from "date-fns";
 import { Calendar, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -30,7 +30,15 @@ export const TodoItem = ({ todo, onToggle, onDelete }: Props) => {
 
   const dueDate = todo.dueDate ? new Date(todo.dueDate) : undefined;
   const showDueDate = Boolean(dueDate);
-  const dueDateLabel = dueDate ? format(dueDate, "d MMM") : "";
+  const dueDateLabel = dueDate
+    ? isToday(dueDate)
+      ? "today"
+      : isTomorrow(dueDate)
+        ? "tomorrow"
+        : isYesterday(dueDate)
+          ? "yesterday"
+          : format(dueDate, "d MMM")
+    : "";
   const dueDateIsOverdue = dueDate ? isOverdue(dueDate) : false;
 
   const handleToggle = (checked: boolean) => {
