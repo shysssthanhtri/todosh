@@ -8,7 +8,8 @@ const withSerwist = withSerwistInit({
 });
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Acknowledge Turbopack so Next doesn’t warn about Serwist’s webpack config
+  turbopack: {},
 };
 
 export default withSerwist(nextConfig);
