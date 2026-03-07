@@ -40,16 +40,16 @@ export function FooterNav() {
 
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-40 px-4 pb-4 pt-2 md:pb-6 md:pt-4"
+      className="fixed inset-x-0 bottom-0 z-40 px-3 pb-2 pt-1.5 md:pb-3 md:pt-2"
       aria-label="Main navigation"
     >
       <div
         ref={containerRef}
-        className="relative mx-auto flex max-w-2xl items-center justify-center gap-1 rounded-full bg-muted px-2 py-2 shadow-sm"
+        className="relative mx-auto flex max-w-2xl items-center justify-center gap-0.5 rounded-full bg-muted px-1.5 py-1 shadow-sm"
       >
         {hasActiveTab && (
           <div
-            className="absolute top-0 bottom-0 rounded-full ring-2 ring-primary transition-all duration-200 ease-out"
+            className="absolute top-0 bottom-0 rounded-full bg-primary transition-all duration-200 ease-out"
             style={{
               left: indicatorStyle.left,
               width: indicatorStyle.width,
@@ -67,14 +67,14 @@ export function FooterNav() {
               }}
               href={href}
               className={cn(
-                "relative z-10 flex flex-1 flex-col items-center gap-0.5 rounded-full px-3 py-2 text-xs font-medium transition-colors duration-200",
+                "relative z-10 flex flex-1 flex-col items-center gap-0.5 rounded-full px-2.5 py-1.5 text-xs font-medium transition-colors duration-200",
                 isActive
-                  ? "text-primary"
+                  ? "text-primary-foreground"
                   : "text-muted-foreground hover:text-foreground",
               )}
               aria-current={isActive ? "page" : undefined}
             >
-              <Icon className="size-5 shrink-0" aria-hidden />
+              <Icon className="size-4 shrink-0" aria-hidden />
               <span>{label}</span>
             </Link>
           );

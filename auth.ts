@@ -5,7 +5,7 @@ import Credentials from "next-auth/providers/credentials";
 
 import { prisma } from "@/lib/prisma";
 
-import { authRoutes, publicRoutes, ROUTES } from "./constants/routes";
+import { publicRoutes, ROUTES } from "./constants/routes";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
@@ -83,8 +83,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
 
       // Authenticated user visiting auth pages → redirect to home
-      if (isLoggedIn && authRoutes.includes(pathname)) {
-        return Response.redirect(new URL(ROUTES.HOME, nextUrl));
+      if (isLoggedIn && publicRoutes.includes(pathname)) {
+        return Response.redirect(new URL(ROUTES.TODAY, nextUrl));
       }
 
       // Unauthenticated user visiting protected pages → redirect to login
