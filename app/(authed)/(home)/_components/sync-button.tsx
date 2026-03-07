@@ -1,7 +1,6 @@
 "use client";
 
 import { Loader2, RefreshCw } from "lucide-react";
-import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -11,10 +10,7 @@ import { syncNow } from "@/lib/todo-sync";
 const TODO_SYNCED_EVENT = "todo-synced";
 
 export function SyncButton() {
-  const { status } = useSession();
   const [isSyncing, setIsSyncing] = useState(false);
-
-  if (status !== "authenticated") return null;
 
   const handleSync = async () => {
     setIsSyncing(true);

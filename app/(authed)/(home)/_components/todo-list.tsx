@@ -109,16 +109,18 @@ export const TodoList = () => {
 
   return (
     <div className="flex flex-col">
-      {todos.map((todo, index) => (
-        <div key={todo.id}>
-          <TodoItem
-            todo={todo}
-            onToggle={handleToggle}
-            onDelete={handleDelete}
-          />
-          {index < todos.length - 1 && <Separator />}
-        </div>
-      ))}
+      {todos
+        .sort((a, b) => (a.createdAt.getTime() - b.createdAt.getTime()) * -1)
+        .map((todo, index) => (
+          <div key={todo.id}>
+            <TodoItem
+              todo={todo}
+              onToggle={handleToggle}
+              onDelete={handleDelete}
+            />
+            {index < todos.length - 1 && <Separator />}
+          </div>
+        ))}
     </div>
   );
 };

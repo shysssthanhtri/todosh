@@ -3,7 +3,6 @@ import "./globals.css";
 import type { Metadata, Viewport } from "next";
 
 import { geistMono, geistSans } from "@/app/fonts";
-import { SessionProvider } from "@/components/session-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -73,10 +72,8 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <SessionProvider>
-            {children}
-            <Toaster />
-          </SessionProvider>
+          {children}
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>
