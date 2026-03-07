@@ -16,7 +16,10 @@ export function SyncButton() {
     setIsSyncing(true);
     try {
       await syncNow();
-      toast.success("Synced", { position: "top-center" });
+      toast.success("Synced", {
+        position: "top-center",
+        duration: 3000,
+      });
       window.dispatchEvent(new CustomEvent(TODO_SYNCED_EVENT));
     } catch (err) {
       const message = err instanceof Error ? err.message : "Sync failed";
