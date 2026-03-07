@@ -19,6 +19,17 @@ export const metadata: Metadata = {
   keywords: ["todo", "tasks", "productivity", "task manager"],
   metadataBase: new URL(siteUrl),
   manifest: "/manifest.json",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
+  },
+  alternates: {
+    canonical: siteUrl,
+  },
   openGraph: {
     title: "Todosh",
     description: "A simple and fast Todo application",
