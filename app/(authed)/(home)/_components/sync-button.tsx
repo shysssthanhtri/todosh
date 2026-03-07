@@ -16,11 +16,18 @@ export function SyncButton() {
     setIsSyncing(true);
     try {
       await syncNow();
-      toast.success("Synced", {
+      const toastId = toast.success("Synced", {
         position: "top-center",
         duration: 3000,
       });
-      window.dispatchEvent(new CustomEvent(TODO_SYNCED_EVENT));
+      // PWA: list refresh can clear Sonner's timer; we dismiss explicitly so toast always hides
+      const dismissMs = 3000;
+      setTimeout(() => {
+        toast.dismiss(toastId);
+      }, dismissMs);
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent(TODO_SYNCED_EVENT));
+      }, 0);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Sync failed";
       toast.error(message, { position: "top-center" });
