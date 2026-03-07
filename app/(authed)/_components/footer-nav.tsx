@@ -40,7 +40,7 @@ export function FooterNav() {
 
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-40 px-3 pb-2 pt-1.5 md:pb-3 md:pt-2"
+      className="fixed inset-x-0 bottom-0 z-40 px-3 pb-4 pt-1.5 md:pb-3 md:pt-2"
       aria-label="Main navigation"
     >
       <div
