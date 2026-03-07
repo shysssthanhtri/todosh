@@ -106,7 +106,7 @@ export const TodoForm = forwardRef<Ref, Props>((props, ref) => {
                 required
                 readOnly={isPending}
                 placeholder="What needs to be done?"
-                className="border-0 p-0 text-base shadow-none focus-visible:ring-0"
+                className="border-0 p-0 pl-3 text-base shadow-none focus-visible:ring-0"
                 autoFocus
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}

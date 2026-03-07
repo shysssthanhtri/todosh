@@ -2,7 +2,7 @@
 
 import { format } from "date-fns";
 import { Calendar, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Checkbox } from "@/components/ui/checkbox";
 import { SwipeableItem } from "@/components/ui/swipeable-item";
@@ -20,8 +20,14 @@ const LINE_THROUGH_DELAY_MS = 200;
 const FADE_DURATION_MS = 300;
 
 export const TodoItem = ({ todo, onToggle, onDelete }: Props) => {
-  const [isHiding, setIsHiding] = useState(false);
   const [isCompleted, setIsCompleted] = useState(todo.completed);
+  const [isHiding, setIsHiding] = useState(false);
+  // Sync display from prop when todo.completed changes (e.g. after uncheck or list refresh)
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sync checkbox display from parent
+    setIsCompleted(todo.completed);
+  }, [todo.completed]);
+
   const dueDate = todo.dueDate ? new Date(todo.dueDate) : undefined;
   const showDueDate = Boolean(dueDate);
   const dueDateLabel = dueDate ? format(dueDate, "d MMM") : "";
@@ -29,14 +35,11 @@ export const TodoItem = ({ todo, onToggle, onDelete }: Props) => {
 
   const handleToggle = (checked: boolean) => {
     if (checked) {
-      // First show line-through
       setIsCompleted(true);
-      // Then start fade animation after a brief delay
       setTimeout(() => {
         setIsHiding(true);
-        // Finally delete after fade completes
         setTimeout(() => {
-          onDelete(todo.id);
+          onToggle(todo.id, true);
         }, FADE_DURATION_MS);
       }, LINE_THROUGH_DELAY_MS);
     } else {

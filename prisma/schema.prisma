@@ -84,7 +84,7 @@ model VerificationToken {
 }
 
 model Todo {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  id          String    @id @map("_id")
   title       String
   completed   Boolean   @default(false)
   dueDate     DateTime?

@@ -13,6 +13,7 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { addTodo } from "@/lib/indexeddb";
+import { recordUpsert } from "@/lib/todo-sync";
 
 import { TodoForm, TodoFormRef } from "../_forms/todo-form";
 
@@ -23,11 +24,12 @@ export const AddTodoButton = () => {
   const handleSubmit = (value: TodoForm.FormValue) => {
     startTransition(async () => {
       try {
-        await addTodo({
+        const addedTodo = await addTodo({
           title: value.title,
           completed: false,
           dueDate: value.dueDate,
         });
+        recordUpsert(addedTodo);
         formRef.current?.reset?.();
         window.dispatchEvent(new CustomEvent("todo-added"));
         toast.success("Todo added", { position: "top-center" });

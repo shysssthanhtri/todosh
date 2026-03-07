@@ -11,6 +11,7 @@ import {
   TodoItem as TodoItemType,
   updateTodo,
 } from "@/lib/indexeddb";
+import { recordDelete, recordUpsert } from "@/lib/todo-sync";
 
 import { TodoItem } from "./todo-item";
 
@@ -45,12 +46,27 @@ export const TodoList = () => {
     return () => window.removeEventListener("todo-added", handleTodoAdded);
   }, [loadTodos]);
 
+  useEffect(() => {
+    const handleTodoSynced = () => {
+      loadTodos();
+    };
+
+    window.addEventListener("todo-synced", handleTodoSynced);
+    return () => window.removeEventListener("todo-synced", handleTodoSynced);
+  }, [loadTodos]);
+
   const handleToggle = async (id: string, completed: boolean) => {
     try {
-      await updateTodo(id, { completed });
-      setTodos((prev) =>
-        prev.map((todo) => (todo.id === id ? { ...todo, completed } : todo)),
-      );
+      const updatedTodo = await updateTodo(id, { completed });
+      recordUpsert(updatedTodo);
+      if (completed) {
+        await deleteTodo(id);
+        setTodos((prev) => prev.filter((todo) => todo.id !== id));
+      } else {
+        setTodos((prev) =>
+          prev.map((todo) => (todo.id === id ? { ...todo, completed } : todo)),
+        );
+      }
     } catch {
       toast.error("Failed to update todo", { position: "top-center" });
     }
@@ -59,6 +75,7 @@ export const TodoList = () => {
   const handleDelete = async (id: string) => {
     try {
       await deleteTodo(id);
+      recordDelete(id);
       setTodos((prev) => prev.filter((todo) => todo.id !== id));
     } catch {
       toast.error("Failed to delete todo", { position: "top-center" });
