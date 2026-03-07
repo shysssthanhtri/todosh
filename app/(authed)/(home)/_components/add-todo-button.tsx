@@ -57,7 +57,7 @@ export const AddTodoButton = () => {
       <DrawerTrigger asChild>
         <Button
           size="icon"
-          className="fixed right-6 bottom-6 size-14 rounded-full shadow-lg"
+          className="fixed right-6 bottom-24 size-14 rounded-full shadow-lg"
         >
           <Plus className="size-6" />
           <span className="sr-only">Add</span>
