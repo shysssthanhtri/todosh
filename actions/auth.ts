@@ -16,7 +16,7 @@ export async function login(
     await signIn("credentials", {
       email,
       password,
-      redirectTo: ROUTES.HOME,
+      redirectTo: ROUTES.TODAY,
     });
 
     return { success: true, data: undefined };
@@ -64,7 +64,7 @@ export async function signup(
     await signIn("credentials", {
       email,
       password,
-      redirectTo: ROUTES.HOME,
+      redirectTo: ROUTES.TODAY,
     });
 
     return { success: true, data: undefined };

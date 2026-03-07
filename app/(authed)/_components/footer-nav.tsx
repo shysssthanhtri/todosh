@@ -1,6 +1,11 @@
 "use client";
 
-import { Calendar, FolderOpen, LayoutList } from "lucide-react";
+import {
+  Calendar,
+  FolderOpen,
+  LayoutDashboard,
+  LayoutList,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useLayoutEffect, useRef, useState } from "react";
@@ -11,6 +16,7 @@ import { cn } from "@/lib/utils";
 const navItems = [
   { href: ROUTES.TODAY, label: "Today", icon: Calendar },
   { href: ROUTES.UPCOMING, label: "Upcoming", icon: LayoutList },
+  { href: ROUTES.DASHBOARD, label: "Dashboard", icon: LayoutDashboard },
   { href: ROUTES.BROWSE, label: "Browse", icon: FolderOpen },
 ] as const;
 

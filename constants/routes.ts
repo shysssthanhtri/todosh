@@ -2,9 +2,9 @@ export const ROUTES = {
   /** Landing page (public) */
   LANDING: "/",
   /** App home after login */
-  HOME: "/today",
   TODAY: "/today",
   UPCOMING: "/upcoming",
+  DASHBOARD: "/dashboard",
   BROWSE: "/browse",
   LOGIN: "/login",
   SIGNUP: "/signup",

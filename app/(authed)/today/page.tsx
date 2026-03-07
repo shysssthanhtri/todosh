@@ -1,8 +1,8 @@
 import { ModeToggle } from "@/components/mode-toggle";
 
-import { AddTodoButton } from "../(home)/_components/add-todo-button";
-import { SyncButton } from "../(home)/_components/sync-button";
-import { TodoList } from "../(home)/_components/todo-list";
+import { AddTodoButton } from "./_components/add-todo-button";
+import { SyncButton } from "./_components/sync-button";
+import { TodoList } from "./_components/todo-list";
 
 export const metadata = {
   title: "My Todos",
