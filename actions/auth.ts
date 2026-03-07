@@ -8,6 +8,23 @@ import { ROUTES } from "@/constants/routes";
 import { prisma } from "@/lib/prisma";
 import { ActionResult } from "@/types/actions";
 
+export async function loginWithGoogle(): Promise<ActionResult> {
+  try {
+    await signIn("google", {
+      redirectTo: ROUTES.TODAY,
+    });
+    return { success: true, data: undefined };
+  } catch (error) {
+    if (error instanceof AuthError) {
+      return {
+        success: false,
+        error: "Something went wrong. Please try again.",
+      };
+    }
+    throw error;
+  }
+}
+
 export async function login(
   email: string,
   password: string,
