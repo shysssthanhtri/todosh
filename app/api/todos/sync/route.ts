@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { auth } from "@/auth";
+import { bulkUpsertTodos } from "@/lib/mongo-todo-bulk";
 import { prisma } from "@/lib/prisma";
 
 type SyncTodo = {
@@ -13,7 +14,16 @@ type SyncTodo = {
 };
 
 export async function POST(request: Request) {
-  const session = await auth();
+  let session;
+  try {
+    session = await auth();
+  } catch (err) {
+    console.error("[sync] auth error:", err);
+    return NextResponse.json(
+      { error: "Authentication failed" },
+      { status: 500 },
+    );
+  }
 
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -31,38 +41,26 @@ export async function POST(request: Request) {
   const upserts = Array.isArray(body.upserts) ? body.upserts : [];
   const deleteIds = Array.isArray(body.deleteIds) ? body.deleteIds : [];
 
-  if (deleteIds.length > 0) {
-    await prisma.todo.deleteMany({
-      where: {
-        id: { in: deleteIds },
-        userId,
-      },
-    });
-  }
+  try {
+    const deletePromise =
+      deleteIds.length > 0
+        ? prisma.todo.deleteMany({
+            where: {
+              id: { in: deleteIds },
+              userId,
+            },
+          })
+        : Promise.resolve();
 
-  for (const item of upserts) {
-    const dueDate = item.dueDate ? new Date(item.dueDate) : null;
-    const createdAt = new Date(item.createdAt);
-    const updatedAt = new Date(item.updatedAt);
+    const upsertPromise = bulkUpsertTodos(userId, upserts);
 
-    await prisma.todo.upsert({
-      where: { id: item.id },
-      create: {
-        id: item.id,
-        title: item.title,
-        completed: item.completed,
-        dueDate,
-        userId,
-        createdAt,
-        updatedAt,
-      },
-      update: {
-        title: item.title,
-        completed: item.completed,
-        dueDate,
-        updatedAt,
-      },
-    });
+    await Promise.all([deletePromise, upsertPromise]);
+  } catch (err) {
+    console.error("[sync] database error:", err);
+    return NextResponse.json(
+      { error: "Sync failed. Please try again." },
+      { status: 500 },
+    );
   }
 
   return new NextResponse(null, { status: 200 });

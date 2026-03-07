@@ -173,7 +173,14 @@ export async function syncNow(): Promise<void> {
       throw new Error("Unauthorized");
     }
     if (!res.ok) {
-      throw new Error(`Sync failed: ${res.status}`);
+      let message = `Sync failed: ${res.status}`;
+      try {
+        const data = (await res.json()) as { error?: string };
+        if (typeof data?.error === "string") message = data.error;
+      } catch {
+        // ignore body parse; use default message
+      }
+      throw new Error(message);
     }
 
     setPending({ upserts: [], deleteIds: [] });
@@ -185,7 +192,14 @@ export async function syncNow(): Promise<void> {
     throw new Error("Unauthorized");
   }
   if (!listRes.ok) {
-    throw new Error(`Fetch todos failed: ${listRes.status}`);
+    let message = `Fetch todos failed: ${listRes.status}`;
+    try {
+      const data = (await listRes.json()) as { error?: string };
+      if (typeof data?.error === "string") message = data.error;
+    } catch {
+      // ignore body parse; use default message
+    }
+    throw new Error(message);
   }
 
   const serverTodos = (await listRes.json()) as ServerTodo[];
