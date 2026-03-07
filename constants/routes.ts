@@ -1,5 +1,8 @@
 export const ROUTES = {
-  HOME: "/",
+  /** Landing page (public) */
+  LANDING: "/",
+  /** App home after login */
+  HOME: "/today",
   TODAY: "/today",
   UPCOMING: "/upcoming",
   BROWSE: "/browse",
@@ -10,4 +13,4 @@ export const ROUTES = {
 
 export const authRoutes = [ROUTES.LOGIN, ROUTES.SIGNUP] as string[];
 
-export const publicRoutes = [...authRoutes] as string[];
+export const publicRoutes = [ROUTES.LANDING, ...authRoutes] as string[];

@@ -1,3 +1,8 @@
+export const metadata = {
+  title: "Upcoming",
+  description: "View your upcoming tasks and plan ahead.",
+};
+
 const UpcomingPage = () => {
   return (
     <div className="container mx-auto max-w-2xl px-4 py-6">

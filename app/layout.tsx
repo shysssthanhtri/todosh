@@ -11,8 +11,12 @@ const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://todosh-weld.vercel.app";
 
 export const metadata: Metadata = {
-  title: "Todosh",
+  title: {
+    default: "Todosh",
+    template: "%s | Todosh",
+  },
   description: "A simple and fast Todo application",
+  keywords: ["todo", "tasks", "productivity", "task manager"],
   metadataBase: new URL(siteUrl),
   manifest: "/manifest.json",
   openGraph: {
@@ -35,6 +39,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Todosh",
     description: "A simple and fast Todo application",
+    images: ["/opengraph-image.png"],
   },
   appleWebApp: {
     capable: true,
@@ -57,6 +62,21 @@ export const viewport: Viewport = {
   ],
 };
 
+const webApplicationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: "Todosh",
+  description:
+    "A simple and fast Todo application. Manage your tasks, stay organized, and get things done.",
+  url: siteUrl,
+  applicationCategory: "ProductivityApplication",
+  offers: {
+    "@type": "Offer",
+    price: "0",
+    priceCurrency: "USD",
+  },
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -67,6 +87,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(webApplicationJsonLd),
+          }}
+        />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
