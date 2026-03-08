@@ -1,6 +1,8 @@
+import { endOfDay, startOfDay, subDays } from "date-fns";
+
 const DB_NAME = "todosh";
 const DB_VERSION = 1;
-const STORE_NAME = "todos";
+const STORE_NAME = "todos-store";
 
 export interface TodoItem {
   id: string;
@@ -20,11 +22,11 @@ function openDB(): Promise<IDBDatabase> {
 
     request.onupgradeneeded = (event) => {
       const db = (event.target as IDBOpenDBRequest).result;
-      if (!db.objectStoreNames.contains(STORE_NAME)) {
-        const store = db.createObjectStore(STORE_NAME, { keyPath: "id" });
-        store.createIndex("createdAt", "createdAt", { unique: false });
-        store.createIndex("completed", "completed", { unique: false });
+      if (db.objectStoreNames.contains(STORE_NAME)) {
+        db.deleteObjectStore(STORE_NAME);
       }
+      const store = db.createObjectStore(STORE_NAME, { keyPath: "id" });
+      store.createIndex("dueDate", "dueDate", { unique: false });
     };
   });
 }
@@ -131,5 +133,52 @@ export async function putTodo(todo: TodoItem): Promise<void> {
 
     request.onerror = () => reject(request.error);
     request.onsuccess = () => resolve();
+  });
+}
+
+/** Returns todos that have a due date, are not completed, and are past their due date. Uses dueDate index for range, filters completed in JS (IndexedDB keys cannot be boolean). */
+export async function getOverDueTodos(): Promise<TodoItem[]> {
+  const db = await openDB();
+  const endOfYesterday = endOfDay(subDays(new Date(), 1));
+  const range = IDBKeyRange.upperBound(endOfYesterday, true);
+
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(STORE_NAME, "readonly");
+    const store = transaction.objectStore(STORE_NAME);
+    const index = store.index("dueDate");
+    const request = index.getAll(range);
+
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => {
+      const todos = request.result as TodoItem[];
+      resolve(todos.filter((todo) => !todo.completed));
+    };
+  });
+}
+
+/** Returns incomplete todos with dueDate in [start, end]. Uses dueDate index for range, filters completed in JS (IndexedDB keys cannot be boolean). */
+export async function getIncompleteTodosByDateRange(
+  start: Date,
+  end: Date,
+): Promise<TodoItem[]> {
+  const db = await openDB();
+  const range = IDBKeyRange.bound(
+    startOfDay(start),
+    endOfDay(end),
+    false,
+    false,
+  );
+
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(STORE_NAME, "readonly");
+    const store = transaction.objectStore(STORE_NAME);
+    const index = store.index("dueDate");
+    const request = index.getAll(range);
+
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => {
+      const todos = request.result as TodoItem[];
+      resolve(todos.filter((todo) => !todo.completed));
+    };
   });
 }

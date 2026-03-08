@@ -1,8 +1,10 @@
+import { endOfDay, startOfDay } from "date-fns";
+
 import { ModeToggle } from "@/components/mode-toggle";
 
+import { TodoListByDateRange } from "../_components/today-list-by-daterange";
 import { AddTodoButton } from "./_components/add-todo-button";
 import { SyncButton } from "./_components/sync-button";
-import { TodoList } from "./_components/todo-list";
 
 export const metadata = {
   title: "My Todos",
@@ -19,7 +21,10 @@ const TodayPage = () => {
           <ModeToggle />
         </div>
       </div>
-      <TodoList />
+      <TodoListByDateRange
+        start={startOfDay(new Date())}
+        end={endOfDay(new Date())}
+      />
       <AddTodoButton />
     </div>
   );

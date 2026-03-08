@@ -12,7 +12,7 @@ import {
 } from "@/lib/indexeddb";
 import { recordDelete, recordUpsert } from "@/lib/todo-sync";
 
-import { TodoItem } from "./todo-item";
+import { TodoItem } from "../../_components/todo-item";
 
 export const TodoList = () => {
   const [todos, setTodos] = useState<TodoItemType[]>([]);

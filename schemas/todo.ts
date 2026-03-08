@@ -6,3 +6,4 @@ export const TodoSchema = z.object(TodoModel.shape).extend({
   title: z.string().min(3).max(50),
   dueDate: z.date().optional(),
 });
+export type TodoSchemaType = z.infer<typeof TodoSchema>;
