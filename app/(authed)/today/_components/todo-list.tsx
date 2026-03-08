@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Separator } from "@/components/ui/separator";
+import { TODO_ADDED_EVENT } from "@/lib/events";
 import {
   deleteTodo,
   getAllTodos,
@@ -36,8 +37,8 @@ export const TodoList = () => {
       loadTodos();
     };
 
-    window.addEventListener("todo-added", handleTodoAdded);
-    return () => window.removeEventListener("todo-added", handleTodoAdded);
+    window.addEventListener(TODO_ADDED_EVENT, handleTodoAdded);
+    return () => window.removeEventListener(TODO_ADDED_EVENT, handleTodoAdded);
   }, [loadTodos]);
 
   useEffect(() => {

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
+import { TODO_ADDED_EVENT } from "@/lib/events";
 import {
   deleteTodo,
   getIncompleteTodosByDateRange,
@@ -64,6 +65,15 @@ export const TodoListByDateRange = (props: TodoListByDateRangeProps) => {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     loadTodos();
+  }, [loadTodos]);
+
+  useEffect(() => {
+    const handleTodoAdded = () => {
+      loadTodos();
+    };
+
+    window.addEventListener(TODO_ADDED_EVENT, handleTodoAdded);
+    return () => window.removeEventListener(TODO_ADDED_EVENT, handleTodoAdded);
   }, [loadTodos]);
 
   if (todos.length === 0) {
