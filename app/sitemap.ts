@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://todosh-weld.vercel.app";
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://todosh.shyss.space";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [

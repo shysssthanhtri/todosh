@@ -6,6 +6,13 @@
     ],
     "description": "A simple and fast Todo application",
     "display": "standalone",
+    "id": "https://todosh.shyss.space/",
+    "name": "Todosh",
+    "orientation": "portrait",
+    "scope": "/",
+    "short_name": "Todosh",
+    "start_url": "/",
+    "theme_color": "#ffffff",
     "icons": [
         {
             "purpose": "any",
@@ -25,10 +32,5 @@
             "src": "/icons/icon-512x512.png",
             "type": "image/png"
         }
-    ],
-    "name": "Todosh",
-    "orientation": "portrait",
-    "short_name": "Todosh",
-    "start_url": "/",
-    "theme_color": "#ffffff"
+    ]
 }

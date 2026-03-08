@@ -8,7 +8,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 
 const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://todosh-weld.vercel.app";
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://todosh.shyss.space";
 
 export const metadata: Metadata = {
   title: {
