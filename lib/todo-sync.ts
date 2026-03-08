@@ -1,12 +1,13 @@
 import {
+  PENDING_KEY,
+  SERVER_KNOWN_IDS_KEY,
+} from "@/constants/local-storage-keys";
+import {
   clearTodos,
   deleteTodo,
   putTodo,
   type TodoItem,
 } from "@/lib/indexeddb";
-
-const PENDING_KEY = "todosh_pending_sync";
-const SERVER_KNOWN_IDS_KEY = "todosh_server_known_ids";
 
 type PendingSerialized = {
   upserts: Array<{
