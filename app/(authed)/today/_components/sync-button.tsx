@@ -5,9 +5,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { TODO_SYNCED_EVENT } from "@/lib/events";
 import { syncNow } from "@/lib/todo-sync";
-
-const TODO_SYNCED_EVENT = "todo-synced";
 
 export function SyncButton() {
   const [isSyncing, setIsSyncing] = useState(false);
