@@ -4,6 +4,7 @@ export const metadata = {
   title: "Log in",
   description:
     "Log in to Todosh to access your todo list and sync across devices.",
+  alternates: { canonical: "/login" },
 };
 
 export default function LoginPage() {

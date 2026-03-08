@@ -7,6 +7,7 @@ export const metadata = {
   title: { absolute: "Todosh" },
   description:
     "Todosh is a simple and fast todo application. Manage your tasks, stay organized, and get things done.",
+  alternates: { canonical: "/" },
 };
 
 export default function LandingPage() {
@@ -31,6 +32,16 @@ export default function LandingPage() {
             <Link href={ROUTES.LOGIN}>Log in</Link>
           </Button>
         </div>
+        <section className="space-y-3 pt-8 text-left">
+          <h2 className="text-lg font-semibold tracking-tight">
+            Simple task management
+          </h2>
+          <ul className="space-y-1.5 text-sm text-muted-foreground">
+            <li>Add and complete tasks from any device.</li>
+            <li>Sync your todo list so it’s always up to date.</li>
+            <li>Free to use—no account required to try it out.</li>
+          </ul>
+        </section>
       </div>
     </div>
   );

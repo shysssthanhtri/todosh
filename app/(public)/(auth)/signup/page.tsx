@@ -4,6 +4,7 @@ export const metadata = {
   title: "Sign up",
   description:
     "Create a Todosh account to start managing your tasks and syncing across devices.",
+  alternates: { canonical: "/signup" },
 };
 
 export default function SignupPage() {

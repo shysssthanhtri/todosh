@@ -1,5 +1,9 @@
 import { FooterNav } from "./_components/footer-nav";
 
+export const metadata = {
+  robots: { index: false, follow: false },
+};
+
 export default function AuthedLayout({
   children,
 }: Readonly<{
