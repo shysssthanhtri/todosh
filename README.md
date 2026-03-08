@@ -37,6 +37,10 @@ For production deployments, set:
 
 See `.env.example` for a template.
 
+## Appearing in Google
+
+After deployment, verify the site in [Google Search Console](https://search.google.com/search-console) and submit your sitemap (`/sitemap.xml`). See [docs/GOOGLE_SEARCH_CONSOLE.md](docs/GOOGLE_SEARCH_CONSOLE.md) for step-by-step instructions (verification methods, sitemap submission, URL inspection).
+
 ## Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
