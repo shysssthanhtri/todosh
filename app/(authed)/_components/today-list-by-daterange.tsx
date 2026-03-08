@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
-import { TODO_ADDED_EVENT } from "@/lib/events";
+import { TODO_ADDED_EVENT, TODO_SYNCED_EVENT } from "@/lib/events";
 import {
   deleteTodo,
   getIncompleteTodosByDateRange,
@@ -73,7 +73,11 @@ export const TodoListByDateRange = (props: TodoListByDateRangeProps) => {
     };
 
     window.addEventListener(TODO_ADDED_EVENT, handleTodoAdded);
-    return () => window.removeEventListener(TODO_ADDED_EVENT, handleTodoAdded);
+    window.addEventListener(TODO_SYNCED_EVENT, handleTodoAdded);
+    return () => {
+      window.removeEventListener(TODO_ADDED_EVENT, handleTodoAdded);
+      window.removeEventListener(TODO_SYNCED_EVENT, handleTodoAdded);
+    };
   }, [loadTodos]);
 
   if (todos.length === 0) {
