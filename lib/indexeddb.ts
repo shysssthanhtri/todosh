@@ -52,19 +52,6 @@ export async function addTodo(
   });
 }
 
-export async function getAllTodos(): Promise<TodoItem[]> {
-  const db = await openDB();
-
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction(STORE_NAME, "readonly");
-    const store = transaction.objectStore(STORE_NAME);
-    const request = store.getAll();
-
-    request.onerror = () => reject(request.error);
-    request.onsuccess = () => resolve(request.result);
-  });
-}
-
 export async function updateTodo(
   id: string,
   updates: Partial<Omit<TodoItem, "id" | "createdAt">>,
