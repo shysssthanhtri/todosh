@@ -47,6 +47,27 @@ You must prove you own the domain. Pick one method:
 2. Add the TXT record they give you at your DNS provider (e.g. Vercel, Cloudflare, your registrar).
 3. Wait for DNS to propagate (minutes to hours), then click **Verify**.
 
+#### Subdomains (e.g. todosh.shyss.space)
+
+- **If you added a URL prefix** `https://todosh.shyss.space` in Search Console: DNS TXT is not used. Use **Option A** (HTML file in `public/`) or **Option B** (HTML meta tag in the app) to verify the subdomain.
+- **If you added a Domain** `shyss.space` in Search Console: the TXT record goes on the **parent domain**, not the subdomain. Add it to the DNS for **shyss.space** (the root). In Vercel that means: go to **Domains** → click **shyss.space** (not `todosh.shyss.space`) → add the TXT there with **Name** `@` (root of shyss.space) and **Value** as Google gives you. That verifies the whole domain and all subdomains, including `todosh.shyss.space`.
+
+#### Adding the TXT record in Vercel (DNS on Vercel)
+
+Your domain must be using [Vercel’s nameservers](https://vercel.com/docs/domains/managing-nameservers) so Vercel can manage DNS.
+
+1. Open your [Vercel dashboard](https://vercel.com/dashboard) and go to **Domains** in the sidebar (under your team).
+2. Click the **domain** you need to add the record to:
+   - For a **subdomain** like `todosh.shyss.space` with a **Domain** property: click the **parent** domain **shyss.space** (the TXT goes at the root of the parent).
+   - For a **root domain** like `todosh.app`: click **todosh.app**.
+3. Open the **Advanced** / DNS settings for that domain. If you see **Enable Vercel DNS**, turn it on so you can add records.
+4. **Add a record** and set:
+   - **Name:** For the root of that domain use `@` or leave blank. For `shyss.space` this is `@` (root of shyss.space). Use exactly what Search Console shows if it specifies a host.
+   - **Type:** `TXT`
+   - **Value:** Paste the verification string Google gives you (e.g. `google-site-verification=abc123...`).
+   - **TTL:** Default (e.g. 60) is fine.
+5. Save the record. Propagation can take from a few minutes up to 24 hours; then in Search Console click **Verify**.
+
 Use the method that matches how you host and manage the domain.
 
 ---
