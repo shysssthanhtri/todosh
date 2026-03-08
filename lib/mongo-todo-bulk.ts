@@ -1,4 +1,4 @@
-import { MongoClient } from "mongodb";
+import { MongoClient, ObjectId } from "mongodb";
 
 const globalForMongo = globalThis as unknown as {
   mongoClient: MongoClient | undefined;
@@ -34,9 +34,10 @@ export async function bulkUpsertTodos(
 
   const client = getClient();
   const db = client.db();
+  const userIdObj = new ObjectId(userId);
   const collection = db.collection<{
     _id: string;
-    userId: string;
+    userId: ObjectId;
     title: string;
     completed: boolean;
     dueDate: Date | null;
@@ -44,16 +45,20 @@ export async function bulkUpsertTodos(
     updatedAt: Date;
   }>("Todo");
 
+  // Match by _id and userId (accept both string and ObjectId for existing docs)
   const ops = items.map((item) => ({
     updateOne: {
-      filter: { _id: item.id, userId },
+      filter: {
+        _id: item.id,
+        $or: [{ userId: userIdObj }, { userId }],
+      },
       update: {
         $set: {
           title: item.title,
           completed: item.completed,
           dueDate: item.dueDate ? new Date(item.dueDate) : null,
           updatedAt: new Date(item.updatedAt),
-          userId,
+          userId: userIdObj,
         },
         $setOnInsert: {
           _id: item.id,

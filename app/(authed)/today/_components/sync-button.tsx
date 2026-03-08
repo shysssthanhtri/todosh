@@ -6,15 +6,21 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { TODO_SYNCED_EVENT } from "@/lib/events";
-import { syncNow } from "@/lib/todo-sync";
+import { pullTodos, pushPendingChanges } from "@/lib/todo-sync";
 
-export function SyncButton() {
+interface SyncButtonProps {
+  start: Date;
+  end: Date;
+}
+export function SyncButton(props: SyncButtonProps) {
+  const { start, end } = props;
   const [isSyncing, setIsSyncing] = useState(false);
 
   const handleSync = async () => {
     setIsSyncing(true);
     try {
-      await syncNow();
+      await pushPendingChanges();
+      await pullTodos(start, end);
       const toastId = toast.success("Synced", {
         position: "top-center",
         duration: 3000,

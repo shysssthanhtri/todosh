@@ -1,7 +1,7 @@
 import { endOfDay, startOfDay, subDays } from "date-fns";
 
 const DB_NAME = "todosh";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const STORE_NAME = "todos-store";
 
 export interface TodoItem {

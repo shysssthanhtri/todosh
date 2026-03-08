@@ -17,7 +17,10 @@ const TodayPage = () => {
       <div className="flex items-center justify-between">
         <h1 className="mb-6 text-2xl font-bold">My Todos</h1>
         <div className="flex items-center gap-2">
-          <SyncButton />
+          <SyncButton
+            start={startOfDay(new Date())}
+            end={endOfDay(new Date())}
+          />
           <ModeToggle />
         </div>
       </div>

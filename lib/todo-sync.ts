@@ -165,46 +165,55 @@ async function merge(serverTodos: ServerTodo[]): Promise<void> {
   setServerKnownIds([...serverIds]);
 }
 
-export async function syncNow(): Promise<void> {
+/** Pushes local pending changes (upserts + deletes) to the server. No-op if nothing is pending. */
+export async function pushPendingChanges(): Promise<void> {
   const pending = getPending();
   const hasPending = pending.upserts.length > 0 || pending.deleteIds.length > 0;
+  if (!hasPending) return;
 
-  if (hasPending) {
-    const res = await fetch("/api/todos/sync", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "same-origin",
-      body: JSON.stringify({
-        upserts: pending.upserts.map((t) => ({
-          id: t.id,
-          title: t.title,
-          completed: t.completed,
-          dueDate: t.dueDate?.toISOString() ?? null,
-          createdAt: t.createdAt.toISOString(),
-          updatedAt: t.updatedAt.toISOString(),
-        })),
-        deleteIds: pending.deleteIds,
-      }),
-    });
+  const res = await fetch("/api/todos/sync", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "same-origin",
+    body: JSON.stringify({
+      upserts: pending.upserts.map((t) => ({
+        id: t.id,
+        title: t.title,
+        completed: t.completed,
+        dueDate: t.dueDate?.toISOString() ?? null,
+        createdAt: t.createdAt.toISOString(),
+        updatedAt: t.updatedAt.toISOString(),
+      })),
+      deleteIds: pending.deleteIds,
+    }),
+  });
 
-    if (res.status === 401) {
-      throw new Error("Unauthorized");
+  if (res.status === 401) {
+    throw new Error("Unauthorized");
+  }
+  if (!res.ok) {
+    let message = `Sync failed: ${res.status}`;
+    try {
+      const data = (await res.json()) as { error?: string };
+      if (typeof data?.error === "string") message = data.error;
+    } catch {
+      // ignore body parse; use default message
     }
-    if (!res.ok) {
-      let message = `Sync failed: ${res.status}`;
-      try {
-        const data = (await res.json()) as { error?: string };
-        if (typeof data?.error === "string") message = data.error;
-      } catch {
-        // ignore body parse; use default message
-      }
-      throw new Error(message);
-    }
-
-    setPending({ upserts: [], deleteIds: [] });
+    throw new Error(message);
   }
 
-  const listRes = await fetch("/api/todos", { credentials: "same-origin" });
+  setPending({ upserts: [], deleteIds: [] });
+}
+
+/** Fetches todos from the server and merges them into local IndexedDB. Optional start/end filter by dueDate (ISO sent as query params). */
+export async function pullTodos(start: Date, end: Date): Promise<void> {
+  const params = new URLSearchParams();
+  params.set("start", start.toISOString());
+  params.set("end", end.toISOString());
+  const query = params.toString();
+  const url = `/api/todos?${query}`;
+
+  const listRes = await fetch(url, { credentials: "same-origin" });
 
   if (listRes.status === 401) {
     throw new Error("Unauthorized");

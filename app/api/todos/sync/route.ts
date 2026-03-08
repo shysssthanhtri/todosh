@@ -38,8 +38,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const upserts = Array.isArray(body.upserts) ? body.upserts : [];
   const deleteIds = Array.isArray(body.deleteIds) ? body.deleteIds : [];
+  const upserts = (Array.isArray(body.upserts) ? body.upserts : []).filter(
+    (item) => !deleteIds.includes(item.id),
+  );
 
   try {
     const deletePromise =
