@@ -7,6 +7,7 @@ export interface TodoItem {
   title: string;
   completed: boolean;
   dueDate?: Date;
+  labelId?: string | null;
   createdAt: Date;
   updatedAt: Date;
 }

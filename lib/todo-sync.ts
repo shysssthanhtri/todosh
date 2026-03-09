@@ -10,6 +10,7 @@ type PendingSerialized = {
     title: string;
     completed: boolean;
     dueDate?: string | null;
+    labelId?: string | null;
     createdAt: string;
     updatedAt: string;
   }>;
@@ -27,6 +28,7 @@ function parseTodo(raw: PendingSerialized["upserts"][0]): TodoItem {
     title: raw.title,
     completed: raw.completed,
     dueDate: raw.dueDate ? new Date(raw.dueDate) : undefined,
+    labelId: raw.labelId ?? undefined,
     createdAt: new Date(raw.createdAt),
     updatedAt: new Date(raw.updatedAt),
   };
@@ -62,6 +64,7 @@ function setPending(pending: {
       title: t.title,
       completed: t.completed,
       dueDate: t.dueDate ? t.dueDate.toISOString() : null,
+      labelId: t.labelId ?? null,
       createdAt: t.createdAt.toISOString(),
       updatedAt: t.updatedAt.toISOString(),
     })),
@@ -112,6 +115,7 @@ type ServerTodo = {
   title: string;
   completed: boolean;
   dueDate: string | null;
+  labelId?: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -122,6 +126,7 @@ function serverTodoToItem(t: ServerTodo): TodoItem {
     title: t.title,
     completed: t.completed,
     dueDate: t.dueDate ? new Date(t.dueDate) : undefined,
+    labelId: t.labelId ?? undefined,
     createdAt: new Date(t.createdAt),
     updatedAt: new Date(t.updatedAt),
   };
@@ -164,6 +169,7 @@ export async function pushPendingChanges(): Promise<void> {
         title: t.title,
         completed: t.completed,
         dueDate: t.dueDate?.toISOString() ?? null,
+        labelId: t.labelId ?? null,
         createdAt: t.createdAt.toISOString(),
         updatedAt: t.updatedAt.toISOString(),
       })),
