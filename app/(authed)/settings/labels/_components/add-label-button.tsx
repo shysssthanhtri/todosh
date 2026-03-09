@@ -100,7 +100,12 @@ export function AddLabelButton() {
   };
 
   return (
-    <Drawer open={open} onOpenChange={setOpen}>
+    <Drawer
+      open={open}
+      onOpenChange={setOpen}
+      direction="bottom"
+      repositionInputs={false}
+    >
       <DrawerTrigger asChild>
         <Button type="button" size="sm" disabled={isPending}>
           <Plus className="mr-2 size-4" />
