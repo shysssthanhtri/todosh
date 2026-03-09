@@ -1,7 +1,7 @@
 "use client";
 
 import { Plus } from "lucide-react";
-import { FormEvent, useState, useTransition } from "react";
+import { FormEvent, useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -27,6 +27,7 @@ export function AddLabelButton() {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [isPending, startTransition] = useTransition();
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
@@ -102,7 +103,12 @@ export function AddLabelButton() {
   return (
     <Drawer
       open={open}
-      onOpenChange={setOpen}
+      onOpenChange={(nextOpen) => {
+        setOpen(nextOpen);
+        if (!nextOpen) {
+          inputRef.current?.blur();
+        }
+      }}
       direction="bottom"
       repositionInputs={false}
     >
@@ -128,6 +134,7 @@ export function AddLabelButton() {
             <Input
               id="label-name"
               autoFocus
+              ref={inputRef}
               value={name}
               onChange={(event) => setName(event.target.value)}
               placeholder="e.g. Work"
