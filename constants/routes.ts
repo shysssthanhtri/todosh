@@ -6,6 +6,7 @@ export const ROUTES = {
   UPCOMING: "/upcoming",
   DASHBOARD: "/dashboard",
   BROWSE: "/browse",
+  SETTINGS_LABELS: "/settings/labels",
   LOGIN: "/login",
   SIGNUP: "/signup",
   FORGET_PASSWORD: "/forget-password",
