@@ -1,12 +1,18 @@
 import * as z from "zod";
 
-import { CompleteUser, RelatedUserModel } from "./index";
+import {
+  CompleteLabel,
+  CompleteUser,
+  RelatedLabelModel,
+  RelatedUserModel,
+} from "./index";
 
 export const TodoModel = z.object({
   id: z.string(),
   title: z.string(),
   completed: z.boolean(),
   dueDate: z.date().nullish(),
+  labelId: z.string().nullish(),
   userId: z.string(),
   createdAt: z.date(),
   updatedAt: z.date(),
@@ -14,6 +20,7 @@ export const TodoModel = z.object({
 
 export interface CompleteTodo extends z.infer<typeof TodoModel> {
   user: CompleteUser;
+  label?: CompleteLabel | null;
 }
 
 /**
@@ -24,5 +31,6 @@ export interface CompleteTodo extends z.infer<typeof TodoModel> {
 export const RelatedTodoModel: z.ZodSchema<CompleteTodo> = z.lazy(() =>
   TodoModel.extend({
     user: RelatedUserModel,
+    label: RelatedLabelModel.nullish(),
   }),
 );
