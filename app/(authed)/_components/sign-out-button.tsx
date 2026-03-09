@@ -5,14 +5,14 @@ import { useTransition } from "react";
 
 import { signOutAction } from "@/actions/auth";
 import { Button } from "@/components/ui/button";
-import { clearLocalTodoData } from "@/lib/todo-sync";
+import { clearLocalData } from "@/lib/local-data";
 
 export function SignOutButton() {
   const [isPending, startTransition] = useTransition();
 
   const handleClick = () => {
     startTransition(async () => {
-      await clearLocalTodoData();
+      await clearLocalData();
       await signOutAction();
     });
   };

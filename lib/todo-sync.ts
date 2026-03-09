@@ -2,12 +2,7 @@ import {
   PENDING_KEY,
   SERVER_KNOWN_IDS_KEY,
 } from "@/constants/local-storage-keys";
-import {
-  clearTodos,
-  deleteTodo,
-  putTodo,
-  type TodoItem,
-} from "@/lib/indexeddb";
+import { deleteTodo, putTodo, type TodoItem } from "@/lib/indexeddb";
 
 type PendingSerialized = {
   upserts: Array<{
@@ -93,18 +88,6 @@ function setServerKnownIds(ids: string[]): void {
   const storage = getStorage();
   if (!storage) return;
   storage.setItem(SERVER_KNOWN_IDS_KEY, JSON.stringify(ids));
-}
-
-/**
- * Clears all local todo data (IndexedDB todos store and sync localStorage keys).
- * Call on sign-out so the next user does not see the previous user's data.
- */
-export async function clearLocalTodoData(): Promise<void> {
-  if (typeof window === "undefined") return;
-  const storage = window.localStorage;
-  storage.removeItem(PENDING_KEY);
-  storage.removeItem(SERVER_KNOWN_IDS_KEY);
-  await clearTodos();
 }
 
 export function recordUpsert(todo: TodoItem): void {
