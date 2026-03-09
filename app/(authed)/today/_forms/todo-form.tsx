@@ -18,10 +18,12 @@ import { toDueDateUTC } from "@/lib/date-utils";
 import { TodoSchema } from "@/schemas/todo";
 
 import { DueDatePicker } from "./due-date-picker";
+import { LabelPicker } from "./label-picker";
 
 const FormSchema = TodoSchema.pick({
   title: true,
   dueDate: true,
+  labelId: true,
 });
 type FormType = z.infer<typeof FormSchema>;
 
@@ -48,6 +50,7 @@ export const TodoForm = forwardRef<Ref, Props>((props, ref) => {
     defaultValues: {
       title: "",
       dueDate: defaultDueDate(),
+      labelId: null,
     },
   });
 
@@ -68,9 +71,11 @@ export const TodoForm = forwardRef<Ref, Props>((props, ref) => {
       },
       reset: (value) => {
         const currentDueDate = form.getValues("dueDate") ?? defaultDueDate();
+        const currentLabelId = form.getValues("labelId") ?? null;
         form.reset({
           title: "",
           dueDate: currentDueDate,
+          labelId: currentLabelId,
           ...value,
         });
       },
@@ -120,6 +125,13 @@ export const TodoForm = forwardRef<Ref, Props>((props, ref) => {
               control={form.control}
               render={({ field }) => (
                 <DueDatePicker value={field.value} onChange={field.onChange} />
+              )}
+            />
+            <Controller
+              name="labelId"
+              control={form.control}
+              render={({ field }) => (
+                <LabelPicker value={field.value} onChange={field.onChange} />
               )}
             />
           </div>

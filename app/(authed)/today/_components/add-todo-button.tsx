@@ -29,6 +29,7 @@ export const AddTodoButton = () => {
           title: value.title,
           completed: false,
           dueDate: value.dueDate,
+          labelId: value.labelId ?? undefined,
         });
         recordUpsert(addedTodo);
         formRef.current?.reset?.();
