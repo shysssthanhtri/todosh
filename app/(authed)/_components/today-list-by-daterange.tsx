@@ -3,10 +3,15 @@
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
-import { TODO_ADDED_EVENT, TODO_SYNCED_EVENT } from "@/lib/events";
+import {
+  LABELS_UPDATED_EVENT,
+  TODO_ADDED_EVENT,
+  TODO_SYNCED_EVENT,
+} from "@/lib/events";
 import {
   deleteTodo,
   getIncompleteTodosByDateRange,
+  getLabels,
   updateTodo,
 } from "@/lib/indexeddb";
 import { recordDelete, recordUpsert } from "@/lib/todo-sync";
@@ -46,10 +51,17 @@ export const TodoListByDateRange = (props: TodoListByDateRangeProps) => {
 
   const loadTodos = useCallback(async () => {
     try {
-      const items = await getIncompleteTodosByDateRange(start, end);
+      const [items, labels] = await Promise.all([
+        getIncompleteTodosByDateRange(start, end),
+        getLabels(),
+      ]);
+      const labelByName = new Map(labels.map((l) => [l.id, l.name]));
       setTodos(
         items.map((item) => ({
           ...item,
+          labelName: item.labelId
+            ? (labelByName.get(item.labelId) ?? null)
+            : null,
           onDelete: () => handleDelete(item.id),
           onToggle: () => handleComplete(item.id),
         })),
@@ -68,15 +80,17 @@ export const TodoListByDateRange = (props: TodoListByDateRangeProps) => {
   }, [loadTodos]);
 
   useEffect(() => {
-    const handleTodoAdded = () => {
+    const handleRefresh = () => {
       loadTodos();
     };
 
-    window.addEventListener(TODO_ADDED_EVENT, handleTodoAdded);
-    window.addEventListener(TODO_SYNCED_EVENT, handleTodoAdded);
+    window.addEventListener(TODO_ADDED_EVENT, handleRefresh);
+    window.addEventListener(TODO_SYNCED_EVENT, handleRefresh);
+    window.addEventListener(LABELS_UPDATED_EVENT, handleRefresh);
     return () => {
-      window.removeEventListener(TODO_ADDED_EVENT, handleTodoAdded);
-      window.removeEventListener(TODO_SYNCED_EVENT, handleTodoAdded);
+      window.removeEventListener(TODO_ADDED_EVENT, handleRefresh);
+      window.removeEventListener(TODO_SYNCED_EVENT, handleRefresh);
+      window.removeEventListener(LABELS_UPDATED_EVENT, handleRefresh);
     };
   }, [loadTodos]);
 

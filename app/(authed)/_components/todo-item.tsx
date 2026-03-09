@@ -4,13 +4,14 @@ import { format, isToday, isTomorrow, isYesterday } from "date-fns";
 import { Calendar, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { SwipeableItem } from "@/components/ui/swipeable-item";
 import { isOverdue } from "@/lib/date-utils";
 import { TodoItem as TodoItemType } from "@/lib/indexeddb";
 
 interface Props {
-  todo: TodoItemType;
+  todo: TodoItemType & { labelName?: string | null };
   onToggle: (id: string, completed: boolean) => void;
   onDelete: (id: string) => void;
 }
@@ -89,15 +90,29 @@ export const TodoItem = ({ todo, onToggle, onDelete }: Props) => {
           >
             {todo.title}
           </span>
-          {showDueDate && (
-            <span
-              className={[
-                "flex items-center gap-1 text-xs",
-                dueDateIsOverdue ? "text-destructive" : "text-muted-foreground",
-              ].join(" ")}
-            >
-              <Calendar className="size-3.5" />
-              {dueDateLabel}
+          {(showDueDate || todo.labelName) && (
+            <span className="flex flex-wrap items-center gap-2 text-xs">
+              {showDueDate && (
+                <span
+                  className={[
+                    "flex items-center gap-1",
+                    dueDateIsOverdue
+                      ? "text-destructive"
+                      : "text-muted-foreground",
+                  ].join(" ")}
+                >
+                  <Calendar className="size-3.5" />
+                  {dueDateLabel}
+                </span>
+              )}
+              {todo.labelName && (
+                <Badge
+                  variant="outline"
+                  className="h-5 px-2 py-0 text-xs font-normal"
+                >
+                  {todo.labelName}
+                </Badge>
+              )}
             </span>
           )}
         </label>
