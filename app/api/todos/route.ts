@@ -56,6 +56,7 @@ export async function GET(request: Request) {
     title: todo.title,
     completed: todo.completed,
     dueDate: todo.dueDate?.toISOString() ?? null,
+    labelId: todo.labelId ?? null,
     createdAt: todo.createdAt.toISOString(),
     updatedAt: todo.updatedAt.toISOString(),
   }));

@@ -9,6 +9,7 @@ type SyncTodo = {
   title: string;
   completed: boolean;
   dueDate?: string | null;
+  labelId?: string | null;
   createdAt: string;
   updatedAt: string;
 };

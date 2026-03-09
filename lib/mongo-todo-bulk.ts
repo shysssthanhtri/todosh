@@ -19,6 +19,7 @@ export type TodoUpsertDoc = {
   title: string;
   completed: boolean;
   dueDate?: string | null;
+  labelId?: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -41,6 +42,7 @@ export async function bulkUpsertTodos(
     title: string;
     completed: boolean;
     dueDate: Date | null;
+    labelId: ObjectId | null;
     createdAt: Date;
     updatedAt: Date;
   }>("Todo");
@@ -57,6 +59,7 @@ export async function bulkUpsertTodos(
           title: item.title,
           completed: item.completed,
           dueDate: item.dueDate ? new Date(item.dueDate) : null,
+          labelId: item.labelId ? new ObjectId(item.labelId) : null,
           updatedAt: new Date(item.updatedAt),
           userId: userIdObj,
         },
