@@ -53,7 +53,11 @@ export function LabelsList() {
   return (
     <div className="flex flex-wrap gap-2">
       {labels.map((label) => (
-        <Badge key={label.id} variant="outline">
+        <Badge
+          key={label.id}
+          variant="outline"
+          className="h-6 px-3 py-1 text-sm"
+        >
           {label.name}
         </Badge>
       ))}
