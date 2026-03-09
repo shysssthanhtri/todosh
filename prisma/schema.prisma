@@ -43,6 +43,7 @@ model User {
   accounts       Account[]
   sessions       Session[]
   todos          Todo[]
+  labels         Label[]
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 }
@@ -93,5 +94,18 @@ model Todo {
   updatedAt   DateTime  @updatedAt
 
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId])
+}
+
+model Label {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  color     String?
+  userId    String   @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([userId])
 }

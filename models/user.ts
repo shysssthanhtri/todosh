@@ -2,9 +2,11 @@ import * as z from "zod";
 
 import {
   CompleteAccount,
+  CompleteLabel,
   CompleteSession,
   CompleteTodo,
   RelatedAccountModel,
+  RelatedLabelModel,
   RelatedSessionModel,
   RelatedTodoModel,
 } from "./index";
@@ -24,6 +26,7 @@ export interface CompleteUser extends z.infer<typeof UserModel> {
   accounts: CompleteAccount[];
   sessions: CompleteSession[];
   todos: CompleteTodo[];
+  labels: CompleteLabel[];
 }
 
 /**
@@ -36,5 +39,6 @@ export const RelatedUserModel: z.ZodSchema<CompleteUser> = z.lazy(() =>
     accounts: RelatedAccountModel.array(),
     sessions: RelatedSessionModel.array(),
     todos: RelatedTodoModel.array(),
+    labels: RelatedLabelModel.array(),
   }),
 );
