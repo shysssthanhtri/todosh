@@ -1,4 +1,5 @@
 import { AddLabelButton } from "./_components/add-label-button";
+import { LabelsList } from "./_components/labels-list";
 
 export const metadata = {
   title: "Labels",
@@ -12,7 +13,7 @@ const LabelsPage = () => {
         <h1 className="text-2xl font-bold">Labels</h1>
         <AddLabelButton />
       </div>
-      {/* Step 5: list labels from IndexedDB here */}
+      <LabelsList />
     </div>
   );
 };

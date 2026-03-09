@@ -13,6 +13,7 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
+import { LABELS_UPDATED_EVENT } from "@/lib/events";
 import { type LabelItem, putLabels } from "@/lib/indexeddb";
 
 interface ApiLabel {
@@ -88,6 +89,7 @@ export function AddLabelButton() {
           updatedAt: new Date(label.updatedAt),
         }));
         await putLabels(items);
+        window.dispatchEvent(new CustomEvent(LABELS_UPDATED_EVENT));
 
         setName("");
         setOpen(false);

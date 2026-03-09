@@ -3,3 +3,6 @@ export const TODO_ADDED_EVENT = "todo-added";
 
 /** Custom window event name fired when todos are synced (e.g. after SyncButton completes). */
 export const TODO_SYNCED_EVENT = "todo-synced";
+
+/** Custom window event name fired when labels are updated (e.g. after AddLabelButton submit). */
+export const LABELS_UPDATED_EVENT = "labels-updated";
