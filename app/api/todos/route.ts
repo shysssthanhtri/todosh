@@ -50,6 +50,8 @@ export async function GET(request: Request) {
     where,
     orderBy: { updatedAt: "desc" },
   });
+  const userAgent = request.headers.get("user-agent");
+  console.log(startDate, endDate, { userAgent });
 
   const payload = todos.map((todo) => ({
     id: todo.id,
