@@ -1,7 +1,7 @@
 "use client";
 
 import { Plus } from "lucide-react";
-import { FormEvent, useRef, useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -12,9 +12,10 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { Input } from "@/components/ui/input";
 import { LABELS_UPDATED_EVENT } from "@/lib/events";
 import { type LabelItem, putLabels } from "@/lib/indexeddb";
+
+import { LabelForm, type LabelFormRef } from "../_forms/label-form";
 
 interface ApiLabel {
   id: string;
@@ -26,12 +27,11 @@ interface ApiLabel {
 
 export function AddLabelButton() {
   const [open, setOpen] = useState(false);
-  const [name, setName] = useState("");
   const [isPending, startTransition] = useTransition();
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const formRef = useRef<LabelFormRef | null>(null);
 
-  const handleSubmit = (event: FormEvent) => {
-    event.preventDefault();
+  const handleSubmit = (value: LabelForm.FormValue) => {
+    const name = value.name;
     const trimmedName = name.trim();
     if (!trimmedName) {
       toast.error("Label name is required", { position: "top-center" });
@@ -91,7 +91,7 @@ export function AddLabelButton() {
         await putLabels(items);
         window.dispatchEvent(new CustomEvent(LABELS_UPDATED_EVENT));
 
-        setName("");
+        formRef.current?.reset?.({ name: "" });
         setOpen(false);
         toast.success("Label added", { position: "top-center" });
       } catch (error) {
@@ -108,7 +108,7 @@ export function AddLabelButton() {
       onOpenChange={(nextOpen) => {
         setOpen(nextOpen);
         if (!nextOpen) {
-          inputRef.current?.blur();
+          formRef.current?.blur?.();
         }
       }}
       direction="bottom"
@@ -125,30 +125,11 @@ export function AddLabelButton() {
         <DrawerDescription>
           Create a label to organize your todos.
         </DrawerDescription>
-        <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-3">
-          <div className="flex flex-col gap-1">
-            <label
-              htmlFor="label-name"
-              className="text-sm font-medium text-foreground"
-            >
-              Name
-            </label>
-            <Input
-              id="label-name"
-              autoFocus
-              ref={inputRef}
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              placeholder="e.g. Work"
-              disabled={isPending}
-            />
-          </div>
-          <div className="flex justify-end gap-2">
-            <Button type="submit" disabled={isPending}>
-              {isPending ? "Adding…" : "Add"}
-            </Button>
-          </div>
-        </form>
+        <LabelForm
+          ref={formRef}
+          onSubmit={handleSubmit}
+          isPending={isPending}
+        />
       </DrawerContent>
     </Drawer>
   );
