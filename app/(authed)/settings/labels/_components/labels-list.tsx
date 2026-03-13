@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { Badge } from "@/components/ui/badge";
+import { LabelBadge } from "@/components/label-badge";
 import { LABELS_UPDATED_EVENT } from "@/lib/events";
 import { getLabels, type LabelItem } from "@/lib/indexeddb";
 
@@ -53,13 +53,7 @@ export function LabelsList() {
   return (
     <div className="flex flex-wrap gap-2">
       {labels.map((label) => (
-        <Badge
-          key={label.id}
-          variant="outline"
-          className="h-6 px-3 py-1 text-sm"
-        >
-          {label.name}
-        </Badge>
+        <LabelBadge key={label.id} label={label} />
       ))}
     </div>
   );

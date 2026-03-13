@@ -55,16 +55,28 @@ export const TodoListByDateRange = (props: TodoListByDateRangeProps) => {
         getIncompleteTodosByDateRange(start, end),
         getLabels(),
       ]);
-      const labelByName = new Map(labels.map((l) => [l.id, l.name]));
+      const labelByName = new Map(labels.map((l) => [l.id, l]));
       setTodos(
-        items.map((item) => ({
-          ...item,
-          labelName: item.labelId
-            ? (labelByName.get(item.labelId) ?? null)
-            : null,
-          onDelete: () => handleDelete(item.id),
-          onToggle: () => handleComplete(item.id),
-        })),
+        items.map((item) => {
+          const label = item.labelId
+            ? labelByName.get(item.labelId)
+            : undefined;
+          return {
+            ...item,
+            label: label
+              ? {
+                  name: label.name,
+                  color: (label.color ?? null) as RichTodoType["label"] extends
+                    | { color: infer C }
+                    | undefined
+                    ? C
+                    : never,
+                }
+              : undefined,
+            onDelete: () => handleDelete(item.id),
+            onToggle: () => handleComplete(item.id),
+          };
+        }),
       );
     } catch (error) {
       toast.error(

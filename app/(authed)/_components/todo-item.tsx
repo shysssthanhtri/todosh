@@ -4,14 +4,15 @@ import { format, isToday, isTomorrow, isYesterday } from "date-fns";
 import { Calendar, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { Badge } from "@/components/ui/badge";
+import { LabelBadge } from "@/components/label-badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { SwipeableItem } from "@/components/ui/swipeable-item";
 import { isOverdue } from "@/lib/date-utils";
-import { TodoItem as TodoItemType } from "@/lib/indexeddb";
+
+import type { RichTodoType } from "../types/rich-todo";
 
 interface Props {
-  todo: TodoItemType & { labelName?: string | null };
+  todo: RichTodoType;
   onToggle: (id: string, completed: boolean) => void;
   onDelete: (id: string) => void;
 }
@@ -90,7 +91,7 @@ export const TodoItem = ({ todo, onToggle, onDelete }: Props) => {
           >
             {todo.title}
           </span>
-          {(showDueDate || todo.labelName) && (
+          {(showDueDate || todo.label?.name) && (
             <span className="flex flex-wrap items-center gap-2 text-xs">
               {showDueDate && (
                 <span
@@ -105,13 +106,12 @@ export const TodoItem = ({ todo, onToggle, onDelete }: Props) => {
                   {dueDateLabel}
                 </span>
               )}
-              {todo.labelName && (
-                <Badge
-                  variant="outline"
+              {todo.label && (
+                <LabelBadge
+                  name={todo.label.name}
+                  color={todo.label.color}
                   className="h-5 px-2 py-0 text-xs font-normal"
-                >
-                  {todo.labelName}
-                </Badge>
+                />
               )}
             </span>
           )}

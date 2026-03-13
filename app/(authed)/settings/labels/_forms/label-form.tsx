@@ -12,9 +12,16 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { LabelSchema } from "@/schemas/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { LabelColorEnum, LabelSchema } from "@/schemas/label";
 
-const FormSchema = LabelSchema.pick({ name: true });
+const FormSchema = LabelSchema.pick({ name: true, color: true });
 type FormType = z.infer<typeof FormSchema>;
 
 interface Props {
@@ -38,6 +45,7 @@ export const LabelForm = forwardRef<Ref, Props>((props, ref) => {
     resolver: zodResolver(FormSchema),
     defaultValues: {
       name: "",
+      color: undefined,
     },
   });
 
@@ -91,6 +99,35 @@ export const LabelForm = forwardRef<Ref, Props>((props, ref) => {
                 placeholder="e.g. Work"
                 disabled={isPending}
               />
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
+        />
+        <Controller
+          name="color"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldLabel htmlFor="label-color">Color</FieldLabel>
+              <Select
+                value={field.value as string | undefined}
+                onValueChange={field.onChange}
+                disabled={isPending}
+              >
+                <SelectTrigger
+                  id="label-color"
+                  aria-invalid={fieldState.invalid}
+                >
+                  <SelectValue placeholder="Select a color" />
+                </SelectTrigger>
+                <SelectContent>
+                  {LabelColorEnum.options.map((value) => (
+                    <SelectItem key={value} value={value}>
+                      {value.charAt(0).toUpperCase() + value.slice(1)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}

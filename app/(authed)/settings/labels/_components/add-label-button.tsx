@@ -32,6 +32,7 @@ export function AddLabelButton() {
 
   const handleSubmit = (value: LabelForm.FormValue) => {
     const name = value.name;
+    const color = value.color;
     const trimmedName = name.trim();
     if (!trimmedName) {
       toast.error("Label name is required", { position: "top-center" });
@@ -44,7 +45,7 @@ export function AddLabelButton() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "same-origin",
-          body: JSON.stringify({ name: trimmedName }),
+          body: JSON.stringify({ name: trimmedName, color }),
         });
 
         if (res.status === 401) {
@@ -91,7 +92,7 @@ export function AddLabelButton() {
         await putLabels(items);
         window.dispatchEvent(new CustomEvent(LABELS_UPDATED_EVENT));
 
-        formRef.current?.reset?.({ name: "" });
+        formRef.current?.reset?.({ name: "", color: undefined });
         setOpen(false);
         toast.success("Label added", { position: "top-center" });
       } catch (error) {
