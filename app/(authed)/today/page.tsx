@@ -12,6 +12,7 @@ export const metadata = {
 };
 
 const TodayPage = () => {
+  console.log("Now: ", new Date());
   return (
     <div className="container mx-auto max-w-2xl px-4 py-6">
       <div className="flex items-center justify-between">
