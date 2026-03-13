@@ -1,5 +1,3 @@
-"use client";
-
 import { endOfDay, startOfDay } from "date-fns";
 
 import { ModeToggle } from "@/components/mode-toggle";
