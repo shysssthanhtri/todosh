@@ -1,6 +1,7 @@
 "use client";
 
 import { Tag } from "lucide-react";
+import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { SelectSeparator } from "@/components/ui/select";
+import { ROUTES } from "@/constants/routes";
 import { getLabels, type LabelItem } from "@/lib/indexeddb";
 
 interface LabelPickerProps {
@@ -60,6 +63,7 @@ export function LabelPicker({ value, onChange }: LabelPickerProps) {
           >
             None
           </Button>
+          <SelectSeparator />
           {labels.map((label) => (
             <Button
               key={label.id}
@@ -71,6 +75,10 @@ export function LabelPicker({ value, onChange }: LabelPickerProps) {
               {label.name}
             </Button>
           ))}
+          <SelectSeparator />
+          <Link href={ROUTES.SETTINGS_LABELS} title="New label">
+            New label
+          </Link>
         </div>
       </PopoverContent>
     </Popover>
