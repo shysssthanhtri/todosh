@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus } from "lucide-react";
+import { ArrowUp, Plus } from "lucide-react";
 import { useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
 
@@ -130,6 +130,17 @@ export function AddLabelButton() {
           onSubmit={handleSubmit}
           isPending={isPending}
         />
+        <div className="flex items-center justify-end mt-4">
+          <Button
+            size="icon"
+            className="size-10 rounded-full"
+            onPointerDown={(e) => e.preventDefault()}
+            onClick={() => formRef.current?.submit?.()}
+          >
+            <ArrowUp className="size-5" />
+            <span className="sr-only">Submit</span>
+          </Button>
+        </div>
       </DrawerContent>
     </Drawer>
   );
