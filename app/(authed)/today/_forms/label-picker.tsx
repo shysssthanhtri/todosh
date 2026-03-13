@@ -76,9 +76,16 @@ export function LabelPicker({ value, onChange }: LabelPickerProps) {
             </Button>
           ))}
           <SelectSeparator />
-          <Link href={ROUTES.SETTINGS_LABELS} title="New label">
-            New label
-          </Link>
+          <Button
+            asChild
+            variant="ghost"
+            size="sm"
+            className="justify-start font-normal"
+          >
+            <Link href={ROUTES.SETTINGS_LABELS} title="New label">
+              New label
+            </Link>
+          </Button>
         </div>
       </PopoverContent>
     </Popover>
