@@ -194,15 +194,9 @@ export async function pushPendingChanges(): Promise<void> {
   setPending({ upserts: [], deleteIds: [] });
 }
 
-/** Fetches todos from the server and merges them into local IndexedDB. Optional start/end filter by dueDate (ISO sent as query params). */
-export async function pullTodos(start: Date, end: Date): Promise<void> {
-  const params = new URLSearchParams();
-  params.set("start", start.toISOString());
-  params.set("end", end.toISOString());
-  const query = params.toString();
-  const url = `/api/todos?${query}`;
-
-  const listRes = await fetch(url, { credentials: "same-origin" });
+/** Fetches todos from the server and merges them into local IndexedDB. */
+export async function pullTodos(): Promise<void> {
+  const listRes = await fetch("/api/todos", { credentials: "same-origin" });
 
   if (listRes.status === 401) {
     throw new Error("Unauthorized");
