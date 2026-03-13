@@ -1,6 +1,7 @@
 import { ModeToggle } from "@/components/mode-toggle";
 
 import { AddTodoButton } from "./_components/add-todo-button";
+import { OverdueTodoList } from "./_components/overdue-todo-list";
 import { SyncButton } from "./_components/sync-button";
 import { TodayTodoList } from "./_components/today-todo-list";
 
@@ -10,7 +11,6 @@ export const metadata = {
 };
 
 const TodayPage = () => {
-  console.log("Now: ", new Date());
   return (
     <div className="container mx-auto max-w-2xl px-4 py-6">
       <div className="flex items-center justify-between">
@@ -20,6 +20,7 @@ const TodayPage = () => {
           <ModeToggle />
         </div>
       </div>
+      <OverdueTodoList />
       <TodayTodoList />
       <AddTodoButton />
     </div>

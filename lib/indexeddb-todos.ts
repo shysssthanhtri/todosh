@@ -1,4 +1,4 @@
-import { endOfDay, startOfDay, subDays } from "date-fns";
+import { endOfDay, startOfDay } from "date-fns";
 
 import { openDB, TODO_STORE_NAME } from "@/lib/indexeddb-core";
 
@@ -101,26 +101,6 @@ export async function putTodo(todo: TodoItem): Promise<void> {
 
     request.onerror = () => reject(request.error);
     request.onsuccess = () => resolve();
-  });
-}
-
-/** Returns todos that have a due date, are not completed, and are past their due date. Uses dueDate index for range, filters completed in JS (IndexedDB keys cannot be boolean). */
-export async function getOverDueTodos(): Promise<TodoItem[]> {
-  const db = await openDB();
-  const endOfYesterday = endOfDay(subDays(new Date(), 1));
-  const range = IDBKeyRange.upperBound(endOfYesterday, true);
-
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction(TODO_STORE_NAME, "readonly");
-    const store = transaction.objectStore(TODO_STORE_NAME);
-    const index = store.index("dueDate");
-    const request = index.getAll(range);
-
-    request.onerror = () => reject(request.error);
-    request.onsuccess = () => {
-      const todos = request.result as TodoItem[];
-      resolve(todos.filter((todo) => !todo.completed));
-    };
   });
 }
 

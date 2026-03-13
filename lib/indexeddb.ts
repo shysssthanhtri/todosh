@@ -6,7 +6,6 @@ export {
   clearTodos,
   deleteTodo,
   getIncompleteTodosByDateRange,
-  getOverDueTodos,
   putTodo,
   updateTodo,
 } from "./indexeddb-todos";
