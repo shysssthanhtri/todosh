@@ -1,3 +1,5 @@
+"use client";
+
 import { endOfDay, startOfDay, subDays } from "date-fns";
 
 import { TodoListByDateRange } from "../../_components/today-list-by-daterange";
