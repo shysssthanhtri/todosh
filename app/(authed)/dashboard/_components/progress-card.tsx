@@ -31,7 +31,7 @@ export function ProgressCard({ completed = 0, total = 0 }: ProgressCardProps) {
         <CardTitle>Progress</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="mx-auto grid aspect-square max-h-[250px] w-full">
+        <div className="mx-auto grid aspect-square max-h-62.5 w-full">
           <div className="col-start-1 row-start-1 min-h-0 min-w-0">
             <ChartContainer
               config={progressChartConfig}
