@@ -1,6 +1,6 @@
 "use client";
 
-import { Pie, PieChart } from "recharts";
+import { LabelList, Pie, PieChart } from "recharts";
 
 import {
   Card,
@@ -72,7 +72,19 @@ export function BreakdownCard({}: BreakdownCardProps) {
             <ChartTooltip
               content={<ChartTooltipContent nameKey="visitors" hideLabel />}
             />
-            <Pie data={chartData} dataKey="visitors" />
+            <Pie data={chartData} dataKey="visitors">
+              <LabelList
+                dataKey="browser"
+                className="fill-background"
+                stroke="none"
+                fontSize={12}
+                formatter={(value: keyof typeof chartConfig) => {
+                  return chartData
+                    .find((i) => i.browser === value)
+                    ?.visitors?.toLocaleString();
+                }}
+              />
+            </Pie>
             <ChartLegend
               content={<ChartLegendContent nameKey="browser" />}
               className="-translate-y-2 flex-wrap gap-2 *:basis-1/4 *:justify-center"
