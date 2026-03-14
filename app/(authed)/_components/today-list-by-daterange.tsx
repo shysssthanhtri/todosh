@@ -31,7 +31,7 @@ export const TodoListByDateRange = (props: TodoListByDateRangeProps) => {
   const handleComplete = async (id: string) => {
     try {
       const updatedTodo = await updateTodo(id, { completed: true });
-      recordUpsert(updatedTodo);
+      recordUpsert({ ...updatedTodo, completedAt: new Date() });
       await deleteTodo(id);
       setTodos((prev) => prev.filter((todo) => todo.id !== id));
     } catch {

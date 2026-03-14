@@ -1,16 +1,10 @@
 import { endOfDay, startOfDay } from "date-fns";
 
 import { openDB, TODO_STORE_NAME } from "@/lib/indexeddb-core";
+import type { TodoSchemaType } from "@/schemas/todo";
 
-export interface TodoItem {
-  id: string;
-  title: string;
-  completed: boolean;
-  dueDate?: Date;
-  labelId?: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-}
+/** IndexedDB todo shape: TodoSchema fields minus userId and completedAt (completed todos are removed from IDB). */
+export type TodoItem = Omit<TodoSchemaType, "userId" | "completedAt">;
 
 export async function addTodo(
   todo: Omit<TodoItem, "id" | "createdAt" | "updatedAt">,

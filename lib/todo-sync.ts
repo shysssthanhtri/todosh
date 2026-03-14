@@ -3,17 +3,22 @@ import {
   SERVER_KNOWN_IDS_KEY,
 } from "@/constants/local-storage-keys";
 import { deleteTodo, putTodo, type TodoItem } from "@/lib/indexeddb";
+import type { TodoSchemaType } from "@/schemas/todo";
+
+/** Pending upsert shape: TodoSchema fields minus userId (sync is per-user). Includes completedAt when recording a completion. */
+type PendingTodo = Omit<TodoSchemaType, "userId">;
+
+/** JSON-serialized form of PendingTodo (Date → string). */
+type PendingTodoSerialized = {
+  [K in keyof PendingTodo]: PendingTodo[K] extends Date
+    ? string
+    : PendingTodo[K] extends Date | undefined | null
+      ? string | null
+      : PendingTodo[K];
+};
 
 type PendingSerialized = {
-  upserts: Array<{
-    id: string;
-    title: string;
-    completed: boolean;
-    dueDate?: string | null;
-    labelId?: string | null;
-    createdAt: string;
-    updatedAt: string;
-  }>;
+  upserts: PendingTodoSerialized[];
   deleteIds: string[];
 };
 
@@ -22,11 +27,12 @@ function getStorage(): Storage | null {
   return window.localStorage;
 }
 
-function parseTodo(raw: PendingSerialized["upserts"][0]): TodoItem {
+function parseTodo(raw: PendingSerialized["upserts"][0]): PendingTodo {
   return {
     id: raw.id,
     title: raw.title,
     completed: raw.completed,
+    completedAt: raw.completedAt ? new Date(raw.completedAt) : undefined,
     dueDate: raw.dueDate ? new Date(raw.dueDate) : undefined,
     labelId: raw.labelId ?? undefined,
     createdAt: new Date(raw.createdAt),
@@ -34,7 +40,7 @@ function parseTodo(raw: PendingSerialized["upserts"][0]): TodoItem {
   };
 }
 
-export function getPending(): { upserts: TodoItem[]; deleteIds: string[] } {
+export function getPending(): { upserts: PendingTodo[]; deleteIds: string[] } {
   const storage = getStorage();
   if (!storage) return { upserts: [], deleteIds: [] };
 
@@ -52,7 +58,7 @@ export function getPending(): { upserts: TodoItem[]; deleteIds: string[] } {
 }
 
 function setPending(pending: {
-  upserts: TodoItem[];
+  upserts: PendingTodo[];
   deleteIds: string[];
 }): void {
   const storage = getStorage();
@@ -63,6 +69,7 @@ function setPending(pending: {
       id: t.id,
       title: t.title,
       completed: t.completed,
+      completedAt: t.completedAt?.toISOString() ?? null,
       dueDate: t.dueDate ? t.dueDate.toISOString() : null,
       labelId: t.labelId ?? null,
       createdAt: t.createdAt.toISOString(),
@@ -93,7 +100,8 @@ function setServerKnownIds(ids: string[]): void {
   storage.setItem(SERVER_KNOWN_IDS_KEY, JSON.stringify(ids));
 }
 
-export function recordUpsert(todo: TodoItem): void {
+/** Todo shape for pending upserts; may include completedAt when recording a completion. */
+export function recordUpsert(todo: PendingTodo): void {
   const pending = getPending();
   const upserts = pending.upserts.filter((u) => u.id !== todo.id);
   upserts.push(todo);
@@ -114,6 +122,7 @@ type ServerTodo = {
   id: string;
   title: string;
   completed: boolean;
+  completedAt?: string | null;
   dueDate: string | null;
   labelId?: string | null;
   createdAt: string;
@@ -168,6 +177,7 @@ export async function pushPendingChanges(): Promise<void> {
         id: t.id,
         title: t.title,
         completed: t.completed,
+        completedAt: t.completedAt?.toISOString() ?? null,
         dueDate: t.dueDate?.toISOString() ?? null,
         labelId: t.labelId ?? null,
         createdAt: t.createdAt.toISOString(),

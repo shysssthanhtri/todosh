@@ -88,6 +88,7 @@ model Todo {
   id          String    @id @map("_id")
   title       String
   completed   Boolean   @default(false)
+  completedAt DateTime?
   dueDate     DateTime?
   labelId     String?   @db.ObjectId
   userId      String    @db.ObjectId

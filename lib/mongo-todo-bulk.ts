@@ -18,6 +18,7 @@ export type TodoUpsertDoc = {
   id: string;
   title: string;
   completed: boolean;
+  completedAt?: string | null;
   dueDate?: string | null;
   labelId?: string | null;
   createdAt: string;
@@ -41,6 +42,7 @@ export async function bulkUpsertTodos(
     userId: ObjectId;
     title: string;
     completed: boolean;
+    completedAt: Date | null;
     dueDate: Date | null;
     labelId: ObjectId | null;
     createdAt: Date;
@@ -58,6 +60,7 @@ export async function bulkUpsertTodos(
         $set: {
           title: item.title,
           completed: item.completed,
+          completedAt: item.completedAt ? new Date(item.completedAt) : null,
           dueDate: item.dueDate ? new Date(item.dueDate) : null,
           labelId: item.labelId ? new ObjectId(item.labelId) : null,
           updatedAt: new Date(item.updatedAt),
