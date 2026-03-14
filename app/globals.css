@@ -96,6 +96,27 @@
   --toast-loading-bg: oklch(0.97 0.01 286);
   --toast-loading-border: oklch(0.9 0.02 286);
   --toast-loading-text: oklch(0.45 0.08 286);
+  /* Label colors (badge + chart bars) — light mode */
+  --label-red-fill: oklch(0.96 0.02 25);
+  --label-red-stroke: oklch(0.58 0.22 27);
+  --label-orange-fill: oklch(0.95 0.04 55);
+  --label-orange-stroke: oklch(0.72 0.16 55);
+  --label-yellow-fill: oklch(0.95 0.05 85);
+  --label-yellow-stroke: oklch(0.75 0.15 85);
+  --label-green-fill: oklch(0.93 0.05 155);
+  --label-green-stroke: oklch(0.65 0.16 155);
+  --label-teal-fill: oklch(0.93 0.04 180);
+  --label-teal-stroke: oklch(0.65 0.12 180);
+  --label-blue-fill: oklch(0.93 0.05 250);
+  --label-blue-stroke: oklch(0.6 0.18 250);
+  --label-indigo-fill: oklch(0.92 0.05 275);
+  --label-indigo-stroke: oklch(0.55 0.2 275);
+  --label-purple-fill: oklch(0.93 0.05 300);
+  --label-purple-stroke: oklch(0.6 0.2 300);
+  --label-pink-fill: oklch(0.94 0.05 350);
+  --label-pink-stroke: oklch(0.65 0.2 350);
+  --label-gray-fill: var(--muted);
+  --label-gray-stroke: var(--muted-foreground);
 }
 
 .dark {
@@ -146,6 +167,27 @@
   --toast-loading-bg: oklch(0.22 0.02 286);
   --toast-loading-border: oklch(0.32 0.04 286);
   --toast-loading-text: oklch(0.75 0.06 286);
+  /* Label colors (badge + chart bars) — dark mode: dark fill, brighter stroke */
+  --label-red-fill: oklch(0.22 0.05 25);
+  --label-red-stroke: oklch(0.65 0.2 27);
+  --label-orange-fill: oklch(0.22 0.05 55);
+  --label-orange-stroke: oklch(0.72 0.16 55);
+  --label-yellow-fill: oklch(0.22 0.05 85);
+  --label-yellow-stroke: oklch(0.78 0.14 85);
+  --label-green-fill: oklch(0.2 0.05 155);
+  --label-green-stroke: oklch(0.65 0.16 155);
+  --label-teal-fill: oklch(0.2 0.04 180);
+  --label-teal-stroke: oklch(0.65 0.12 180);
+  --label-blue-fill: oklch(0.18 0.05 250);
+  --label-blue-stroke: oklch(0.6 0.18 250);
+  --label-indigo-fill: oklch(0.18 0.05 275);
+  --label-indigo-stroke: oklch(0.55 0.2 275);
+  --label-purple-fill: oklch(0.2 0.05 300);
+  --label-purple-stroke: oklch(0.6 0.2 300);
+  --label-pink-fill: oklch(0.22 0.05 350);
+  --label-pink-stroke: oklch(0.65 0.2 350);
+  --label-gray-fill: var(--muted);
+  --label-gray-stroke: var(--muted-foreground);
 }
 
 /* Sonner: apply loading toast colors (richColors doesn't include loading by default) */

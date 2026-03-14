@@ -3,10 +3,6 @@
 import { Bar, BarChart, Cell, LabelList, XAxis, YAxis } from "recharts";
 
 import {
-  getLabelFillColor,
-  getLabelStrokeColor,
-} from "@/components/label-badge";
-import {
   Card,
   CardContent,
   CardDescription,
@@ -16,6 +12,60 @@ import {
 import { type ChartConfig, ChartContainer } from "@/components/ui/chart";
 
 import { RichTodoType } from "../../types/rich-todo";
+
+/** Theme-aware bar fill (uses CSS vars from globals.css for light/dark) */
+function getBarFillColor(color: string | null | undefined): string {
+  switch (color) {
+    case "red":
+      return "var(--label-red-fill)";
+    case "orange":
+      return "var(--label-orange-fill)";
+    case "yellow":
+      return "var(--label-yellow-fill)";
+    case "green":
+      return "var(--label-green-fill)";
+    case "teal":
+      return "var(--label-teal-fill)";
+    case "blue":
+      return "var(--label-blue-fill)";
+    case "indigo":
+      return "var(--label-indigo-fill)";
+    case "purple":
+      return "var(--label-purple-fill)";
+    case "pink":
+      return "var(--label-pink-fill)";
+    case "gray":
+    default:
+      return "var(--label-gray-fill)";
+  }
+}
+
+/** Theme-aware bar stroke (uses CSS vars from globals.css for light/dark) */
+function getBarStrokeColor(color: string | null | undefined): string {
+  switch (color) {
+    case "red":
+      return "var(--label-red-stroke)";
+    case "orange":
+      return "var(--label-orange-stroke)";
+    case "yellow":
+      return "var(--label-yellow-stroke)";
+    case "green":
+      return "var(--label-green-stroke)";
+    case "teal":
+      return "var(--label-teal-stroke)";
+    case "blue":
+      return "var(--label-blue-stroke)";
+    case "indigo":
+      return "var(--label-indigo-stroke)";
+    case "purple":
+      return "var(--label-purple-stroke)";
+    case "pink":
+      return "var(--label-pink-stroke)";
+    case "gray":
+    default:
+      return "var(--label-gray-stroke)";
+  }
+}
 
 type BreakdownCardProps = {
   todos: RichTodoType[];
@@ -68,8 +118,8 @@ export function BreakdownCard({ todos }: BreakdownCardProps) {
               {labels.map((entry) => (
                 <Cell
                   key={entry.name}
-                  fill={getLabelFillColor(entry.color)}
-                  stroke={getLabelStrokeColor(entry.color)}
+                  fill={getBarFillColor(entry.color)}
+                  stroke={getBarStrokeColor(entry.color)}
                 />
               ))}
               <LabelList
