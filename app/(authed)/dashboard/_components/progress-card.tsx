@@ -2,7 +2,13 @@
 
 import { PolarAngleAxis, RadialBar, RadialBarChart } from "recharts";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   type ChartConfig,
   ChartContainer,
@@ -32,6 +38,7 @@ export function ProgressCard({ todos }: ProgressCardProps) {
     <Card>
       <CardHeader>
         <CardTitle>Progress</CardTitle>
+        <CardDescription>Today</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="mx-auto grid aspect-square max-h-62.5 w-full">
