@@ -87,7 +87,7 @@ export function getMockBreakdownTodos(): Array<{
 /** Mock last 10 days: total, completed, incomplete per day (for Area chart). */
 export function getMockDailyStats(): DailyStats[] {
   const today = new Date();
-  const days = 10;
+  const days = 5;
 
   // Cumulative by end of each day so total = completed + incomplete
   let total = 10;

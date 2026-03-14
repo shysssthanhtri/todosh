@@ -45,7 +45,7 @@ export function HistoryCard({ data }: HistoryCardProps) {
       <CardHeader>
         <CardTitle>History</CardTitle>
         <CardDescription>
-          Completed / incomplete per day (last 10 days)
+          Completed / incomplete per day (last 5 days)
         </CardDescription>
       </CardHeader>
       <CardContent>
