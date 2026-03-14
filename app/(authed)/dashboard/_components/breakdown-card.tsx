@@ -1,6 +1,6 @@
 "use client";
 
-import { LabelList, Pie, PieChart } from "recharts";
+import { Pie, PieChart } from "recharts";
 
 import {
   Card,
@@ -12,6 +12,8 @@ import {
 import {
   type ChartConfig,
   ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
@@ -61,25 +63,20 @@ export function BreakdownCard({}: BreakdownCardProps) {
         <CardTitle>Breakdown</CardTitle>
         <CardDescription>By label</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex-1 pb-0">
         <ChartContainer
           config={chartConfig}
-          className="mx-auto aspect-square max-h-60 [&_.recharts-text]:fill-background"
+          className="mx-auto aspect-square max-h-60 pb-0 [&_.recharts-pie-label-text]:fill-foreground"
         >
           <PieChart>
             <ChartTooltip
               content={<ChartTooltipContent nameKey="visitors" hideLabel />}
             />
-            <Pie data={chartData} dataKey="visitors">
-              <LabelList
-                dataKey="browser"
-                className="fill-background"
-                fontSize={12}
-                formatter={(value: keyof typeof chartConfig) =>
-                  chartConfig[value]?.label
-                }
-              />
-            </Pie>
+            <Pie data={chartData} dataKey="visitors" />
+            <ChartLegend
+              content={<ChartLegendContent nameKey="browser" />}
+              className="-translate-y-2 flex-wrap gap-2 *:basis-1/4 *:justify-center"
+            />
           </PieChart>
         </ChartContainer>
       </CardContent>
