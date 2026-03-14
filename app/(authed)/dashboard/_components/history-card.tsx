@@ -1,6 +1,6 @@
 "use client";
 
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
 import {
   Card,
@@ -12,6 +12,8 @@ import {
 import {
   type ChartConfig,
   ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
@@ -21,11 +23,11 @@ const historyChartConfig = {
   date: { label: "Date" },
   completed: {
     label: "Completed",
-    color: "var(--chart-2)",
+    color: "var(--chart-3)",
   },
   incomplete: {
     label: "Incomplete",
-    color: "var(--chart-3)",
+    color: "var(--chart-1)",
   },
 } satisfies ChartConfig;
 
@@ -39,24 +41,18 @@ export function HistoryCard({ data }: HistoryCardProps) {
       <CardHeader>
         <CardTitle>History</CardTitle>
         <CardDescription>
-          Total / completed / incomplete per day (last 10 days)
+          Completed / incomplete per day (last 10 days)
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer
-          config={historyChartConfig}
-          className="aspect-[2/1] min-h-[240px] w-full"
-        >
-          <AreaChart
-            data={data}
-            margin={{ left: 12, right: 12, top: 12, bottom: 0 }}
-          >
+        <ChartContainer config={historyChartConfig} className="min-h-60 w-full">
+          <BarChart accessibilityLayer data={data}>
             <CartesianGrid vertical={false} />
             <XAxis
               dataKey="date"
               tickLine={false}
+              tickMargin={10}
               axisLine={false}
-              tickMargin={8}
               tickFormatter={(value) => {
                 const d = new Date(value);
                 return d.toLocaleDateString("en-US", {
@@ -65,35 +61,19 @@ export function HistoryCard({ data }: HistoryCardProps) {
                 });
               }}
             />
-            <YAxis tickLine={false} axisLine={false} tickMargin={8} />
+            <YAxis tickLine={false} axisLine={false} tickMargin={10} />
             <ChartTooltip
-              content={
-                <ChartTooltipContent
-                  labelFormatter={(value) =>
-                    new Date(value).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    })
-                  }
-                />
-              }
+              cursor={false}
+              content={<ChartTooltipContent indicator="dashed" />}
             />
-            <Area
-              type="monotone"
+            <Bar
               dataKey="incomplete"
               fill="var(--color-incomplete)"
-              stroke="var(--color-incomplete)"
-              stackId="a"
+              radius={4}
             />
-            <Area
-              type="monotone"
-              dataKey="completed"
-              fill="var(--color-completed)"
-              stroke="var(--color-completed)"
-              stackId="a"
-            />
-          </AreaChart>
+            <Bar dataKey="completed" fill="var(--color-completed)" radius={4} />
+            <ChartLegend content={<ChartLegendContent />} />
+          </BarChart>
         </ChartContainer>
       </CardContent>
     </Card>
