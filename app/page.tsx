@@ -10,7 +10,15 @@ export const metadata = {
   alternates: { canonical: "/" },
 };
 
-export default function LandingPage() {
+export default async function LandingPage({
+  params,
+  searchParams,
+}: {
+  params?: Promise<Record<string, string | string[]>>;
+  searchParams?: Promise<Record<string, string | string[]>>;
+}) {
+  await params;
+  await searchParams;
   return (
     <div className="flex min-h-svh w-full flex-col items-center justify-center px-4 py-12">
       <div className="mx-auto max-w-md space-y-8 text-center">

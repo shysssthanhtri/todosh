@@ -9,7 +9,15 @@ export const metadata = {
   description: "Browse and organize your todos.",
 };
 
-const BrowsePage = () => {
+export default async function BrowsePage({
+  params,
+  searchParams,
+}: {
+  params?: Promise<Record<string, string | string[]>>;
+  searchParams?: Promise<Record<string, string | string[]>>;
+}) {
+  await params;
+  await searchParams;
   return (
     <div className="container mx-auto max-w-2xl px-4 py-6">
       <div className="mb-6 flex items-center justify-between">
@@ -26,6 +34,4 @@ const BrowsePage = () => {
       </div>
     </div>
   );
-};
-
-export default BrowsePage;
+}

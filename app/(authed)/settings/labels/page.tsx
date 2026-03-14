@@ -7,7 +7,15 @@ export const metadata = {
   description: "Manage labels for your todos.",
 };
 
-const LabelsPage = () => {
+export default async function LabelsPage({
+  params,
+  searchParams,
+}: {
+  params?: Promise<Record<string, string | string[]>>;
+  searchParams?: Promise<Record<string, string | string[]>>;
+}) {
+  await params;
+  await searchParams;
   return (
     <div className="container mx-auto max-w-2xl px-4 py-6">
       <div className="mb-6 flex items-center justify-between gap-4">
@@ -20,6 +28,4 @@ const LabelsPage = () => {
       <LabelsList />
     </div>
   );
-};
-
-export default LabelsPage;
+}

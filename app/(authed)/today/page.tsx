@@ -10,7 +10,15 @@ export const metadata = {
   description: "View and manage your todo list. Add, complete, and sync tasks.",
 };
 
-const TodayPage = () => {
+export default async function TodayPage({
+  params,
+  searchParams,
+}: {
+  params?: Promise<Record<string, string | string[]>>;
+  searchParams?: Promise<Record<string, string | string[]>>;
+}) {
+  await params;
+  await searchParams;
   return (
     <div className="container mx-auto max-w-2xl px-4 py-6">
       <div className="flex items-center justify-between">
@@ -25,6 +33,4 @@ const TodayPage = () => {
       <AddTodoButton />
     </div>
   );
-};
-
-export default TodayPage;
+}
