@@ -100,12 +100,14 @@ export function getMockDailyStats(): DailyStats[] {
     total += 1 + (i % 2); // 1 or 2 new tasks per day
     completed += i === 0 ? 0 : 1 + (i % 2); // some completed each day
     const incomplete = Math.max(0, total - completed);
+    const overDue = Math.max(0, total - completed);
 
     return {
       date: dateStr,
       total,
       completed,
       incomplete,
+      overDue,
     };
   });
 }

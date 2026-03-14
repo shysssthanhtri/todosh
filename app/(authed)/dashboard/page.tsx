@@ -7,6 +7,7 @@ import { getMockBreakdownTodos, getMockDailyStats } from "@/lib/dashboard-mock";
 
 import { BreakdownCard } from "./_components/breakdown-card";
 import { HistoryCard } from "./_components/history-card";
+import { HistoryLabelCard } from "./_components/history-label-card";
 import { ProgressCard } from "./_components/progress-card";
 
 type DashboardPageProps = {
@@ -41,6 +42,7 @@ const DashboardPage = ({ params, searchParams }: DashboardPageProps) => {
         </div>
 
         <HistoryCard data={dailyData} />
+        <HistoryLabelCard />
       </div>
     </div>
   );

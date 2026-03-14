@@ -29,6 +29,10 @@ const historyChartConfig = {
     label: "Incomplete",
     color: "var(--chart-1)",
   },
+  overDue: {
+    label: "Overdue",
+    color: "var(--destructive)",
+  },
 } satisfies ChartConfig;
 
 type HistoryCardProps = {
@@ -72,6 +76,7 @@ export function HistoryCard({ data }: HistoryCardProps) {
               radius={4}
             />
             <Bar dataKey="completed" fill="var(--color-completed)" radius={4} />
+            <Bar dataKey="overDue" fill="var(--color-overDue)" radius={4} />
             <ChartLegend content={<ChartLegendContent />} />
           </BarChart>
         </ChartContainer>
