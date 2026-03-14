@@ -12,7 +12,6 @@ export const LabelColorEnum = z.enum([
   "indigo",
   "purple",
   "pink",
-  "gray",
 ]);
 
 export type LabelColor = z.infer<typeof LabelColorEnum>;

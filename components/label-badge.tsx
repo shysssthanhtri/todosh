@@ -40,6 +40,62 @@ function getLabelColorClass(color: string | null | undefined): string {
   }
 }
 
+/** Fill color for charts (bars, etc.) — light background matching label badge (e.g. bg-*-500/10) */
+export function getLabelFillColor(color: string | null | undefined): string {
+  switch (color) {
+    case "red":
+      return "oklch(0.96 0.02 25)";
+    case "orange":
+      return "oklch(0.95 0.04 55)";
+    case "yellow":
+      return "oklch(0.95 0.05 85)";
+    case "green":
+      return "oklch(0.93 0.05 155)";
+    case "teal":
+      return "oklch(0.93 0.04 180)";
+    case "blue":
+      return "oklch(0.93 0.05 250)";
+    case "indigo":
+      return "oklch(0.92 0.05 275)";
+    case "purple":
+      return "oklch(0.93 0.05 300)";
+    case "pink":
+      return "oklch(0.94 0.05 350)";
+    case "gray":
+      return "var(--muted)";
+    default:
+      return "var(--muted)";
+  }
+}
+
+/** Stroke/border color for chart bars — matches badge border (e.g. border-*-500/30) */
+export function getLabelStrokeColor(color: string | null | undefined): string {
+  switch (color) {
+    case "red":
+      return "var(--destructive)";
+    case "orange":
+      return "oklch(0.72 0.16 55)";
+    case "yellow":
+      return "oklch(0.75 0.15 85)";
+    case "green":
+      return "oklch(0.65 0.16 155)";
+    case "teal":
+      return "oklch(0.65 0.12 180)";
+    case "blue":
+      return "oklch(0.6 0.18 250)";
+    case "indigo":
+      return "oklch(0.55 0.2 275)";
+    case "purple":
+      return "oklch(0.6 0.2 300)";
+    case "pink":
+      return "oklch(0.65 0.2 350)";
+    case "gray":
+      return "var(--muted-foreground)";
+    default:
+      return "var(--muted-foreground)";
+  }
+}
+
 export function LabelBadge(props: Props) {
   const { name, color, className } =
     "label" in props

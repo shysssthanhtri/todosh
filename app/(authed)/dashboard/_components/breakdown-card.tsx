@@ -1,7 +1,11 @@
 "use client";
 
-import { Bar, BarChart, LabelList, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, Cell, LabelList, XAxis, YAxis } from "recharts";
 
+import {
+  getLabelFillColor,
+  getLabelStrokeColor,
+} from "@/components/label-badge";
 import {
   Card,
   CardContent,
@@ -9,25 +13,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  type ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
+import { type ChartConfig, ChartContainer } from "@/components/ui/chart";
+
+import { RichTodoType } from "../../types/rich-todo";
 
 type BreakdownCardProps = {
-  name?: string;
+  todos: RichTodoType[];
 };
 
-const chartData = [
-  { month: "January", desktop: 186 },
-  { month: "February", desktop: 305 },
-  { month: "March", desktop: 237 },
-  { month: "April", desktop: 73 },
-  { month: "May", desktop: 209 },
-  { month: "June", desktop: 214 },
-];
 const chartConfig = {
   desktop: {
     label: "Desktop",
@@ -35,7 +28,24 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function BreakdownCard({}: BreakdownCardProps) {
+const NO_LABEL_NAME = "No label";
+const NO_LABEL_COLOR = "gray";
+
+export function BreakdownCard({ todos }: BreakdownCardProps) {
+  const labelsRecord = todos.reduce<
+    Record<string, { name: string; count: number; color?: string }>
+  >((acc, cur) => {
+    const name = cur.label?.name ?? NO_LABEL_NAME;
+    acc[name] = acc[name] ?? {
+      name: name,
+      count: 0,
+      color: cur.label?.color ?? NO_LABEL_COLOR,
+    };
+    acc[name].count++;
+    return acc;
+  }, {});
+  const labels = Object.values(labelsRecord);
+
   return (
     <Card>
       <CardHeader>
@@ -44,30 +54,26 @@ export function BreakdownCard({}: BreakdownCardProps) {
       </CardHeader>
       <CardContent className="flex-1 pb-0">
         <ChartContainer config={chartConfig} className="w-full h-full">
-          <BarChart
-            accessibilityLayer
-            data={chartData}
-            layout="vertical"
-            margin={{
-              left: -20,
-            }}
-          >
-            <XAxis type="number" dataKey="desktop" hide />
+          <BarChart accessibilityLayer data={labels} layout="vertical">
+            <XAxis type="number" dataKey="count" hide />
             <YAxis
-              dataKey="month"
+              dataKey="name"
               type="category"
               tickLine={false}
               tickMargin={10}
               axisLine={false}
-              tickFormatter={(value) => value.slice(0, 3)}
+              tickFormatter={(value) => value}
             />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent hideLabel />}
-            />
-            <Bar dataKey="desktop" fill="var(--color-desktop)" radius={5}>
+            <Bar dataKey="count" radius={10} strokeWidth={1}>
+              {labels.map((entry) => (
+                <Cell
+                  key={entry.name}
+                  fill={getLabelFillColor(entry.color)}
+                  stroke={getLabelStrokeColor(entry.color)}
+                />
+              ))}
               <LabelList
-                dataKey="desktop"
+                dataKey="count"
                 position="middle"
                 offset={8}
                 fontSize={12}

@@ -10,6 +10,8 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 
+import { RichTodoType } from "../../types/rich-todo";
+
 const progressChartConfig = {
   value: {
     label: "Done",
@@ -17,11 +19,12 @@ const progressChartConfig = {
 } satisfies ChartConfig;
 
 type ProgressCardProps = {
-  completed: number;
-  total: number;
+  todos: RichTodoType[];
 };
 
-export function ProgressCard({ completed = 0, total = 0 }: ProgressCardProps) {
+export function ProgressCard({ todos }: ProgressCardProps) {
+  const completed = todos.filter((todo) => todo.completed).length;
+  const total = todos.length;
   const progressPercent = total > 0 ? Math.round((completed / total) * 100) : 0;
   const progressData = [{ name: "progress", value: progressPercent }];
 
