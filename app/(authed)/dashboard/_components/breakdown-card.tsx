@@ -95,6 +95,7 @@ export function BreakdownCard({ todos }: BreakdownCardProps) {
     return acc;
   }, {});
   const labels = Object.values(labelsRecord);
+  const maxCount = Math.max(...labels.map((l) => l.count), 1);
 
   return (
     <Card>
@@ -105,7 +106,7 @@ export function BreakdownCard({ todos }: BreakdownCardProps) {
       <CardContent className="flex-1 pb-0">
         <ChartContainer config={chartConfig} className="w-full h-full">
           <BarChart accessibilityLayer data={labels} layout="vertical">
-            <XAxis type="number" dataKey="count" hide />
+            <XAxis type="number" dataKey="count" hide domain={[0, maxCount]} />
             <YAxis
               dataKey="name"
               type="category"
