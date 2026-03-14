@@ -32,48 +32,52 @@ export function ProgressCard({ completed = 0, total = 0 }: ProgressCardProps) {
         <CardTitle>Progress</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="relative mx-auto aspect-square max-h-60 w-full">
-          <ChartContainer
-            config={progressChartConfig}
-            className="aspect-square h-full w-full"
-          >
-            <RadialBarChart
-              data={progressData}
-              innerRadius="55%"
-              outerRadius="85%"
-              startAngle={0}
-              endAngle={360}
+        <div className="mx-auto grid aspect-square max-h-60 w-full">
+          <div className="col-start-1 row-start-1 min-h-0 min-w-0">
+            <ChartContainer
+              config={progressChartConfig}
+              className="aspect-square h-full w-full min-h-0 [&_.recharts-wrapper]:!h-full [&_.recharts-wrapper]:!min-h-0"
             >
-              <ChartTooltip
-                content={
-                  <ChartTooltipContent
-                    nameKey="value"
-                    formatter={() => (
-                      <>
-                        <span className="text-muted-foreground">Completed</span>
-                        <span className="font-mono font-medium tabular-nums">
-                          {completed} / {total}
-                        </span>
-                      </>
-                    )}
-                  />
-                }
-              />
-              <PolarAngleAxis
-                type="number"
-                domain={[0, 100]}
-                angleAxisId={0}
-                tick={false}
-              />
-              <RadialBar
-                dataKey="value"
-                fill="var(--color-primary)"
-                background
-                angleAxisId={0}
-              />
-            </RadialBarChart>
-          </ChartContainer>
-          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+              <RadialBarChart
+                data={progressData}
+                innerRadius="55%"
+                outerRadius="85%"
+                startAngle={0}
+                endAngle={360}
+              >
+                <ChartTooltip
+                  content={
+                    <ChartTooltipContent
+                      nameKey="value"
+                      formatter={() => (
+                        <>
+                          <span className="text-muted-foreground">
+                            Completed
+                          </span>
+                          <span className="font-mono font-medium tabular-nums">
+                            {completed} / {total}
+                          </span>
+                        </>
+                      )}
+                    />
+                  }
+                />
+                <PolarAngleAxis
+                  type="number"
+                  domain={[0, 100]}
+                  angleAxisId={0}
+                  tick={false}
+                />
+                <RadialBar
+                  dataKey="value"
+                  fill="var(--color-primary)"
+                  background
+                  angleAxisId={0}
+                />
+              </RadialBarChart>
+            </ChartContainer>
+          </div>
+          <div className="col-start-1 row-start-1 flex flex-col items-center justify-center pointer-events-none">
             <span className="text-2xl font-bold tabular-nums">
               {completed}
               <span className="text-muted-foreground font-normal">
