@@ -13,7 +13,6 @@ import {
 const progressChartConfig = {
   value: {
     label: "Done",
-    color: "var(--chart-1)",
   },
 } satisfies ChartConfig;
 
@@ -32,18 +31,18 @@ export function ProgressCard({ completed = 0, total = 0 }: ProgressCardProps) {
         <CardTitle>Progress</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="mx-auto grid aspect-square max-h-60 w-full">
+        <div className="mx-auto grid aspect-square max-h-[250px] w-full">
           <div className="col-start-1 row-start-1 min-h-0 min-w-0">
             <ChartContainer
               config={progressChartConfig}
-              className="aspect-square h-full w-full min-h-0 [&_.recharts-wrapper]:!h-full [&_.recharts-wrapper]:!min-h-0"
+              className="aspect-square h-full w-full min-h-0"
             >
               <RadialBarChart
                 data={progressData}
-                innerRadius="55%"
-                outerRadius="85%"
                 startAngle={0}
                 endAngle={360}
+                innerRadius={100}
+                outerRadius={120}
               >
                 <ChartTooltip
                   content={
@@ -62,17 +61,17 @@ export function ProgressCard({ completed = 0, total = 0 }: ProgressCardProps) {
                     />
                   }
                 />
+                <RadialBar
+                  dataKey="value"
+                  fill="var(--color-primary)"
+                  background
+                  cornerRadius={10}
+                />
                 <PolarAngleAxis
                   type="number"
                   domain={[0, 100]}
                   angleAxisId={0}
                   tick={false}
-                />
-                <RadialBar
-                  dataKey="value"
-                  fill="var(--color-primary)"
-                  background
-                  angleAxisId={0}
                 />
               </RadialBarChart>
             </ChartContainer>
