@@ -10,15 +10,7 @@ import { HistoryCard } from "./_components/history-card";
 import { HistoryLabelCard } from "./_components/history-label-card";
 import { ProgressCard } from "./_components/progress-card";
 
-type DashboardPageProps = {
-  params?: Promise<Record<string, string | string[]>>;
-  searchParams?: Promise<Record<string, string | string[]>>;
-};
-
-const DashboardPage = ({ params, searchParams }: DashboardPageProps) => {
-  React.use(params ?? Promise.resolve({}));
-  React.use(searchParams ?? Promise.resolve({}));
-
+const DashboardPage = () => {
   const dailyData = getMockDailyStats();
 
   const breakdownTodos = getMockBreakdownTodos().map((t) => ({
