@@ -1,5 +1,6 @@
 "use client";
 
+import { startOfDay } from "date-fns";
 import React, { useMemo } from "react";
 import {
   Bar,
@@ -38,7 +39,9 @@ export const HistoryLabelCard = ({ todos }: HistoryLabelCardProps) => {
   const data = useMemo(() => {
     const record: Record<string, Record<string, number>> = {};
     todos.forEach((todo) => {
-      const completedAt = todo.completedAt?.toISOString();
+      const completedAt = todo.completedAt
+        ? startOfDay(todo.completedAt).toISOString()
+        : null;
       if (!completedAt) return;
       if (!record[completedAt]) record[completedAt] = {};
       const label = todo.label ?? {
@@ -48,8 +51,6 @@ export const HistoryLabelCard = ({ todos }: HistoryLabelCardProps) => {
       if (!record[completedAt][label.name]) record[completedAt][label.name] = 0;
       record[completedAt][label.name]++;
     });
-
-    console.log({ record });
 
     const chartData = Object.entries(record)
       .map(([date, subRecord]) => {
@@ -62,8 +63,6 @@ export const HistoryLabelCard = ({ todos }: HistoryLabelCardProps) => {
 
     return chartData;
   }, [todos]);
-
-  console.log({ todos });
 
   const labels = useMemo(() => {
     const seenLabelNames = new Set<string>();
