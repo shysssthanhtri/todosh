@@ -74,6 +74,7 @@ export function HistoryCard({ todos }: HistoryCardProps) {
       } else if (isSameDay(dueDate, completedAt)) {
         record[dueDate].completed++;
       } else {
+        initRecord(completedAt);
         record[completedAt].overdue++;
       }
     });
