@@ -25,7 +25,7 @@ export default async function LandingPage({
         <div className="space-y-2">
           <h1 className="text-4xl font-bold tracking-tight">Todosh</h1>
           <p className="text-lg text-muted-foreground">
-            A simple and fast todo application
+            A simple and fast todo application.
           </p>
         </div>
         <p className="text-muted-foreground">
