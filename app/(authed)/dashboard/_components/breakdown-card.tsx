@@ -106,7 +106,6 @@ export function BreakdownCard({ todos }: BreakdownCardProps) {
               tickLine={false}
               tickMargin={10}
               axisLine={false}
-              tickFormatter={(value) => value}
             />
             <Bar dataKey="count" radius={10} strokeWidth={1}>
               {labels.map((entry) => (
