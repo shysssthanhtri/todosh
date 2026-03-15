@@ -1,7 +1,3 @@
-"use client";
-
-import * as React from "react";
-
 import type { UnInteractiveTodoType } from "@/app/(authed)/types/rich-todo";
 import { getMockBreakdownTodos } from "@/lib/dashboard-mock";
 
