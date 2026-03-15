@@ -9,9 +9,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { type ChartConfig, ChartContainer } from "@/components/ui/chart";
+import { ChartContainer } from "@/components/ui/chart";
 
-import { RichTodoType } from "../../types/rich-todo";
+import { UnInteractiveTodoType } from "../../types/rich-todo";
 
 /** Theme-aware bar fill (uses CSS vars from globals.css for light/dark) */
 function getBarFillColor(color: string | null | undefined): string {
@@ -68,15 +68,8 @@ function getBarStrokeColor(color: string | null | undefined): string {
 }
 
 type BreakdownCardProps = {
-  todos: RichTodoType[];
+  todos: UnInteractiveTodoType[];
 };
-
-const chartConfig = {
-  desktop: {
-    label: "Desktop",
-    color: "var(--chart-1)",
-  },
-} satisfies ChartConfig;
 
 const NO_LABEL_NAME = "No label";
 const NO_LABEL_COLOR = "gray";
@@ -104,7 +97,7 @@ export function BreakdownCard({ todos }: BreakdownCardProps) {
         <CardDescription>By label</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
-        <ChartContainer config={chartConfig} className="w-full h-full">
+        <ChartContainer config={{}} className="w-full h-full">
           <BarChart accessibilityLayer data={labels} layout="vertical">
             <XAxis type="number" dataKey="count" hide domain={[0, maxCount]} />
             <YAxis

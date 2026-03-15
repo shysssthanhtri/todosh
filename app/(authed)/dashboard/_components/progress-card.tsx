@@ -16,7 +16,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 
-import { RichTodoType } from "../../types/rich-todo";
+import { UnInteractiveTodoType } from "../../types/rich-todo";
 
 const progressChartConfig = {
   value: {
@@ -25,7 +25,7 @@ const progressChartConfig = {
 } satisfies ChartConfig;
 
 type ProgressCardProps = {
-  todos: RichTodoType[];
+  todos: UnInteractiveTodoType[];
 };
 
 export function ProgressCard({ todos }: ProgressCardProps) {

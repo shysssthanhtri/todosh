@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-import type { RichTodoType } from "@/app/(authed)/types/rich-todo";
+import type { UnInteractiveTodoType } from "@/app/(authed)/types/rich-todo";
 import { getMockBreakdownTodos } from "@/lib/dashboard-mock";
 
 import { BreakdownCard } from "./_components/breakdown-card";
@@ -15,7 +15,7 @@ const DashboardPage = () => {
     ...t,
     dueDate: t.dueDate ?? new Date(),
     completedAt: t.completedAt ?? undefined,
-  })) as RichTodoType[];
+  })) as UnInteractiveTodoType[];
 
   return (
     <div className="container mx-auto max-w-4xl px-4 py-6">
@@ -30,7 +30,7 @@ const DashboardPage = () => {
         </div>
 
         <HistoryCard todos={breakdownTodos} />
-        <HistoryLabelCard />
+        <HistoryLabelCard todos={breakdownTodos} />
       </div>
     </div>
   );

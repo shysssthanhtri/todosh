@@ -1,7 +1,14 @@
 "use client";
 import { isSameDay } from "date-fns";
 import { useMemo } from "react";
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  LabelList,
+  XAxis,
+  YAxis,
+} from "recharts";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -99,16 +106,28 @@ export function HistoryCard({ todos }: HistoryCardProps) {
               stackId="a"
               fill="var(--color-completed)"
               radius={[0, 0, 5, 5]}
-            />
+            >
+              <LabelList dataKey="completed" className="fill-foreground" />
+            </Bar>
 
-            <Bar dataKey="overdue" stackId="a" fill="var(--color-overdue)" />
+            <Bar dataKey="overdue" stackId="a" fill="var(--color-overdue)">
+              <LabelList
+                dataKey="overdue"
+                className="fill-foreground"
+                formatter={(value: number) => {
+                  return !!value ? value : null;
+                }}
+              />
+            </Bar>
 
             <Bar
               dataKey="inCompleted"
               stackId="a"
               fill="var(--color-inCompleted)"
               radius={[5, 5, 0, 0]}
-            />
+            >
+              <LabelList dataKey="inCompleted" className="fill-foreground" />
+            </Bar>
 
             <ChartLegend content={<ChartLegendContent />} />
           </BarChart>
