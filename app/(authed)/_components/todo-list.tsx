@@ -9,18 +9,16 @@ interface TodoListProps {
 export const TodoList = ({ todos }: TodoListProps) => {
   return (
     <div className="flex flex-col">
-      {todos
-        .sort((a, b) => (a.createdAt.getTime() - b.createdAt.getTime()) * -1)
-        .map((todo) => (
-          <div key={todo.id}>
-            <TodoItem
-              todo={todo}
-              onToggle={todo.onToggle}
-              onDelete={todo.onDelete}
-            />
-            <Separator />
-          </div>
-        ))}
+      {todos.map((todo) => (
+        <div key={todo.id}>
+          <TodoItem
+            todo={todo}
+            onToggle={todo.onToggle}
+            onDelete={todo.onDelete}
+          />
+          <Separator />
+        </div>
+      ))}
     </div>
   );
 };
