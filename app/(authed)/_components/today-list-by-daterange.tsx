@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import {
@@ -109,7 +109,23 @@ export const TodoListByDateRange = (props: TodoListByDateRangeProps) => {
     };
   }, [loadTodos]);
 
-  if (todos.length === 0) {
+  const sortedTodos = useMemo(() => {
+    const startTime = start.getTime();
+    return [...todos].sort((a, b) => {
+      const aDue = a.dueDate ? new Date(a.dueDate).getTime() : null;
+      const bDue = b.dueDate ? new Date(b.dueDate).getTime() : null;
+      const aOverdue = aDue !== null && aDue < startTime;
+      const bOverdue = bDue !== null && bDue < startTime;
+      if (aOverdue && !bOverdue) return -1;
+      if (!aOverdue && bOverdue) return 1;
+      if (aDue === null && bDue === null) return 0;
+      if (aDue === null) return 1;
+      if (bDue === null) return -1;
+      return bDue - aDue;
+    });
+  }, [todos, start]);
+
+  if (sortedTodos.length === 0) {
     return (
       <div className="flex justify-center py-8">
         <span className="text-muted-foreground">No todos yet</span>
@@ -117,5 +133,5 @@ export const TodoListByDateRange = (props: TodoListByDateRangeProps) => {
     );
   }
 
-  return <TodoList todos={todos} />;
+  return <TodoList todos={sortedTodos} />;
 };

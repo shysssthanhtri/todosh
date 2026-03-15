@@ -1,7 +1,6 @@
 import { ModeToggle } from "@/components/mode-toggle";
 
 import { AddTodoButton } from "./_components/add-todo-button";
-import { OverdueTodoList } from "./_components/overdue-todo-list";
 import { SyncButton } from "./_components/sync-button";
 import { TodayTodoList } from "./_components/today-todo-list";
 
@@ -28,7 +27,6 @@ export default async function TodayPage({
           <ModeToggle />
         </div>
       </div>
-      <OverdueTodoList />
       <TodayTodoList />
       <AddTodoButton />
     </div>
