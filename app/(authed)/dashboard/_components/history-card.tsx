@@ -1,6 +1,6 @@
 "use client";
 
-import { isSameDay } from "date-fns";
+import { isSameDay, startOfDay } from "date-fns";
 import { useMemo } from "react";
 import {
   Bar,
@@ -66,7 +66,9 @@ export function HistoryCard({ todos }: HistoryCardProps) {
 
     todos.forEach((todo) => {
       const dueDate = todo.dueDate?.toISOString();
-      const completedAt = todo.completedAt?.toISOString();
+      const completedAt = todo.completedAt
+        ? startOfDay(todo.completedAt).toISOString()
+        : null;
       if (!dueDate) return;
       initRecord(dueDate);
       if (!completedAt) {
