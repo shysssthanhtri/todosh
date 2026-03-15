@@ -73,7 +73,11 @@ export function ProgressCard({ todos }: ProgressCardProps) {
                 />
                 <RadialBar
                   dataKey="value"
-                  fill="var(--color-primary)"
+                  fill={
+                    completed === total
+                      ? "var(--label-green-stroke)"
+                      : "var(--color-primary)"
+                  }
                   background
                   cornerRadius={10}
                 />

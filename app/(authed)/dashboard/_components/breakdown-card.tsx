@@ -94,7 +94,7 @@ export function BreakdownCard({ todos }: BreakdownCardProps) {
     <Card>
       <CardHeader>
         <CardTitle>Breakdown</CardTitle>
-        <CardDescription>By label</CardDescription>
+        <CardDescription>All todos by label (even incompleted)</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
         <ChartContainer config={{}} className="w-full h-full">
