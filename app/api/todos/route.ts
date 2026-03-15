@@ -16,6 +16,8 @@ export async function GET(request: Request) {
 
   const hasDateRange = !!(start || end);
 
+  console.log({ start: start && new Date(start), end: end && new Date(end) });
+
   const todos = await prisma.todo.findMany({
     where: {
       userId: session.user.id,

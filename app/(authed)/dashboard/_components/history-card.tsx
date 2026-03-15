@@ -90,7 +90,7 @@ export function HistoryCard({ todos }: HistoryCardProps) {
     <Card>
       <CardHeader>
         <CardTitle>History</CardTitle>
-        <CardDescription>Completed per day</CardDescription>
+        <CardDescription>Total per day</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={historyChartConfig} className="min-h-60 w-full">
