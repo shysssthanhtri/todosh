@@ -1,5 +1,6 @@
 "use client";
 
+import { startOfDay } from "date-fns";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -110,21 +111,21 @@ export const TodoListByDateRange = (props: TodoListByDateRangeProps) => {
   }, [loadTodos]);
 
   const sortedTodos = useMemo(() => {
-    const startTime = start.getTime();
+    const startOfToday = startOfDay(end).getTime();
     return [...todos].sort((a, b) => {
       const aDue = a.dueDate ? new Date(a.dueDate).getTime() : null;
       const bDue = b.dueDate ? new Date(b.dueDate).getTime() : null;
-      const aOverdue = aDue !== null && aDue < startTime;
-      const bOverdue = bDue !== null && bDue < startTime;
+      const aOverdue = aDue !== null && aDue < startOfToday;
+      const bOverdue = bDue !== null && bDue < startOfToday;
       if (aOverdue && !bOverdue) return -1;
       if (!aOverdue && bOverdue) return 1;
       if (aDue === null && bDue === null) return 0;
       if (aDue === null) return 1;
       if (bDue === null) return -1;
-      if (aOverdue && bOverdue) return aDue - bDue;
+      if (aOverdue && bOverdue) return bDue - aDue;
       return bDue - aDue;
     });
-  }, [todos, start]);
+  }, [todos, end]);
 
   if (sortedTodos.length === 0) {
     return (
