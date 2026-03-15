@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import {
   LABELS_UPDATED_EVENT,
   TODO_ADDED_EVENT,
+  TODO_CHANGED_EVENT,
   TODO_SYNCED_EVENT,
 } from "@/lib/events";
 import {
@@ -32,6 +33,7 @@ export const TodoListByDateRange = (props: TodoListByDateRangeProps) => {
     try {
       const updatedTodo = await updateTodo(id, { completed: true });
       recordUpsert({ ...updatedTodo, completedAt: new Date() });
+      window.dispatchEvent(new CustomEvent(TODO_CHANGED_EVENT));
       await deleteTodo(id);
       setTodos((prev) => prev.filter((todo) => todo.id !== id));
     } catch {
@@ -43,6 +45,7 @@ export const TodoListByDateRange = (props: TodoListByDateRangeProps) => {
     try {
       await deleteTodo(id);
       recordDelete(id);
+      window.dispatchEvent(new CustomEvent(TODO_CHANGED_EVENT));
       setTodos((prev) => prev.filter((todo) => todo.id !== id));
     } catch {
       toast.error("Failed to delete todo", { position: "top-center" });

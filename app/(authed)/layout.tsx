@@ -1,3 +1,4 @@
+import { AutoSyncProvider } from "./_components/auto-sync-provider";
 import { FooterNav } from "./_components/footer-nav";
 
 export const metadata = {
@@ -11,7 +12,9 @@ export default function AuthedLayout({
 }>) {
   return (
     <>
-      <main className="container mx-auto pb-24">{children}</main>
+      <AutoSyncProvider>
+        <main className="container mx-auto pb-24">{children}</main>
+      </AutoSyncProvider>
       <FooterNav />
     </>
   );

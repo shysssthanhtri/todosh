@@ -12,7 +12,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { TODO_ADDED_EVENT } from "@/lib/events";
+import { TODO_ADDED_EVENT, TODO_CHANGED_EVENT } from "@/lib/events";
 import { addTodo } from "@/lib/indexeddb";
 import { recordUpsert } from "@/lib/todo-sync";
 
@@ -34,6 +34,7 @@ export const AddTodoButton = () => {
         recordUpsert(addedTodo);
         formRef.current?.reset?.();
         window.dispatchEvent(new CustomEvent(TODO_ADDED_EVENT));
+        window.dispatchEvent(new CustomEvent(TODO_CHANGED_EVENT));
         toast.success("Todo added", { position: "top-center" });
         // Defer focus so it runs after React commits the reset and toast renders.
         // Double rAF ensures layout/paint before focusing; fallback for Enter-key submit or edge cases.
