@@ -78,10 +78,12 @@ export function HistoryCard({ todos }: HistoryCardProps) {
       }
     });
 
-    return Object.entries(record).map(([date, value]) => ({
-      date,
-      ...value,
-    }));
+    return Object.entries(record)
+      .map(([date, value]) => ({
+        date,
+        ...value,
+      }))
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   }, [todos]);
 
   return (
