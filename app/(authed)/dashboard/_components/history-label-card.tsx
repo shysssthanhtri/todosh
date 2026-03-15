@@ -44,15 +44,19 @@ export const HistoryLabelCard = ({ todos }: HistoryLabelCardProps) => {
       record[completedAt][label.name]++;
     });
 
-    const chartData = Object.entries(record).map(([date, subRecord]) => {
-      return {
-        date,
-        ...subRecord,
-      };
-    });
+    const chartData = Object.entries(record)
+      .map(([date, subRecord]) => {
+        return {
+          date,
+          ...subRecord,
+        };
+      })
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
     return chartData;
   }, [todos]);
+
+  console.log({ todos });
 
   const labels = useMemo(() => {
     const seenLabelNames = new Set<string>();
