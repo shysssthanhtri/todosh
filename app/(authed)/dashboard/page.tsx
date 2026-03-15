@@ -1,5 +1,6 @@
 "use client";
 
+import { endOfDay, isSameDay, startOfDay, subDays } from "date-fns";
 import { useEffect, useState } from "react";
 
 import type { UnInteractiveTodoType } from "@/app/(authed)/types/rich-todo";
@@ -24,13 +25,14 @@ type TodoApiResponse = {
 
 function getDateRange() {
   const now = new Date();
-  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+  const start = startOfDay(subDays(now, 10));
+  const end = endOfDay(now);
   return { start, end };
 }
 
 const DashboardPage = () => {
   const [todos, setTodos] = useState<UnInteractiveTodoType[]>([]);
+  const now = new Date();
 
   useEffect(() => {
     const { start, end } = getDateRange();
@@ -71,8 +73,16 @@ const DashboardPage = () => {
 
       <div className="flex flex-col gap-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <ProgressCard todos={todos} />
-          <BreakdownCard todos={todos} />
+          <ProgressCard
+            todos={todos.filter(
+              (todo) => todo.dueDate && isSameDay(todo.dueDate, now),
+            )}
+          />
+          <BreakdownCard
+            todos={todos.filter(
+              (todo) => todo.dueDate && isSameDay(todo.dueDate, now),
+            )}
+          />
         </div>
 
         <HistoryCard todos={todos} />

@@ -118,6 +118,9 @@ export function HistoryCard({ todos }: HistoryCardProps) {
               <LabelList
                 dataKey="completed"
                 stroke="var(--label-green-stroke)"
+                formatter={(value: number) => {
+                  return !!value ? value : null;
+                }}
               />
             </Bar>
 
@@ -145,6 +148,9 @@ export function HistoryCard({ todos }: HistoryCardProps) {
               <LabelList
                 dataKey="inCompleted"
                 stroke="var(--label-red-stroke)"
+                formatter={(value: number) => {
+                  return !!value ? value : null;
+                }}
               />
             </Bar>
 
