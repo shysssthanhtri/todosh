@@ -10,10 +10,15 @@ declare const self: ServiceWorkerGlobalScope & {
 
 const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,
-  skipWaiting: true,
-  clientsClaim: true,
   navigationPreload: true,
   runtimeCaching: defaultCache,
 });
 
 serwist.addEventListeners();
+
+// Allow client to request activation of a waiting service worker (e.g. "Reload to update" prompt)
+self.addEventListener("message", (event) => {
+  if (event.data?.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
+});
