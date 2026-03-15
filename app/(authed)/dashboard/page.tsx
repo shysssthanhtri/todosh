@@ -25,7 +25,7 @@ type TodoApiResponse = {
 
 function getDateRange() {
   const now = new Date();
-  const start = startOfDay(subDays(now, 10));
+  const start = startOfDay(subDays(now, 5));
   const end = endOfDay(now);
   return { start, end };
 }
@@ -45,24 +45,22 @@ const DashboardPage = () => {
       .then((res) => res.json())
       .then((data: TodoApiResponse[]) => {
         setTodos(
-          data
-            .map((t) => ({
-              id: t.id,
-              title: t.title,
-              completed: t.completed,
-              completedAt: t.completedAt ? new Date(t.completedAt) : undefined,
-              dueDate: t.dueDate ? new Date(t.dueDate) : undefined,
-              labelId: t.labelId,
-              label: t.label
-                ? {
-                    name: t.label.name,
-                    color: (t.label.color as LabelColor) ?? undefined,
-                  }
-                : undefined,
-              createdAt: new Date(t.createdAt),
-              updatedAt: new Date(t.updatedAt),
-            }))
-            .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime()),
+          data.map((t) => ({
+            id: t.id,
+            title: t.title,
+            completed: t.completed,
+            completedAt: t.completedAt ? new Date(t.completedAt) : undefined,
+            dueDate: t.dueDate ? new Date(t.dueDate) : undefined,
+            labelId: t.labelId,
+            label: t.label
+              ? {
+                  name: t.label.name,
+                  color: (t.label.color as LabelColor) ?? undefined,
+                }
+              : undefined,
+            createdAt: new Date(t.createdAt),
+            updatedAt: new Date(t.updatedAt),
+          })),
         );
       });
   }, []);

@@ -108,13 +108,15 @@ export function BreakdownCard({ todos }: BreakdownCardProps) {
               axisLine={false}
             />
             <Bar dataKey="count" radius={10} strokeWidth={1}>
-              {labels.map((entry) => (
-                <Cell
-                  key={entry.name}
-                  fill={getBarFillColor(entry.color)}
-                  stroke={getBarStrokeColor(entry.color)}
-                />
-              ))}
+              {labels
+                .sort((a, b) => b.count - a.count)
+                .map((entry) => (
+                  <Cell
+                    key={entry.name}
+                    fill={getBarFillColor(entry.color)}
+                    stroke={getBarStrokeColor(entry.color)}
+                  />
+                ))}
               <LabelList
                 dataKey="count"
                 position="middle"
