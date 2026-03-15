@@ -121,6 +121,7 @@ export const TodoListByDateRange = (props: TodoListByDateRangeProps) => {
       if (aDue === null && bDue === null) return 0;
       if (aDue === null) return 1;
       if (bDue === null) return -1;
+      if (aOverdue && bOverdue) return aDue - bDue;
       return bDue - aDue;
     });
   }, [todos, start]);
