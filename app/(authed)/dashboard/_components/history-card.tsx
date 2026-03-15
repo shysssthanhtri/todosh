@@ -1,14 +1,9 @@
 "use client";
-
+import { isSameDay } from "date-fns";
+import { useMemo } from "react";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   type ChartConfig,
   ChartContainer,
@@ -17,36 +12,68 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import type { DailyStats } from "@/lib/dashboard-mock";
+
+import { UnInteractiveTodoType } from "../../types/rich-todo";
 
 const historyChartConfig = {
   date: { label: "Date" },
   completed: {
     label: "Completed",
-    color: "var(--chart-3)",
+    color: "var(--primary)",
   },
-  incomplete: {
+  inCompleted: {
     label: "Incomplete",
-    color: "var(--chart-1)",
+    color: "var(--toast-error-border)",
   },
-  overDue: {
+  overdue: {
     label: "Overdue",
-    color: "var(--destructive)",
+    color: "var(--chart-1)",
   },
 } satisfies ChartConfig;
 
 type HistoryCardProps = {
-  data: DailyStats[];
+  todos: UnInteractiveTodoType[];
 };
 
-export function HistoryCard({ data }: HistoryCardProps) {
+export function HistoryCard({ todos }: HistoryCardProps) {
+  const data = useMemo(() => {
+    const record: Record<
+      string,
+      { inCompleted: number; completed: number; overdue: number }
+    > = {};
+
+    const initRecord = (date: string) => {
+      record[date] = record[date] ?? {
+        inCompleted: 0,
+        completed: 0,
+        overdue: 0,
+      };
+    };
+
+    todos.forEach((todo) => {
+      const dueDate = todo.dueDate?.toISOString();
+      const completedAt = todo.completedAt?.toISOString();
+      if (!dueDate) return;
+      initRecord(dueDate);
+      if (!completedAt) {
+        record[dueDate].inCompleted++;
+      } else if (isSameDay(dueDate, completedAt)) {
+        record[dueDate].completed++;
+      } else {
+        record[dueDate].overdue++;
+      }
+    });
+
+    return Object.entries(record).map(([date, value]) => ({
+      date,
+      ...value,
+    }));
+  }, [todos]);
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>History</CardTitle>
-        <CardDescription>
-          Completed / incomplete per day (last 5 days)
-        </CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={historyChartConfig} className="min-h-60 w-full">
@@ -66,17 +93,23 @@ export function HistoryCard({ data }: HistoryCardProps) {
               }}
             />
             <YAxis tickLine={false} axisLine={false} tickMargin={10} />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent indicator="dashed" />}
-            />
+            <ChartTooltip content={<ChartTooltipContent hideLabel />} />
             <Bar
-              dataKey="incomplete"
-              fill="var(--color-incomplete)"
-              radius={4}
+              dataKey="completed"
+              stackId="a"
+              fill="var(--color-completed)"
+              radius={[0, 0, 5, 5]}
             />
-            <Bar dataKey="completed" fill="var(--color-completed)" radius={4} />
-            <Bar dataKey="overDue" fill="var(--color-overDue)" radius={4} />
+
+            <Bar dataKey="overdue" stackId="a" fill="var(--color-overdue)" />
+
+            <Bar
+              dataKey="inCompleted"
+              stackId="a"
+              fill="var(--color-inCompleted)"
+              radius={[5, 5, 0, 0]}
+            />
+
             <ChartLegend content={<ChartLegendContent />} />
           </BarChart>
         </ChartContainer>

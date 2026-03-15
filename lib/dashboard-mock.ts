@@ -62,6 +62,19 @@ export function getMockBreakdownTodos(): Array<{
       updatedAt: now,
       label: labels[0],
     });
+  for (let w = 0; w < 5; w++)
+    todos.push({
+      id: `mock-${i++}`,
+      title: `Work task ${w + 1}`,
+      completed: w < 2,
+      completedAt:
+        w < 1 ? undefined : [2, 3].includes(w) ? now : subDays(now, 1),
+      dueDate: subDays(now, 1),
+      labelId: "l1",
+      createdAt: now,
+      updatedAt: now,
+      label: labels[0],
+    });
   for (let p = 0; p < 4; p++)
     todos.push({
       id: `mock-${i++}`,
@@ -81,6 +94,7 @@ export function getMockBreakdownTodos(): Array<{
       updatedAt: now,
       label: undefined,
     });
+
   return todos;
 }
 

@@ -3,7 +3,7 @@
 import * as React from "react";
 
 import type { RichTodoType } from "@/app/(authed)/types/rich-todo";
-import { getMockBreakdownTodos, getMockDailyStats } from "@/lib/dashboard-mock";
+import { getMockBreakdownTodos } from "@/lib/dashboard-mock";
 
 import { BreakdownCard } from "./_components/breakdown-card";
 import { HistoryCard } from "./_components/history-card";
@@ -11,14 +11,10 @@ import { HistoryLabelCard } from "./_components/history-label-card";
 import { ProgressCard } from "./_components/progress-card";
 
 const DashboardPage = () => {
-  const dailyData = getMockDailyStats();
-
   const breakdownTodos = getMockBreakdownTodos().map((t) => ({
     ...t,
-    dueDate: t.dueDate ?? undefined,
+    dueDate: t.dueDate ?? new Date(),
     completedAt: t.completedAt ?? undefined,
-    onToggle: async () => {},
-    onDelete: async () => {},
   })) as RichTodoType[];
 
   return (
@@ -33,7 +29,7 @@ const DashboardPage = () => {
           <BreakdownCard todos={breakdownTodos} />
         </div>
 
-        <HistoryCard data={dailyData} />
+        <HistoryCard todos={breakdownTodos} />
         <HistoryLabelCard />
       </div>
     </div>
