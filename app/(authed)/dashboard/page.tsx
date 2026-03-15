@@ -25,7 +25,7 @@ type TodoApiResponse = {
 
 function getDateRange() {
   const now = new Date();
-  const start = startOfDay(subDays(now, 5));
+  const start = startOfDay(subDays(now, 4));
   const end = endOfDay(now);
   return { start, end };
 }

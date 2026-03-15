@@ -28,6 +28,9 @@ import {
 
 import { UnInteractiveTodoType } from "../../types/rich-todo";
 
+const NO_LABEL_NAME = "No label";
+const NO_LABEL_COLOR = "gray";
+
 interface HistoryLabelCardProps {
   todos: UnInteractiveTodoType[];
 }
@@ -38,11 +41,15 @@ export const HistoryLabelCard = ({ todos }: HistoryLabelCardProps) => {
       const completedAt = todo.completedAt?.toISOString();
       if (!completedAt) return;
       if (!record[completedAt]) record[completedAt] = {};
-      const label = todo.label;
-      if (!label) return;
+      const label = todo.label ?? {
+        name: NO_LABEL_NAME,
+        color: NO_LABEL_COLOR,
+      };
       if (!record[completedAt][label.name]) record[completedAt][label.name] = 0;
       record[completedAt][label.name]++;
     });
+
+    console.log({ record });
 
     const chartData = Object.entries(record)
       .map(([date, subRecord]) => {
@@ -61,12 +68,16 @@ export const HistoryLabelCard = ({ todos }: HistoryLabelCardProps) => {
   const labels = useMemo(() => {
     const seenLabelNames = new Set<string>();
     return todos.reduce<{ name: string; color?: string }[]>((acc, cur) => {
-      if (cur.completedAt && cur.label) {
-        if (!seenLabelNames.has(cur.label.name)) {
-          seenLabelNames.add(cur.label.name);
+      if (cur.completedAt) {
+        const label = cur.label ?? {
+          name: NO_LABEL_NAME,
+          color: NO_LABEL_COLOR,
+        };
+        if (!seenLabelNames.has(label.name)) {
+          seenLabelNames.add(label.name);
           acc.push({
-            name: cur.label.name,
-            color: cur.label.color as string,
+            name: label.name,
+            color: label.color as string,
           });
         }
       }
