@@ -105,15 +105,7 @@ export const HistoryLabelCard = ({ todos }: HistoryLabelCardProps) => {
             <YAxis tickLine={false} axisLine={false} tickMargin={10} />
             <ChartTooltip content={<ChartTooltipContent hideLabel />} />
 
-            {labels.map((label, index) => {
-              const radis: [number, number, number, number] =
-                labels.length === 1
-                  ? [10, 10, 10, 10]
-                  : index === 0
-                    ? [0, 0, 10, 10]
-                    : index === labels.length - 1
-                      ? [10, 10, 0, 0]
-                      : [0, 0, 0, 0];
+            {labels.map((label) => {
               return (
                 <Bar
                   key={label.name}
@@ -121,7 +113,6 @@ export const HistoryLabelCard = ({ todos }: HistoryLabelCardProps) => {
                   fill={`var(--label-${label.color}-fill)`}
                   stroke={`var(--label-${label.color}-stroke)`}
                   stackId="a"
-                  radius={radis}
                 >
                   <LabelList
                     dataKey={label.name}

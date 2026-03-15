@@ -10,7 +10,13 @@ import {
   YAxis,
 } from "recharts";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   type ChartConfig,
   ChartContainer,
@@ -26,15 +32,15 @@ const historyChartConfig = {
   date: { label: "Date" },
   completed: {
     label: "Completed",
-    color: "var(--primary)",
+    color: "var(--label-green-stroke)",
   },
   inCompleted: {
     label: "Incomplete",
-    color: "var(--toast-error-border)",
+    color: "var(--label-red-stroke)",
   },
   overdue: {
     label: "Overdue",
-    color: "var(--chart-1)",
+    color: "var(--label-orange-stroke)",
   },
 } satisfies ChartConfig;
 
@@ -81,6 +87,7 @@ export function HistoryCard({ todos }: HistoryCardProps) {
     <Card>
       <CardHeader>
         <CardTitle>History</CardTitle>
+        <CardDescription>Completed per day</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={historyChartConfig} className="min-h-60 w-full">
@@ -104,16 +111,24 @@ export function HistoryCard({ todos }: HistoryCardProps) {
             <Bar
               dataKey="completed"
               stackId="a"
-              fill="var(--color-completed)"
-              radius={[0, 0, 5, 5]}
+              fill="var(--label-green-fill)"
+              stroke="var(--label-green-stroke)"
             >
-              <LabelList dataKey="completed" className="fill-foreground" />
+              <LabelList
+                dataKey="completed"
+                stroke="var(--label-green-stroke)"
+              />
             </Bar>
 
-            <Bar dataKey="overdue" stackId="a" fill="var(--color-overdue)">
+            <Bar
+              dataKey="overdue"
+              stackId="a"
+              fill="var(--label-orange-fill)"
+              stroke="var(--label-orange-stroke)"
+            >
               <LabelList
                 dataKey="overdue"
-                className="fill-foreground"
+                stroke="var(--label-orange-stroke)"
                 formatter={(value: number) => {
                   return !!value ? value : null;
                 }}
@@ -123,13 +138,28 @@ export function HistoryCard({ todos }: HistoryCardProps) {
             <Bar
               dataKey="inCompleted"
               stackId="a"
-              fill="var(--color-inCompleted)"
-              radius={[5, 5, 0, 0]}
+              fill="var(--label-red-fill)"
+              stroke="var(--label-red-stroke)"
             >
-              <LabelList dataKey="inCompleted" className="fill-foreground" />
+              <LabelList
+                dataKey="inCompleted"
+                stroke="var(--label-red-stroke)"
+              />
             </Bar>
 
-            <ChartLegend content={<ChartLegendContent />} />
+            <ChartLegend
+              content={(props) => (
+                <ChartLegendContent
+                  verticalAlign={props.verticalAlign}
+                  payload={props.payload?.map((item) => ({
+                    ...item,
+                    color:
+                      (item.payload as Record<string, string> | undefined)
+                        ?.stroke ?? item.color,
+                  }))}
+                />
+              )}
+            />
           </BarChart>
         </ChartContainer>
       </CardContent>
