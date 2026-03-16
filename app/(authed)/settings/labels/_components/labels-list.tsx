@@ -6,8 +6,12 @@ import { LabelBadge } from "@/components/label-badge";
 import { LABELS_UPDATED_EVENT } from "@/lib/events";
 import { getLabels, type LabelItem } from "@/lib/indexeddb";
 
+import { EditLabelDrawer } from "./edit-label-drawer";
+
 export function LabelsList() {
   const [labels, setLabels] = useState<LabelItem[] | null>(null);
+  const [selectedLabel, setSelectedLabel] = useState<LabelItem | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const loadLabels = async () => {
     try {
@@ -51,10 +55,30 @@ export function LabelsList() {
   }
 
   return (
-    <div className="flex flex-wrap gap-2">
-      {labels.map((label) => (
-        <LabelBadge key={label.id} label={label} />
-      ))}
-    </div>
+    <>
+      <div className="flex flex-wrap gap-2">
+        {labels.map((label) => (
+          <button
+            key={label.id}
+            type="button"
+            className="cursor-pointer rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            onClick={() => {
+              setSelectedLabel(label);
+              setDrawerOpen(true);
+            }}
+            aria-label={`Edit label ${label.name}`}
+          >
+            <LabelBadge label={label} />
+          </button>
+        ))}
+      </div>
+      {selectedLabel && (
+        <EditLabelDrawer
+          open={drawerOpen}
+          onOpenChange={setDrawerOpen}
+          label={selectedLabel}
+        />
+      )}
+    </>
   );
 }

@@ -1,7 +1,13 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { forwardRef, useCallback, useImperativeHandle, useRef } from "react";
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+} from "react";
 import { Controller, useForm } from "react-hook-form";
 import z from "zod";
 
@@ -19,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { LabelItem } from "@/lib/indexeddb-labels";
 import { LabelColorEnum, LabelSchema } from "@/schemas/label";
 
 const FormSchema = LabelSchema.pick({ name: true, color: true });
@@ -27,6 +34,7 @@ type FormType = z.infer<typeof FormSchema>;
 interface Props {
   onSubmit?: (value: FormType) => void;
   isPending?: boolean;
+  value?: LabelItem;
 }
 
 interface Ref {
@@ -38,16 +46,25 @@ interface Ref {
 export type LabelFormRef = Ref;
 
 export const LabelForm = forwardRef<Ref, Props>((props, ref) => {
-  const { onSubmit, isPending } = props;
+  const { onSubmit, isPending, value } = props;
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const form = useForm<FormType>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      name: "",
-      color: undefined,
+      name: value?.name ?? "",
+      color: (value?.color as FormType["color"]) ?? undefined,
     },
   });
+
+  useEffect(() => {
+    if (value) {
+      form.reset({
+        name: value.name ?? "",
+        color: (value.color as FormType["color"]) ?? undefined,
+      });
+    }
+  }, [value, form]);
 
   const handleSubmit = useCallback(
     (value: FormType) => {
