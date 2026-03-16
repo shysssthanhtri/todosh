@@ -78,6 +78,7 @@ export function BreakdownCard({ todos }: BreakdownCardProps) {
   const labelsRecord = todos.reduce<
     Record<string, { name: string; count: number; color?: string }>
   >((acc, cur) => {
+    if (!cur.completed) return acc;
     const name = cur.label?.name ?? NO_LABEL_NAME;
     acc[name] = acc[name] ?? {
       name: name,
