@@ -9,6 +9,7 @@ import {
   TODO_ADDED_EVENT,
   TODO_CHANGED_EVENT,
   TODO_SYNCED_EVENT,
+  TODO_UPDATED_EVENT,
 } from "@/lib/events";
 import {
   deleteTodo,
@@ -102,10 +103,12 @@ export const TodoListByDateRange = (props: TodoListByDateRangeProps) => {
 
     window.addEventListener(TODO_ADDED_EVENT, handleRefresh);
     window.addEventListener(TODO_SYNCED_EVENT, handleRefresh);
+    window.addEventListener(TODO_UPDATED_EVENT, handleRefresh);
     window.addEventListener(LABELS_UPDATED_EVENT, handleRefresh);
     return () => {
       window.removeEventListener(TODO_ADDED_EVENT, handleRefresh);
       window.removeEventListener(TODO_SYNCED_EVENT, handleRefresh);
+      window.removeEventListener(TODO_UPDATED_EVENT, handleRefresh);
       window.removeEventListener(LABELS_UPDATED_EVENT, handleRefresh);
     };
   }, [loadTodos]);

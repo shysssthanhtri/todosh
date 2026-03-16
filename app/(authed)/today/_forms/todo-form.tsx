@@ -30,6 +30,7 @@ type FormType = z.infer<typeof FormSchema>;
 const defaultDueDate = () => toDueDateUTC(new Date());
 
 interface Props {
+  value?: FormType;
   onSubmit?: (value: FormType) => void;
   isPending?: boolean;
 }
@@ -42,7 +43,7 @@ interface Ref {
 export type TodoFormRef = Ref;
 
 export const TodoForm = forwardRef<Ref, Props>((props, ref) => {
-  const { onSubmit, isPending } = props;
+  const { onSubmit, isPending, value } = props;
   const inputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<FormType>({
@@ -51,6 +52,7 @@ export const TodoForm = forwardRef<Ref, Props>((props, ref) => {
       title: "",
       dueDate: defaultDueDate(),
       labelId: null,
+      ...value,
     },
   });
 
