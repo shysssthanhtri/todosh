@@ -70,3 +70,26 @@ export async function PATCH(
 
   return NextResponse.json(payload);
 }
+
+export async function DELETE(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { id } = await params;
+
+  const deleted = await prisma.label.deleteMany({
+    where: { id, userId: session.user.id },
+  });
+
+  if (deleted.count === 0) {
+    return NextResponse.json({ error: "Label not found" }, { status: 404 });
+  }
+
+  return new NextResponse(null, { status: 204 });
+}
