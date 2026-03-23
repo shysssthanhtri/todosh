@@ -5,6 +5,9 @@ import { Drawer as DrawerPrimitive } from "vaul";
 
 import { cn } from "@/lib/utils";
 
+/** iOS / PWA standalone: stray pointer events on the overlay can fire right after open and dismiss the drawer. */
+const SUPPRESS_OUTSIDE_DISMISS_MS = 400;
+
 function Drawer({
   ...props
 }: React.ComponentProps<typeof DrawerPrimitive.Root>) {
@@ -48,8 +51,60 @@ function DrawerOverlay({
 function DrawerContent({
   className,
   children,
+  onPointerDownOutside,
+  onInteractOutside,
   ...props
 }: React.ComponentProps<typeof DrawerPrimitive.Content>) {
+  const openedAtRef = React.useRef<number | null>(null);
+
+  React.useLayoutEffect(() => {
+    openedAtRef.current = Date.now();
+  }, []);
+
+  const handlePointerDownOutside = React.useCallback(
+    (
+      event: Parameters<
+        NonNullable<
+          React.ComponentProps<
+            typeof DrawerPrimitive.Content
+          >["onPointerDownOutside"]
+        >
+      >[0],
+    ) => {
+      const started = openedAtRef.current;
+      if (
+        started != null &&
+        Date.now() - started < SUPPRESS_OUTSIDE_DISMISS_MS
+      ) {
+        event.preventDefault();
+      }
+      onPointerDownOutside?.(event);
+    },
+    [onPointerDownOutside],
+  );
+
+  const handleInteractOutside = React.useCallback(
+    (
+      event: Parameters<
+        NonNullable<
+          React.ComponentProps<
+            typeof DrawerPrimitive.Content
+          >["onInteractOutside"]
+        >
+      >[0],
+    ) => {
+      const started = openedAtRef.current;
+      if (
+        started != null &&
+        Date.now() - started < SUPPRESS_OUTSIDE_DISMISS_MS
+      ) {
+        event.preventDefault();
+      }
+      onInteractOutside?.(event);
+    },
+    [onInteractOutside],
+  );
+
   return (
     <DrawerPortal data-slot="drawer-portal">
       <DrawerOverlay />
@@ -59,6 +114,8 @@ function DrawerContent({
           "group/drawer-content fixed z-50 flex h-auto flex-col bg-background text-sm data-[vaul-drawer-direction=bottom]:inset-x-0 data-[vaul-drawer-direction=bottom]:bottom-0 data-[vaul-drawer-direction=bottom]:mt-24 data-[vaul-drawer-direction=bottom]:max-h-[80vh] data-[vaul-drawer-direction=bottom]:rounded-t-xl data-[vaul-drawer-direction=bottom]:border-t data-[vaul-drawer-direction=left]:inset-y-0 data-[vaul-drawer-direction=left]:left-0 data-[vaul-drawer-direction=left]:w-3/4 data-[vaul-drawer-direction=left]:rounded-r-xl data-[vaul-drawer-direction=left]:border-r data-[vaul-drawer-direction=right]:inset-y-0 data-[vaul-drawer-direction=right]:right-0 data-[vaul-drawer-direction=right]:w-3/4 data-[vaul-drawer-direction=right]:rounded-l-xl data-[vaul-drawer-direction=right]:border-l data-[vaul-drawer-direction=top]:inset-x-0 data-[vaul-drawer-direction=top]:top-0 data-[vaul-drawer-direction=top]:mb-24 data-[vaul-drawer-direction=top]:max-h-[80vh] data-[vaul-drawer-direction=top]:rounded-b-xl data-[vaul-drawer-direction=top]:border-b data-[vaul-drawer-direction=left]:sm:max-w-sm data-[vaul-drawer-direction=right]:sm:max-w-sm",
           className,
         )}
+        onPointerDownOutside={handlePointerDownOutside}
+        onInteractOutside={handleInteractOutside}
         {...props}
       >
         <div className="mx-auto mt-4 hidden h-1 w-[100px] shrink-0 rounded-full bg-muted group-data-[vaul-drawer-direction=bottom]/drawer-content:block" />
