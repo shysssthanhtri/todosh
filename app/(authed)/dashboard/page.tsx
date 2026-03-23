@@ -75,12 +75,16 @@ const DashboardPage = () => {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <ProgressCard
             todos={todos.filter(
-              (todo) => todo.dueDate && isSameDay(todo.dueDate, now),
+              (todo) =>
+                (todo.dueDate && isSameDay(todo.dueDate, now)) ||
+                (todo.completedAt && isSameDay(todo.completedAt, now)),
             )}
           />
           <BreakdownCard
             todos={todos.filter(
-              (todo) => todo.dueDate && isSameDay(todo.dueDate, now),
+              (todo) =>
+                (todo.dueDate && isSameDay(todo.dueDate, now)) ||
+                (todo.completedAt && isSameDay(todo.completedAt, now)),
             )}
           />
         </div>
