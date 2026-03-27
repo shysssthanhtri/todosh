@@ -1,7 +1,3 @@
-import { ModeToggle } from "@/components/mode-toggle";
-
-import { AddTodoButton } from "./_components/add-todo-button";
-import { SyncButton } from "./_components/sync-button";
 import { TodayTodoList } from "./_components/today-todo-list";
 
 export const metadata = {
@@ -19,16 +15,9 @@ export default async function TodayPage({
   await params;
   await searchParams;
   return (
-    <div className="container mx-auto max-w-2xl px-4 py-6">
-      <div className="flex items-center justify-between">
-        <h1 className="mb-6 text-2xl font-bold">Today</h1>
-        <div className="flex items-center gap-2">
-          <SyncButton />
-          <ModeToggle />
-        </div>
-      </div>
+    <>
+      <h1 className="mb-6 text-2xl font-bold">Today</h1>
       <TodayTodoList />
-      <AddTodoButton />
-    </div>
+    </>
   );
 }

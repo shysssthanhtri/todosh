@@ -66,11 +66,8 @@ const DashboardPage = () => {
   }, []);
 
   return (
-    <div className="container mx-auto max-w-4xl px-4 py-6">
-      <div className="mb-6 flex flex-col gap-1">
-        <h1 className="text-2xl font-bold">Dashboard</h1>
-      </div>
-
+    <>
+      <h1 className="mb-6 text-2xl font-bold">Dashboard</h1>
       <div className="flex flex-col gap-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <ProgressCard
@@ -92,7 +89,7 @@ const DashboardPage = () => {
         <HistoryCard todos={todos} />
         <HistoryLabelCard todos={todos} />
       </div>
-    </div>
+    </>
   );
 };
 
