@@ -7,7 +7,16 @@ import { ROUTES } from "@/constants/routes";
 import { prisma } from "@/lib/prisma";
 import { TodoSchemaType } from "@/schemas/todo";
 
-export async function getTodos(): Promise<TodoSchemaType[]> {
+interface getTodosParams {
+  start?: Date;
+  end?: Date;
+  getAll?: boolean;
+}
+export async function getTodos(
+  params: getTodosParams = {},
+): Promise<TodoSchemaType[]> {
+  const { start, end, getAll } = params;
+
   const session = await auth();
   if (!session?.user?.id) {
     return [];
@@ -16,7 +25,9 @@ export async function getTodos(): Promise<TodoSchemaType[]> {
   const todos = await prisma.todo.findMany({
     where: {
       userId: session.user.id,
-      completed: false,
+      ...(getAll ? undefined : { completed: false }),
+      ...(start && { dueDate: { gte: start } }),
+      ...(end && { dueDate: { lte: end } }),
     },
     include: { label: true },
     orderBy: { updatedAt: "desc" },
