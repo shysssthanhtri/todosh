@@ -81,7 +81,26 @@ function SwipeableItem({
   const leftMaxOffset =
     leftButtons.length * BUTTON_WIDTH + leftButtons.length * 8;
   const rightMaxOffset =
-    rightButtons.length * BUTTON_WIDTH + leftButtons.length * 8;
+    rightButtons.length * BUTTON_WIDTH + rightButtons.length * 8;
+
+  /** Hide the non-active action strip during full-swipe so it doesn’t stack on top (DOM order). */
+  const setFullSwipeOppositeVisibility = React.useCallback(
+    (activeSide: "left" | "right" | null) => {
+      const leftEl = leftActionsRef.current;
+      const rightEl = rightActionsRef.current;
+      if (activeSide === "left") {
+        if (leftEl) leftEl.style.visibility = "";
+        if (rightEl) rightEl.style.visibility = "hidden";
+      } else if (activeSide === "right") {
+        if (leftEl) leftEl.style.visibility = "hidden";
+        if (rightEl) rightEl.style.visibility = "";
+      } else {
+        if (leftEl) leftEl.style.visibility = "";
+        if (rightEl) rightEl.style.visibility = "";
+      }
+    },
+    [],
+  );
 
   // Direct DOM update — no React re-render during drag
   const setTransform = React.useCallback(
@@ -139,6 +158,8 @@ function SwipeableItem({
       fullSwipeActiveRef.current = side;
       if (!side) return;
 
+      setFullSwipeOppositeVisibility(side);
+
       const actionsContainer =
         side === "left" ? leftActionsRef.current : rightActionsRef.current;
       const maxOffset = side === "left" ? leftMaxOffset : rightMaxOffset;
@@ -195,7 +216,12 @@ function SwipeableItem({
         });
       }
     },
-    [fullSwipeThreshold, leftMaxOffset, rightMaxOffset],
+    [
+      fullSwipeThreshold,
+      leftMaxOffset,
+      rightMaxOffset,
+      setFullSwipeOppositeVisibility,
+    ],
   );
 
   /** Reset trigger button visual state back to default */
@@ -213,7 +239,8 @@ function SwipeableItem({
       });
     }
     fullSwipeActiveRef.current = null;
-  }, [leftMaxOffset, rightMaxOffset]);
+    setFullSwipeOppositeVisibility(null);
+  }, [leftMaxOffset, rightMaxOffset, setFullSwipeOppositeVisibility]);
 
   /** Slide content fully off-screen then trigger the action */
   const triggerFullSwipe = React.useCallback(
@@ -234,6 +261,7 @@ function SwipeableItem({
         actionsContainer.style.width = `${containerWidth}px`;
       }
       fullSwipeActiveRef.current = null;
+      setFullSwipeOppositeVisibility(direction === "right" ? "left" : "right");
 
       const buttons = direction === "right" ? leftButtons : rightButtons;
       const firstAction = buttons[0]?.onClick;
@@ -256,6 +284,7 @@ function SwipeableItem({
       onFullSwipeLeft,
       onFullSwipeRight,
       actionDelay,
+      setFullSwipeOppositeVisibility,
     ],
   );
 

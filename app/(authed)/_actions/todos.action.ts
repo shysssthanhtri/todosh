@@ -96,3 +96,16 @@ export const createTodo = async (
   revalidatePath(ROUTES.TODO_LIST);
   return todo;
 };
+
+export async function deleteTodo(id: string): Promise<void> {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized");
+  }
+
+  await prisma.todo.deleteMany({
+    where: { id, userId: session.user.id },
+  });
+
+  revalidatePath(ROUTES.TODO_LIST);
+}

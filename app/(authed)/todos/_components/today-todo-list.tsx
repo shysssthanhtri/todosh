@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { TodoSchemaType } from "@/schemas/todo";
 
-import { completeTodo } from "../../_actions/todos.action";
+import { completeTodo, deleteTodo } from "../../_actions/todos.action";
 import { TodoList } from "../../_components/todo-list";
 import { RichTodoType } from "../../_types/rich-todo";
 
@@ -29,7 +29,16 @@ export const TodayTodoList = ({ todos }: TodayTodoListProps) => {
     }
   };
 
-  const handleDelete = async (_id: string) => {};
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteTodo(id);
+    } catch (error) {
+      toast.error(
+        `Failed to complete todo: ${error instanceof Error ? error.message : "Unknown error"}`,
+        { position: "top-center" },
+      );
+    }
+  };
 
   const richTodos = todos
     .filter((todo) =>
