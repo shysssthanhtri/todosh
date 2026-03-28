@@ -3,12 +3,15 @@ import React, { useState } from "react";
 
 import { Separator } from "@/components/ui/separator";
 import { SwipeableItem } from "@/components/ui/swipeable-item";
+import { LabelSchemaType } from "@/schemas/label";
 
 import { RichTodoType } from "../_types/rich-todo";
+import { EditTodoDrawer } from "../todos/_components/edit-todo-drawer";
 import { UnInteractiveTodoItem } from "./uninteractive-todo-item";
 
 interface InteractiveTodoItemProps {
   todo: RichTodoType;
+  labels: LabelSchemaType[];
 }
 
 const FADE_DURATION_MS = 300;
@@ -18,11 +21,15 @@ const wait = async (time: number) => {
   return new Promise((resolve) => setTimeout(resolve, time));
 };
 
-export const InteractiveTodoItem = ({ todo }: InteractiveTodoItemProps) => {
+export const InteractiveTodoItem = ({
+  todo,
+  labels,
+}: InteractiveTodoItemProps) => {
   const [isHiding, setIsHiding] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
   const [isTransitionFinished, setIsTransitionFinished] = useState(false);
   const [isDeleted, setIsDeleted] = useState(false);
+  const [isEditTodoOpen, setIsEditTodoOpen] = useState(false);
 
   const handleComplete = async () => {
     setIsCompleted(true);
@@ -59,7 +66,7 @@ export const InteractiveTodoItem = ({ todo }: InteractiveTodoItemProps) => {
             icon: <Edit className="size-4" />,
             ariaLabel: "Edit todo item",
             variant: "secondary",
-            onClick: () => {},
+            onClick: () => setIsEditTodoOpen(true),
           },
         ]}
       >
@@ -72,6 +79,13 @@ export const InteractiveTodoItem = ({ todo }: InteractiveTodoItemProps) => {
       </SwipeableItem>
 
       <Separator />
+
+      <EditTodoDrawer
+        open={isEditTodoOpen}
+        onOpenChange={setIsEditTodoOpen}
+        todo={todo}
+        labels={labels}
+      />
     </>
   );
 };

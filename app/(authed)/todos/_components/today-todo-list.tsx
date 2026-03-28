@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { LabelSchemaType } from "@/schemas/label";
 import { TodoSchemaType } from "@/schemas/todo";
 
 import { completeTodo, deleteTodo } from "../../_actions/todos.action";
@@ -14,8 +15,9 @@ import { RichTodoType } from "../../_types/rich-todo";
 
 interface TodayTodoListProps {
   todos: TodoSchemaType[];
+  labels: LabelSchemaType[];
 }
-export const TodayTodoList = ({ todos }: TodayTodoListProps) => {
+export const TodayTodoList = ({ todos, labels }: TodayTodoListProps) => {
   const [isShowFeatureTodos, setIsShowFeatureTodos] = useState(false);
 
   const handleComplete = async (id: string) => {
@@ -88,7 +90,7 @@ export const TodayTodoList = ({ todos }: TodayTodoListProps) => {
         </Label>
       </div>
 
-      <TodoList todos={richTodos} />
+      <TodoList todos={richTodos} labels={labels} />
     </>
   );
 };

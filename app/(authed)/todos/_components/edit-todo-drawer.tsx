@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/drawer";
 import { LabelSchemaType } from "@/schemas/label";
 
+import { updateTodo } from "../../_actions/todos.action";
 import { RichTodoType } from "../../_types/rich-todo";
 import { TodoForm, TodoFormRef } from "../_forms/todo-form";
 
@@ -32,6 +33,7 @@ export const EditTodoDrawer = ({
   const handleSubmit = (value: TodoForm.FormValue) => {
     startTransition(async () => {
       try {
+        await updateTodo(todo.id, value);
         toast.success("Todo updated", { position: "top-center" });
         onOpenChange(false);
       } catch {

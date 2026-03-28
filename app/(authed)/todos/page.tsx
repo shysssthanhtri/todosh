@@ -1,3 +1,4 @@
+import { getLabels } from "../_actions/labels.action";
 import { getTodos } from "../_actions/todos.action";
 import { TodayTodoList } from "./_components/today-todo-list";
 
@@ -8,10 +9,11 @@ export const metadata = {
 
 export default async function TodosPage() {
   const todos = await getTodos();
+  const labels = await getLabels();
   return (
     <>
       <h1 className="mb-6 text-2xl font-bold">Today</h1>
-      <TodayTodoList todos={todos} />
+      <TodayTodoList todos={todos} labels={labels} />
     </>
   );
 }

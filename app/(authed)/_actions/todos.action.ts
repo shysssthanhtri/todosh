@@ -109,3 +109,25 @@ export async function deleteTodo(id: string): Promise<void> {
 
   revalidatePath(ROUTES.TODO_LIST);
 }
+
+export const updateTodo = async (
+  id: TodoSchemaType["id"],
+  payload: Pick<TodoSchemaType, "title" | "dueDate" | "labelId">,
+) => {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized");
+  }
+
+  const todo = await prisma.todo.update({
+    where: { id, userId: session.user.id },
+    data: {
+      title: payload.title,
+      dueDate: payload.dueDate,
+      labelId: payload.labelId ?? undefined,
+    },
+  });
+
+  revalidatePath(ROUTES.TODO_LIST);
+  return todo;
+};

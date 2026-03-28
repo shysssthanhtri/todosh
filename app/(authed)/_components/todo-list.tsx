@@ -1,10 +1,13 @@
+import { LabelSchemaType } from "@/schemas/label";
+
 import { RichTodoType } from "../_types/rich-todo";
 import { InteractiveTodoItem } from "./interactive-todo-item";
 
 interface TodoListProps {
   todos: RichTodoType[];
+  labels: LabelSchemaType[];
 }
-export const TodoList = ({ todos }: TodoListProps) => {
+export const TodoList = ({ todos, labels }: TodoListProps) => {
   if (todos.length === 0) {
     return (
       <div className="flex justify-center py-8">
@@ -17,7 +20,7 @@ export const TodoList = ({ todos }: TodoListProps) => {
     <div className="flex flex-col">
       {todos.map((todo) => (
         <div key={todo.id}>
-          <InteractiveTodoItem todo={todo} />
+          <InteractiveTodoItem todo={todo} labels={labels} />
         </div>
       ))}
     </div>

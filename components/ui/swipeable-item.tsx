@@ -134,6 +134,27 @@ function SwipeableItem({
     [setTransform],
   );
 
+  /** Reset both action strips (width, buttons, visibility) — used after actions and when closing full-swipe UI */
+  const resetAllActionStripLayout = React.useCallback(() => {
+    const left = leftActionsRef.current;
+    const right = rightActionsRef.current;
+    if (left) {
+      left.style.width = `${leftMaxOffset}px`;
+      left.style.transition = "";
+      left.querySelectorAll("button").forEach((btn) => {
+        (btn as HTMLElement).style.cssText = "";
+      });
+    }
+    if (right) {
+      right.style.width = `${rightMaxOffset}px`;
+      right.style.transition = "";
+      right.querySelectorAll("button").forEach((btn) => {
+        (btn as HTMLElement).style.cssText = "";
+      });
+    }
+    setFullSwipeOppositeVisibility(null);
+  }, [leftMaxOffset, rightMaxOffset, setFullSwipeOppositeVisibility]);
+
   /** Update the visual state of the trigger button based on swipe progress */
   const updateFullSwipeVisual = React.useCallback(
     (side: "left" | "right" | null, progress: number, absOffset: number) => {
@@ -227,20 +248,9 @@ function SwipeableItem({
   /** Reset trigger button visual state back to default */
   const resetFullSwipeVisual = React.useCallback(() => {
     if (!fullSwipeActiveRef.current) return;
-    const side = fullSwipeActiveRef.current;
-    const container =
-      side === "left" ? leftActionsRef.current : rightActionsRef.current;
-    const maxOffset = side === "left" ? leftMaxOffset : rightMaxOffset;
-    if (container) {
-      container.style.width = `${maxOffset}px`;
-      const allBtns = container.querySelectorAll("button");
-      allBtns.forEach((btn) => {
-        (btn as HTMLElement).style.cssText = "";
-      });
-    }
     fullSwipeActiveRef.current = null;
-    setFullSwipeOppositeVisibility(null);
-  }, [leftMaxOffset, rightMaxOffset, setFullSwipeOppositeVisibility]);
+    resetAllActionStripLayout();
+  }, [resetAllActionStripLayout]);
 
   /** Slide content fully off-screen then trigger the action */
   const triggerFullSwipe = React.useCallback(
@@ -268,13 +278,15 @@ function SwipeableItem({
       const callback =
         direction === "left" ? onFullSwipeLeft : onFullSwipeRight;
 
-      // Fire the first button action (or the dedicated callback) after animation
+      // Fire the first button action (or the dedicated callback) after animation, then close the row
       setTimeout(() => {
         if (callback) {
           callback();
         } else if (firstAction) {
           firstAction();
         }
+        animateTo(0);
+        resetAllActionStripLayout();
       }, actionDelay);
     },
     [
@@ -285,6 +297,8 @@ function SwipeableItem({
       onFullSwipeRight,
       actionDelay,
       setFullSwipeOppositeVisibility,
+      animateTo,
+      resetAllActionStripLayout,
     ],
   );
 
@@ -572,9 +586,11 @@ function SwipeableItem({
   const handleButtonClick = React.useCallback(
     (onClick: () => void) => {
       onClick();
+      fullSwipeActiveRef.current = null;
+      resetAllActionStripLayout();
       animateTo(0);
     },
-    [animateTo],
+    [animateTo, resetAllActionStripLayout],
   );
 
   return (
