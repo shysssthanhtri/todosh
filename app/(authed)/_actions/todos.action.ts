@@ -26,8 +26,14 @@ export async function getTodos(
     where: {
       userId: session.user.id,
       ...(getAll ? undefined : { completed: false }),
-      ...(start && { dueDate: { gte: start } }),
-      ...(end && { dueDate: { lte: end } }),
+      ...(start || end
+        ? {
+            dueDate: {
+              ...(start ? { gte: start } : {}),
+              ...(end ? { lte: end } : {}),
+            },
+          }
+        : {}),
     },
     include: { label: true },
     orderBy: { updatedAt: "desc" },
