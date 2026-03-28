@@ -1,6 +1,11 @@
 "use client";
 
-import { FolderOpen, LayoutDashboard, ListTodo } from "lucide-react";
+import {
+  CirclePlus,
+  FolderOpen,
+  LayoutDashboard,
+  ListTodo,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useLayoutEffect, useRef, useState } from "react";
@@ -10,6 +15,7 @@ import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: ROUTES.TODO_LIST, label: "Todos", icon: ListTodo },
+  { href: ROUTES.CREATE_TODO, label: "Create", icon: CirclePlus },
   { href: ROUTES.DASHBOARD, label: "Dashboard", icon: LayoutDashboard },
   { href: ROUTES.BROWSE, label: "Browse", icon: FolderOpen },
 ] as const;

@@ -3,6 +3,7 @@ export const ROUTES = {
   LANDING: "/",
   /** App home after login */
   TODO_LIST: "/todos",
+  CREATE_TODO: "/todos/create",
   UPCOMING: "/upcoming",
   DASHBOARD: "/dashboard",
   BROWSE: "/browse",
