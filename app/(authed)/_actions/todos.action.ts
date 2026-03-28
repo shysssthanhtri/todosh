@@ -58,3 +58,24 @@ export async function completeTodo(id: string): Promise<void> {
 
   revalidatePath(ROUTES.TODO_LIST);
 }
+
+export const createTodo = async (
+  newTodo: Pick<TodoSchemaType, "title" | "dueDate" | "labelId">,
+) => {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized");
+  }
+
+  const todo = await prisma.todo.create({
+    data: {
+      title: newTodo.title,
+      dueDate: newTodo.dueDate,
+      labelId: newTodo.labelId ?? undefined,
+      userId: session.user.id,
+    },
+  });
+
+  revalidatePath(ROUTES.TODO_LIST);
+  return todo;
+};

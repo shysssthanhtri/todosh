@@ -1,6 +1,6 @@
 "use client";
 
-import { endOfDay, isBefore } from "date-fns";
+import { endOfDay, isBefore, isSameDay, startOfDay } from "date-fns";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -34,14 +34,34 @@ export const TodayTodoList = ({ todos }: TodayTodoListProps) => {
   const richTodos = todos
     .filter((todo) =>
       !isShowFeatureTodos
-        ? todo.dueDate && isBefore(endOfDay(todo.dueDate), endOfDay(new Date()))
+        ? todo.dueDate &&
+          (isBefore(endOfDay(todo.dueDate), endOfDay(new Date())) ||
+            isSameDay(todo.dueDate, new Date()))
         : true,
     )
     .map<RichTodoType>((todo) => ({
       ...todo,
       onDelete: () => handleDelete(todo.id),
       onComplete: () => handleComplete(todo.id),
-    }));
+    }))
+    .sort((a, b) => {
+      const todayStart = startOfDay(new Date());
+      const aDueDate = a.dueDate ?? new Date();
+      const bDueDate = b.dueDate ?? new Date();
+
+      const aOverdue = aDueDate != null && isBefore(aDueDate, todayStart);
+      const bOverdue = bDueDate != null && isBefore(bDueDate, todayStart);
+
+      if (aOverdue !== bOverdue) {
+        return aOverdue ? -1 : 1;
+      }
+
+      if (isSameDay(aDueDate, bDueDate)) {
+        return (a.createdAt.getTime() - b.createdAt.getTime()) * -1;
+      }
+
+      return (aDueDate.getTime() - bDueDate.getTime()) * -1;
+    });
 
   return (
     <>
