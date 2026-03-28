@@ -3,7 +3,7 @@
 import { endOfDay, isSameDay, startOfDay, subDays } from "date-fns";
 import { useEffect, useState } from "react";
 
-import type { UnInteractiveTodoType } from "@/app/(authed)/types/rich-todo";
+import type { UnInteractiveTodoType } from "@/app/(authed)/_types/rich-todo";
 import type { LabelColor } from "@/schemas/label";
 
 import { BreakdownCard } from "./_components/breakdown-card";

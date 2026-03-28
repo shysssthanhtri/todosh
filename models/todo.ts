@@ -18,6 +18,7 @@ export const TodoModel = z.object({
   createdAt: z.date(),
   updatedAt: z.date(),
 });
+export type TodoType = z.infer<typeof TodoModel>;
 
 export interface CompleteTodo extends z.infer<typeof TodoModel> {
   user: CompleteUser;

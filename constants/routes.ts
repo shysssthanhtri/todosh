@@ -2,7 +2,7 @@ export const ROUTES = {
   /** Landing page (public) */
   LANDING: "/",
   /** App home after login */
-  TODAY: "/today",
+  TODO_LIST: "/todos",
   UPCOMING: "/upcoming",
   DASHBOARD: "/dashboard",
   BROWSE: "/browse",

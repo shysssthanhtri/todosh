@@ -11,7 +11,7 @@ import { ActionResult } from "@/types/actions";
 export async function loginWithGoogle(): Promise<ActionResult> {
   try {
     await signIn("google", {
-      redirectTo: ROUTES.TODAY,
+      redirectTo: ROUTES.TODO_LIST,
     });
     return { success: true, data: undefined };
   } catch (error) {
@@ -33,7 +33,7 @@ export async function login(
     await signIn("credentials", {
       email,
       password,
-      redirectTo: ROUTES.TODAY,
+      redirectTo: ROUTES.TODO_LIST,
     });
 
     return { success: true, data: undefined };
@@ -81,7 +81,7 @@ export async function signup(
     await signIn("credentials", {
       email,
       password,
-      redirectTo: ROUTES.TODAY,
+      redirectTo: ROUTES.TODO_LIST,
     });
 
     return { success: true, data: undefined };

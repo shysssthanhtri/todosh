@@ -86,7 +86,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
       // Authenticated user visiting auth pages → redirect to home
       if (isLoggedIn && publicRoutes.includes(pathname)) {
-        return Response.redirect(new URL(ROUTES.TODAY, nextUrl));
+        return Response.redirect(new URL(ROUTES.TODO_LIST, nextUrl));
       }
 
       // Unauthenticated user visiting protected pages → redirect to login

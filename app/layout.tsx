@@ -4,7 +4,6 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata, Viewport } from "next";
 
 import { geistMono, geistSans } from "@/app/fonts";
-import { PwaUpdatePrompt } from "@/components/pwa-update-prompt";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -113,7 +112,6 @@ export default function RootLayout({
         >
           {children}
           <Toaster />
-          <PwaUpdatePrompt />
         </ThemeProvider>
         <SpeedInsights />
       </body>

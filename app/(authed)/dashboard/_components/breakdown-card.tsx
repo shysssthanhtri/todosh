@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { ChartContainer } from "@/components/ui/chart";
 
-import { UnInteractiveTodoType } from "../../types/rich-todo";
+import { UnInteractiveTodoType } from "../../_types/rich-todo";
 
 /** Theme-aware bar fill (uses CSS vars from globals.css for light/dark) */
 function getBarFillColor(color: string | null | undefined): string {

@@ -1,7 +1,7 @@
+import { TodoType } from "@/models";
 import { LabelSchemaType } from "@/schemas/label";
-import { TodoSchemaType } from "@/schemas/todo";
 
-export type UnInteractiveTodoType = Omit<TodoSchemaType, "userId"> & {
+export type UnInteractiveTodoType = Omit<TodoType, "userId"> & {
   /** Resolved label name for display (from IndexedDB). Set by parent. */
   label?: {
     name: LabelSchemaType["name"];
@@ -10,6 +10,6 @@ export type UnInteractiveTodoType = Omit<TodoSchemaType, "userId"> & {
 };
 
 export type RichTodoType = UnInteractiveTodoType & {
-  onToggle: () => Promise<void>;
+  onComplete: () => Promise<void>;
   onDelete: () => Promise<void>;
 };

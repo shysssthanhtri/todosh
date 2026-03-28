@@ -13,7 +13,7 @@ import { TODO_CHANGED_EVENT, TODO_UPDATED_EVENT } from "@/lib/events";
 import { updateTodo } from "@/lib/indexeddb";
 import { recordUpsert } from "@/lib/todo-sync";
 
-import { RichTodoType } from "../../types/rich-todo";
+import { RichTodoType } from "../../_types/rich-todo";
 import { TodoForm, TodoFormRef } from "../_forms/todo-form";
 
 interface EditTodoDrawerProps {
@@ -68,7 +68,11 @@ export const EditTodoDrawer = ({
             ref={formRef}
             onSubmit={handleSubmit}
             isPending={isPending}
-            value={todo}
+            value={{
+              title: todo.title,
+              dueDate: todo.dueDate ?? undefined,
+              labelId: todo.labelId ?? null,
+            }}
           />
         </div>
       </DrawerContent>

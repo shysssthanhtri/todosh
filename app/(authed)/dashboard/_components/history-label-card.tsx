@@ -27,7 +27,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 
-import { UnInteractiveTodoType } from "../../types/rich-todo";
+import { UnInteractiveTodoType } from "../../_types/rich-todo";
 
 const NO_LABEL_NAME = "No label";
 const NO_LABEL_COLOR = "gray";

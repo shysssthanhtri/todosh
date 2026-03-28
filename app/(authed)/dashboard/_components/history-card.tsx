@@ -27,7 +27,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 
-import { UnInteractiveTodoType } from "../../types/rich-todo";
+import { UnInteractiveTodoType } from "../../_types/rich-todo";
 
 const historyChartConfig = {
   date: { label: "Date" },

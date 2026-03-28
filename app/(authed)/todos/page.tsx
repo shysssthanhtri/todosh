@@ -1,3 +1,4 @@
+import { getTodos } from "../_actions/todos.action";
 import { TodayTodoList } from "./_components/today-todo-list";
 
 export const metadata = {
@@ -5,19 +6,12 @@ export const metadata = {
   description: "View and manage your todo list. Add, complete, and sync tasks.",
 };
 
-export default async function TodayPage({
-  params,
-  searchParams,
-}: {
-  params?: Promise<Record<string, string | string[]>>;
-  searchParams?: Promise<Record<string, string | string[]>>;
-}) {
-  await params;
-  await searchParams;
+export default async function TodosPage() {
+  const todos = await getTodos();
   return (
     <>
       <h1 className="mb-6 text-2xl font-bold">Today</h1>
-      <TodayTodoList />
+      <TodayTodoList todos={todos} />
     </>
   );
 }

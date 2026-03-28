@@ -9,8 +9,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { SwipeableItem } from "@/components/ui/swipeable-item";
 import { isOverdue } from "@/lib/date-utils";
 
-import { EditTodoDrawer } from "../today/_components/edit-todo-drawer";
-import type { RichTodoType } from "../types/rich-todo";
+import type { RichTodoType } from "../_types/rich-todo";
+import { EditTodoDrawer } from "../todos/_components/edit-todo-drawer";
 
 interface Props {
   todo: RichTodoType;
