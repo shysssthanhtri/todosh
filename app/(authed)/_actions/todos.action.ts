@@ -5,9 +5,9 @@ import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { ROUTES } from "@/constants/routes";
 import { prisma } from "@/lib/prisma";
-import { TodoType } from "@/models";
+import { TodoSchemaType } from "@/schemas/todo";
 
-export async function getTodos(): Promise<TodoType[]> {
+export async function getTodos(): Promise<TodoSchemaType[]> {
   const session = await auth();
   if (!session?.user?.id) {
     return [];

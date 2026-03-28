@@ -126,7 +126,10 @@ export const TodoForm = forwardRef<Ref, Props>((props, ref) => {
               name="dueDate"
               control={form.control}
               render={({ field }) => (
-                <DueDatePicker value={field.value} onChange={field.onChange} />
+                <DueDatePicker
+                  value={field.value ?? undefined}
+                  onChange={field.onChange}
+                />
               )}
             />
             <Controller
