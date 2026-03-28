@@ -31,7 +31,7 @@ export async function getTodos(): Promise<TodoSchemaType[]> {
     labelId: todo.labelId ?? null,
     label: todo.label
       ? { name: todo.label.name, color: todo.label.color }
-      : null,
+      : undefined,
     createdAt: todo.createdAt,
     updatedAt: todo.updatedAt,
     userId: todo.userId,

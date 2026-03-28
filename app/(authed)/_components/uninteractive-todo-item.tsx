@@ -72,8 +72,7 @@ export const UnInteractiveTodoItem = ({
             )}
             {todo.label && (
               <LabelBadge
-                name={todo.label.name}
-                color={todo.label.color}
+                label={todo.label}
                 className="h-5 px-2 py-0 text-xs font-normal"
               />
             )}

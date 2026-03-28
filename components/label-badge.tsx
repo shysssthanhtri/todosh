@@ -1,17 +1,11 @@
 import { Badge } from "@/components/ui/badge";
-import type { LabelItem } from "@/lib/indexeddb";
-import type { LabelColor } from "@/schemas/label";
+import { LabelSchemaType } from "@/schemas/label";
 
-type Props =
-  | {
-      label: Pick<LabelItem, "name" | "color">;
-      className?: string;
-    }
-  | {
-      name: string;
-      color?: LabelColor | null;
-      className?: string;
-    };
+type Props = {
+  label: Pick<LabelSchemaType, "name" | "color">;
+  className?: string;
+  onClick?: () => void;
+};
 
 function getLabelColorClass(color: string | null | undefined): string {
   switch (color) {
@@ -97,21 +91,19 @@ export function getLabelStrokeColor(color: string | null | undefined): string {
 }
 
 export function LabelBadge(props: Props) {
-  const { name, color, className } =
-    "label" in props
-      ? {
-          name: props.label.name,
-          color: props.label.color,
-          className: props.className,
-        }
-      : props;
+  const {
+    label: { name, color },
+    className,
+    onClick,
+  } = props;
 
   return (
     <Badge
       variant="outline"
       className={`h-6 px-3 py-1 text-sm ${getLabelColorClass(
         color ?? null,
-      )} ${className ?? ""}`}
+      )} ${className ?? ""} ${onClick ? "cursor-pointer" : ""}`}
+      onClick={onClick}
     >
       {name}
     </Badge>

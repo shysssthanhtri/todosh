@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { toDueDateUTC } from "@/lib/date-utils";
+import { LabelSchemaType } from "@/schemas/label";
 import { TodoSchema } from "@/schemas/todo";
 
 import { DueDatePicker } from "./due-date-picker";
@@ -33,6 +34,7 @@ interface Props {
   value?: FormType;
   onSubmit?: (value: FormType) => void;
   isPending?: boolean;
+  labels: LabelSchemaType[];
 }
 interface Ref {
   submit?: () => void;
@@ -43,7 +45,7 @@ interface Ref {
 export type TodoFormRef = Ref;
 
 export const TodoForm = forwardRef<Ref, Props>((props, ref) => {
-  const { onSubmit, isPending, value } = props;
+  const { onSubmit, isPending, value, labels } = props;
   const inputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<FormType>({
@@ -136,7 +138,11 @@ export const TodoForm = forwardRef<Ref, Props>((props, ref) => {
               name="labelId"
               control={form.control}
               render={({ field }) => (
-                <LabelPicker value={field.value} onChange={field.onChange} />
+                <LabelPicker
+                  value={field.value}
+                  onChange={field.onChange}
+                  labels={labels}
+                />
               )}
             />
           </div>

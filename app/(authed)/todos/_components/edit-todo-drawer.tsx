@@ -9,9 +9,7 @@ import {
   DrawerDescription,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import { TODO_CHANGED_EVENT, TODO_UPDATED_EVENT } from "@/lib/events";
-import { updateTodo } from "@/lib/indexeddb";
-import { recordUpsert } from "@/lib/todo-sync";
+import { LabelSchemaType } from "@/schemas/label";
 
 import { RichTodoType } from "../../_types/rich-todo";
 import { TodoForm, TodoFormRef } from "../_forms/todo-form";
@@ -20,11 +18,13 @@ interface EditTodoDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   todo: RichTodoType;
+  labels: LabelSchemaType[];
 }
 export const EditTodoDrawer = ({
   onOpenChange,
   open,
   todo,
+  labels,
 }: EditTodoDrawerProps) => {
   const formRef = useRef<TodoFormRef>(null);
   const [isPending, startTransition] = useTransition();
@@ -32,14 +32,6 @@ export const EditTodoDrawer = ({
   const handleSubmit = (value: TodoForm.FormValue) => {
     startTransition(async () => {
       try {
-        const updatedTodo = await updateTodo(todo.id, {
-          title: value.title,
-          dueDate: value.dueDate,
-          labelId: value.labelId,
-        });
-        recordUpsert(updatedTodo);
-        window.dispatchEvent(new CustomEvent(TODO_UPDATED_EVENT));
-        window.dispatchEvent(new CustomEvent(TODO_CHANGED_EVENT));
         toast.success("Todo updated", { position: "top-center" });
         onOpenChange(false);
       } catch {
@@ -73,6 +65,7 @@ export const EditTodoDrawer = ({
               dueDate: todo.dueDate ?? undefined,
               labelId: todo.labelId ?? null,
             }}
+            labels={labels}
           />
         </div>
       </DrawerContent>

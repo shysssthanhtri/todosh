@@ -2,7 +2,7 @@
 
 import { Tag } from "lucide-react";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -12,31 +12,16 @@ import {
 } from "@/components/ui/popover";
 import { SelectSeparator } from "@/components/ui/select";
 import { ROUTES } from "@/constants/routes";
-import { getLabels, type LabelItem } from "@/lib/indexeddb";
+import { LabelSchemaType } from "@/schemas/label";
 
 interface LabelPickerProps {
   value?: string | null;
   onChange?: (labelId: string | null) => void;
+  labels: LabelSchemaType[];
 }
 
-export function LabelPicker({ value, onChange }: LabelPickerProps) {
+export function LabelPicker({ value, onChange, labels }: LabelPickerProps) {
   const [open, setOpen] = useState(false);
-  const [labels, setLabels] = useState<LabelItem[]>([]);
-
-  const loadLabels = useCallback(async () => {
-    try {
-      const items = await getLabels();
-      setLabels(items);
-    } catch {
-      setLabels([]);
-    }
-  }, []);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- sync checkbox display from parent
-    void loadLabels();
-  }, [loadLabels]);
-
   const selectedLabel = value ? labels.find((l) => l.id === value) : null;
   const triggerLabel = selectedLabel ? selectedLabel.name : "Label";
 

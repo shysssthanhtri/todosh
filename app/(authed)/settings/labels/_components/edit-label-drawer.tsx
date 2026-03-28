@@ -4,6 +4,10 @@ import { Loader2, Trash2 } from "lucide-react";
 import React, { useRef, useTransition } from "react";
 import { toast } from "sonner";
 
+import {
+  deleteLabel,
+  updateLabel,
+} from "@/app/(authed)/_actions/labels.action";
 import { Button } from "@/components/ui/button";
 import {
   Drawer,
@@ -11,23 +15,14 @@ import {
   DrawerDescription,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import { LABELS_UPDATED_EVENT } from "@/lib/events";
-import { type LabelItem, putLabels } from "@/lib/indexeddb";
+import { LabelSchemaType } from "@/schemas/label";
 
 import { LabelForm, LabelFormRef } from "../_forms/label-form";
-
-interface ApiLabel {
-  id: string;
-  name: string;
-  color?: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
 
 interface EditLabelDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  label: LabelItem;
+  label?: LabelSchemaType;
 }
 export const EditLabelDrawer = ({
   onOpenChange,
@@ -38,59 +33,13 @@ export const EditLabelDrawer = ({
   const [isPending, startTransition] = useTransition();
 
   const handleDelete = () => {
+    if (!label) return;
+
     startTransition(async () => {
       try {
-        const res = await fetch(`/api/labels/${label.id}`, {
-          method: "DELETE",
-          credentials: "same-origin",
-        });
-
-        if (res.status === 401) {
-          throw new Error("Unauthorized");
-        }
-        if (res.status !== 204 && !res.ok) {
-          let message = `Delete label failed: ${res.status}`;
-          try {
-            const data = (await res.json()) as { error?: string };
-            if (typeof data?.error === "string") message = data.error;
-          } catch {
-            // ignore
-          }
-          throw new Error(message);
-        }
-
-        const listRes = await fetch("/api/labels", {
-          method: "GET",
-          credentials: "same-origin",
-        });
-
-        if (listRes.status === 401) {
-          throw new Error("Unauthorized");
-        }
-        if (!listRes.ok) {
-          let message = `Fetch labels failed: ${listRes.status}`;
-          try {
-            const data = (await listRes.json()) as { error?: string };
-            if (typeof data?.error === "string") message = data.error;
-          } catch {
-            // ignore
-          }
-          throw new Error(message);
-        }
-
-        const apiLabels = (await listRes.json()) as ApiLabel[];
-        const items: LabelItem[] = apiLabels.map((l) => ({
-          id: l.id,
-          name: l.name,
-          color: l.color ?? null,
-          createdAt: new Date(l.createdAt),
-          updatedAt: new Date(l.updatedAt),
-        }));
-        await putLabels(items);
-        window.dispatchEvent(new CustomEvent(LABELS_UPDATED_EVENT));
-
-        toast.success("Label removed", { position: "top-center" });
+        await deleteLabel(label.id);
         onOpenChange(false);
+        toast.success("Label removed", { position: "top-center" });
       } catch (error) {
         const message =
           error instanceof Error ? error.message : "Failed to remove label";
@@ -100,6 +49,8 @@ export const EditLabelDrawer = ({
   };
 
   const handleSubmit = (value: LabelForm.FormValue) => {
+    if (!label) return;
+
     const trimmedName = value.name.trim();
     if (!trimmedName) {
       toast.error("Label name is required", { position: "top-center" });
@@ -108,62 +59,13 @@ export const EditLabelDrawer = ({
 
     startTransition(async () => {
       try {
-        const res = await fetch(`/api/labels/${label.id}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          credentials: "same-origin",
-          body: JSON.stringify({
-            name: trimmedName,
-            color: value.color ?? null,
-          }),
+        await updateLabel({
+          id: label.id,
+          name: trimmedName,
+          color: value.color,
         });
-
-        if (res.status === 401) {
-          throw new Error("Unauthorized");
-        }
-        if (!res.ok) {
-          let message = `Update label failed: ${res.status}`;
-          try {
-            const data = (await res.json()) as { error?: string };
-            if (typeof data?.error === "string") message = data.error;
-          } catch {
-            // ignore
-          }
-          throw new Error(message);
-        }
-
-        const listRes = await fetch("/api/labels", {
-          method: "GET",
-          credentials: "same-origin",
-        });
-
-        if (listRes.status === 401) {
-          throw new Error("Unauthorized");
-        }
-        if (!listRes.ok) {
-          let message = `Fetch labels failed: ${listRes.status}`;
-          try {
-            const data = (await listRes.json()) as { error?: string };
-            if (typeof data?.error === "string") message = data.error;
-          } catch {
-            // ignore
-          }
-          throw new Error(message);
-        }
-
-        const apiLabels = (await listRes.json()) as ApiLabel[];
-        const items: LabelItem[] = apiLabels.map((l) => ({
-          id: l.id,
-          name: l.name,
-          color: l.color ?? null,
-          createdAt: new Date(l.createdAt),
-          updatedAt: new Date(l.updatedAt),
-        }));
-        await putLabels(items);
-        window.dispatchEvent(new CustomEvent(LABELS_UPDATED_EVENT));
-
-        toast.success("Label updated", { position: "top-center" });
         onOpenChange(false);
+        toast.success("Label updated", { position: "top-center" });
       } catch (error) {
         const message =
           error instanceof Error ? error.message : "Failed to update label";
@@ -171,6 +73,10 @@ export const EditLabelDrawer = ({
       }
     });
   };
+
+  if (!label) {
+    return null;
+  }
 
   return (
     <Drawer

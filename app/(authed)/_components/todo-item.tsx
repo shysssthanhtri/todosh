@@ -8,6 +8,7 @@ import { LabelBadge } from "@/components/label-badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { SwipeableItem } from "@/components/ui/swipeable-item";
 import { isOverdue } from "@/lib/date-utils";
+import { LabelSchemaType } from "@/schemas/label";
 
 import type { RichTodoType } from "../_types/rich-todo";
 import { EditTodoDrawer } from "../todos/_components/edit-todo-drawer";
@@ -16,13 +17,14 @@ interface Props {
   todo: RichTodoType;
   onToggle: (id: string, completed: boolean) => void;
   onDelete: (id: string) => void;
+  labels: LabelSchemaType[];
 }
 
 const SWIPE_THRESHOLD = 0.2;
 const LINE_THROUGH_DELAY_MS = 200;
 const FADE_DURATION_MS = 300;
 
-export const TodoItem = ({ todo, onToggle, onDelete }: Props) => {
+export const TodoItem = ({ todo, onToggle, onDelete, labels }: Props) => {
   const [isCompleted, setIsCompleted] = useState(todo.completed);
   const [isHiding, setIsHiding] = useState(false);
   const [editTodoOpen, setEditTodoOpen] = useState(false);
@@ -122,8 +124,7 @@ export const TodoItem = ({ todo, onToggle, onDelete }: Props) => {
                 )}
                 {todo.label && (
                   <LabelBadge
-                    name={todo.label.name}
-                    color={todo.label.color}
+                    label={todo.label}
                     className="h-5 px-2 py-0 text-xs font-normal"
                   />
                 )}
@@ -136,6 +137,7 @@ export const TodoItem = ({ todo, onToggle, onDelete }: Props) => {
         open={editTodoOpen}
         onOpenChange={setEditTodoOpen}
         todo={todo}
+        labels={labels}
       />
     </>
   );

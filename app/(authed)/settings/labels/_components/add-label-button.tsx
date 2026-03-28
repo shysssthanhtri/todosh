@@ -4,6 +4,7 @@ import { ArrowUp, Plus } from "lucide-react";
 import { useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
 
+import { createLabel } from "@/app/(authed)/_actions/labels.action";
 import { Button } from "@/components/ui/button";
 import {
   Drawer,
@@ -12,18 +13,8 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { LABELS_UPDATED_EVENT } from "@/lib/events";
-import { type LabelItem, putLabels } from "@/lib/indexeddb";
 
 import { LabelForm, type LabelFormRef } from "../_forms/label-form";
-
-interface ApiLabel {
-  id: string;
-  name: string;
-  color?: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
 
 export function AddLabelButton() {
   const [open, setOpen] = useState(false);
@@ -41,57 +32,7 @@ export function AddLabelButton() {
 
     startTransition(async () => {
       try {
-        const res = await fetch("/api/labels", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "same-origin",
-          body: JSON.stringify({ name: trimmedName, color }),
-        });
-
-        if (res.status === 401) {
-          throw new Error("Unauthorized");
-        }
-        if (!res.ok) {
-          let message = `Create label failed: ${res.status}`;
-          try {
-            const data = (await res.json()) as { error?: string };
-            if (typeof data?.error === "string") message = data.error;
-          } catch {
-            // ignore body parse; use default message
-          }
-          throw new Error(message);
-        }
-
-        const listRes = await fetch("/api/labels", {
-          method: "GET",
-          credentials: "same-origin",
-        });
-
-        if (listRes.status === 401) {
-          throw new Error("Unauthorized");
-        }
-        if (!listRes.ok) {
-          let message = `Fetch labels failed: ${listRes.status}`;
-          try {
-            const data = (await listRes.json()) as { error?: string };
-            if (typeof data?.error === "string") message = data.error;
-          } catch {
-            // ignore body parse; use default message
-          }
-          throw new Error(message);
-        }
-
-        const apiLabels = (await listRes.json()) as ApiLabel[];
-        const items: LabelItem[] = apiLabels.map((label) => ({
-          id: label.id,
-          name: label.name,
-          color: label.color ?? null,
-          createdAt: new Date(label.createdAt),
-          updatedAt: new Date(label.updatedAt),
-        }));
-        await putLabels(items);
-        window.dispatchEvent(new CustomEvent(LABELS_UPDATED_EVENT));
-
+        await createLabel({ name: trimmedName, color });
         formRef.current?.reset?.({ name: "", color: undefined });
         setOpen(false);
         toast.success("Label added", { position: "top-center" });

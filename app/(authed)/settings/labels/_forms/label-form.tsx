@@ -25,8 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { LabelItem } from "@/lib/indexeddb-labels";
-import { LabelColorEnum, LabelSchema } from "@/schemas/label";
+import { LabelColorEnum, LabelSchema, LabelSchemaType } from "@/schemas/label";
 
 const FormSchema = LabelSchema.pick({ name: true, color: true });
 type FormType = z.infer<typeof FormSchema>;
@@ -34,7 +33,7 @@ type FormType = z.infer<typeof FormSchema>;
 interface Props {
   onSubmit?: (value: FormType) => void;
   isPending?: boolean;
-  value?: LabelItem;
+  value?: LabelSchemaType;
 }
 
 interface Ref {
